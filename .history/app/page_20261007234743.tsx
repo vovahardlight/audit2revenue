@@ -12,15 +12,11 @@ import {
   Sparkles, 
   Activity, 
   Cpu, 
-  MapPin, 
-  MessageCircle, 
-  FileWarning, 
-  Check, 
-  Loader2, 
-  Terminal, 
-  TrendingUp, 
-  AlertOctagon, 
-  PhoneOff 
+  MapPin,
+  MessageCircle,
+  FileWarning,
+  Check,
+  Loader2
 } from 'lucide-react';
 
 export default function AwwwardsMagicalLanding() {
@@ -29,7 +25,7 @@ export default function AwwwardsMagicalLanding() {
   const [country, setCountry] = useState('ES');
   const [stage, setStage] = useState<'idle' | 'scanning' | 'teaser'>('idle');
   const [scanStep, setScanStep] = useState(0);
-  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [activeHoverNode, setActiveHoverNode] = useState<number | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Мышиный спотлайт
@@ -103,6 +99,45 @@ export default function AwwwardsMagicalLanding() {
     }
   };
 
+  const diagnosticNodes = [
+    {
+      id: 0,
+      title: 'LSSI-CE & AEPD',
+      badge: 'Юридический аудит',
+      desc: 'Поиск NIF/CIF, проверка Aviso Legal и рисков штрафов до €30,000',
+      metric: '92% сайтов с ошибками',
+      color: 'from-rose-500 to-red-600',
+      icon: FileWarning,
+    },
+    {
+      id: 1,
+      title: 'WhatsApp Воронка',
+      badge: 'Слив трафика',
+      desc: 'Детекция разрыва между рекламой Meta/Google и прямым бронированием',
+      metric: 'Потеря ~35% лидов',
+      color: 'from-amber-500 to-orange-600',
+      icon: MessageCircle,
+    },
+    {
+      id: 2,
+      title: 'Google Maps Radar',
+      badge: 'Репутация & Дозвон',
+      desc: 'Анализ отзывов на жалобы о неотвеченных звонках и медленном сервисе',
+      metric: '280+ отзывов в секунду',
+      color: 'from-blue-500 to-indigo-600',
+      icon: MapPin,
+    },
+    {
+      id: 3,
+      title: 'DOM & Скорость',
+      badge: 'Код & Безопасность',
+      desc: 'Поиск Mixed Content (HTTP/HTTPS), битых скриптов и отвала на iOS',
+      metric: 'TTFB < 200ms',
+      color: 'from-emerald-500 to-teal-600',
+      icon: Cpu,
+    },
+  ];
+
   return (
     <div 
       ref={heroRef}
@@ -110,13 +145,14 @@ export default function AwwwardsMagicalLanding() {
       className="relative min-h-screen bg-[#030508] text-slate-100 flex flex-col justify-between overflow-x-hidden selection:bg-rose-500/30 selection:text-rose-200"
     >
       
-      {/* ================= СТИЛИ АНИМАЦИЙ ================= */}
+      {/* ================= СКАЗОЧНЫЕ АНИМАЦИИ ПОЯВЛЕНИЯ ================= */}
       <style jsx global>{`
+        /* Плавная пружина Awwwards */
         :root {
           --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Каскадное появление */
+        /* 1. Каскадное появление с размытием и всплытием */
         @keyframes magical-rise {
           0% {
             opacity: 0;
@@ -130,7 +166,7 @@ export default function AwwwardsMagicalLanding() {
           }
         }
 
-        /* Перламутровый луч по тексту */
+        /* 2. Скользящий перламутровый световой блик по заголовку */
         @keyframes text-light-sweep {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
@@ -150,7 +186,47 @@ export default function AwwwardsMagicalLanding() {
           animation: text-light-sweep 7s ease-in-out infinite;
         }
 
-        /* Задержки появления элементов */
+        /* 3. Оптоволоконные линии: эффект физического «прорастания» луча из ядра */
+        @keyframes draw-laser {
+          0% {
+            stroke-dashoffset: 400;
+            opacity: 0;
+          }
+          30% {
+            opacity: 1;
+          }
+          100% {
+            stroke-dashoffset: 0;
+            opacity: 1;
+          }
+        }
+        .animate-draw-laser {
+          stroke-dasharray: 400;
+          animation: draw-laser 1.2s var(--ease-spring) forwards;
+        }
+
+        /* 4. Запуск квантового процессора CORE 4.0 */
+        @keyframes core-ignition {
+          0% {
+            opacity: 0;
+            transform: scale(0.5);
+            filter: blur(14px) drop-shadow(0 0 0px transparent);
+          }
+          60% {
+            transform: scale(1.12);
+            filter: blur(0px) drop-shadow(0 0 45px rgba(244, 63, 94, 0.7));
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+            filter: blur(0px) drop-shadow(0 0 25px rgba(244, 63, 94, 0.3));
+          }
+        }
+        .animate-core-ignition {
+          animation: core-ignition 1.1s var(--ease-spring) forwards;
+        }
+
+        /* Классы каскадной задержки (Staggered orchestration) */
         .reveal-node {
           opacity: 0;
           animation: magical-rise 1s var(--ease-spring) forwards;
@@ -161,7 +237,10 @@ export default function AwwwardsMagicalLanding() {
         .delay-400 { animation-delay: 500ms; }
         .delay-500 { animation-delay: 650ms; }
         .delay-600 { animation-delay: 800ms; }
-        .delay-800 { animation-delay: 1000ms; }
+        .delay-700 { animation-delay: 950ms; }
+        .delay-800 { animation-delay: 1100ms; }
+        .delay-900 { animation-delay: 1250ms; }
+        .delay-1000 { animation-delay: 1400ms; }
 
         /* Вращение фотонного луча на Command Bar */
         @keyframes border-beam-rotate {
@@ -174,10 +253,10 @@ export default function AwwwardsMagicalLanding() {
         }
         .border-beam {
           position: absolute;
-          width: 170%;
-          height: 400%;
-          top: -150%;
-          left: -35%;
+          width: 160%;
+          height: 380%;
+          top: -140%;
+          left: -30%;
           background: conic-gradient(
             transparent 0deg,
             transparent 280deg,
@@ -187,9 +266,19 @@ export default function AwwwardsMagicalLanding() {
           );
           animation: border-beam-rotate 4s linear infinite;
         }
+
+        /* Бегущие импульсы данных по готовым линиям */
+        @keyframes flow-pulse {
+          0% { stroke-dashoffset: 200; }
+          100% { stroke-dashoffset: 0; }
+        }
+        .pulse-path {
+          stroke-dasharray: 20, 180;
+          animation: flow-pulse 3s linear infinite;
+        }
       `}</style>
 
-      {/* Фоновый интерактивный спотлайт */}
+      {/* ================= ФОНОВЫЕ СВЕТОВЫЕ ТУМАННОСТИ ================= */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-1000"
         style={{
@@ -199,7 +288,7 @@ export default function AwwwardsMagicalLanding() {
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.06)_1px,transparent_0)] bg-[size:32px_32px] opacity-70 z-0" />
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-transparent via-[#030508]/70 to-[#030508] z-0" />
 
-      {/* ================= ШАПКА ================= */}
+      {/* ================= ШАПКА: ПОЯВЛЯЕТСЯ ПЕРВОЙ ================= */}
       <header className="relative z-20 border-b border-white/[0.06] backdrop-blur-xl bg-[#030508]/60 px-6 py-4 reveal-node delay-100">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -231,11 +320,11 @@ export default function AwwwardsMagicalLanding() {
       {/* ================= ОСНОВНОЙ КОНТЕНТ ================= */}
       <main className="relative z-10 flex-1 max-w-6xl mx-auto w-full px-4 py-8 md:py-12 flex flex-col justify-center">
 
-        {/* ===================== ЭКРАН 1: ГЛАВНЫЙ ЭКРАН ===================== */}
+        {/* ===================== ЭКРАН 1: СКАЗКА ПОЯВЛЕНИЯ HERO ===================== */}
         {stage === 'idle' && (
-          <div className="space-y-12 text-center">
+          <div className="space-y-10 text-center">
             
-            {/* 1. Живой тикер */}
+            {/* 1. Живой тикер (200ms) */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-xl text-xs text-slate-300 shadow-inner reveal-node delay-200 hover:border-white/20 transition">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-slate-400">Только что проверен:</span>
@@ -243,7 +332,7 @@ export default function AwwwardsMagicalLanding() {
               <span className="text-rose-400 font-mono text-[11px]">— найдено €2,100 утечки</span>
             </div>
 
-            {/* 2. Заголовок H1 */}
+            {/* 2. Заголовок H1 со скользящим перламутровым светом (350ms) */}
             <div className="space-y-4 max-w-3xl mx-auto">
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.12] reveal-node delay-300">
                 <span className="shimmer-text block">Анатомия скрытых утечек:</span>
@@ -256,59 +345,22 @@ export default function AwwwardsMagicalLanding() {
               </p>
             </div>
 
-            {/* 3. COMMAND BAR: АНИМИРОВАННОЕ СИЯНИЕ И ЗАГОРАЮЩАЯСЯ ПЛАНЕТА */}
-            <form onSubmit={handleStartScan} className="max-w-2xl mx-auto w-full reveal-node delay-500 relative">
-              
-              {/* Внешнее глубокое неоновое сияние (разгорается при фокусе) */}
-              <div 
-                className={`absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-rose-500 via-amber-400 to-rose-600 blur-xl transition-all duration-700 pointer-events-none ${
-                  isInputFocused 
-                    ? 'opacity-80 scale-[1.03] shadow-[0_0_80px_rgba(244,63,94,0.45)]' 
-                    : 'opacity-0 scale-95'
-                }`} 
-              />
-
-              {/* Контейнер поля с фотонным лучом */}
-              <div className="border-beam-container p-[1px] rounded-2xl relative z-10 transition-shadow duration-500">
-                <div className={`border-beam transition-opacity duration-500 ${isInputFocused ? 'opacity-100' : 'opacity-60'}`} />
-                
-                <div className={`relative flex flex-col sm:flex-row items-center gap-2 p-2 rounded-2xl bg-[#06080D] border backdrop-blur-2xl transition-colors duration-500 ${
-                  isInputFocused ? 'border-rose-500/60 shadow-[inset_0_0_20px_rgba(244,63,94,0.15)]' : 'border-white/10'
-                }`}>
+            {/* 3. Command Bar: зажигание луча по контуру (500ms) */}
+            <form onSubmit={handleStartScan} className="max-w-2xl mx-auto w-full reveal-node delay-500">
+              <div className="border-beam-container p-[1px] rounded-2xl shadow-[0_0_50px_rgba(244,63,94,0.18)] transition-all">
+                <div className="border-beam" />
+                <div className="relative flex flex-col sm:flex-row items-center gap-2 p-2 rounded-2xl bg-[#070A10] border border-white/10 backdrop-blur-2xl">
                   
-                  {/* Область планеты и ввода URL */}
                   <div className="flex-1 w-full flex items-center gap-3 px-3">
-                    
-                    {/* ЗАГОРАЮЩАЯСЯ ПЛАНЕТА */}
-                    <div className="relative flex items-center justify-center shrink-0">
-                      {/* Неоновый ореол позади планеты */}
-                      <div 
-                        className={`absolute inset-0 rounded-full bg-rose-500/50 blur-md transition-all duration-500 ${
-                          isInputFocused ? 'scale-150 opacity-100 animate-pulse' : 'scale-50 opacity-0'
-                        }`} 
-                      />
-                      
-                      {/* Сама планета */}
-                      <Globe 
-                        className={`relative z-10 w-5 h-5 transition-all duration-500 ${
-                          isInputFocused 
-                            ? 'text-rose-400 drop-shadow-[0_0_12px_rgba(244,63,94,0.95)] scale-110 rotate-12' 
-                            : 'text-slate-500'
-                        }`} 
-                      />
-                    </div>
-
+                    <Globe className="w-5 h-5 text-slate-500" />
                     <input
                       type="text"
                       required
                       placeholder="https://vash-salon-ili-klinika.es"
                       value={url}
-                      onFocus={() => setIsInputFocused(true)}
-                      onBlur={() => setIsInputFocused(false)}
                       onChange={(e) => setUrl(e.target.value)}
                       className="w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none font-medium"
                     />
-
                     {url.length > 5 && (
                       <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                         DETECTED
@@ -316,7 +368,6 @@ export default function AwwwardsMagicalLanding() {
                     )}
                   </div>
 
-                  {/* Страна и кнопка запуска */}
                   <div className="flex items-center gap-2 w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-white/10 pt-2 sm:pt-0 sm:pl-3">
                     <select
                       value={country}
@@ -344,172 +395,86 @@ export default function AwwwardsMagicalLanding() {
               <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-slate-500 font-mono">
                 <span>🔒 Изолированный sandbox Puppeteer</span>
                 <span>•</span>
-                <span>⚡ Без установки скриптов</span>
+                <span>⚡ Без установки кодов и скриптов</span>
                 <span>•</span>
                 <span>🇪🇸 Стандарт AEPD 2026</span>
               </div>
             </form>
 
-            {/* ================= 4. НОВЫЙ ЭЛИТНЫЙ BENTO-ПУЛЬТ ТЕЛЕМЕТРИИ ================= */}
-            {/* Полная замена старого блока с Core 4.0 и линиями */}
-            <div className="pt-8 max-w-5xl mx-auto reveal-node delay-600">
-              
-              {/* Заголовок пульта в стиле Linear / Stripe Radar */}
-              <div className="flex items-center justify-between pb-3 px-1 border-b border-white/5 text-xs font-mono text-slate-400">
-                <span className="flex items-center gap-2">
-                  <Activity className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
-                  <span>ДИАГНОСТИЧЕСКАЯ МАТРИЦА // 4 ВЕКТОРА АУДИТА</span>
-                </span>
-                <span className="text-[11px] text-slate-500 hidden sm:inline">
-                  STANDBY // ГОТОВ К ИНСПЕКЦИИ САЙТА
-                </span>
-              </div>
-
-              {/* 4 Карточки Bento Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 text-left">
+            {/* 4. КУЛЬМИНАЦИЯ: КВАНТОВЫЙ ЗАПУСК НЕЙРОСЕТИ И РАСКРЫТИЕ ЛАЗЕРОВ (650ms - 1200ms) */}
+            <div className="pt-4 max-w-4xl mx-auto reveal-node delay-600">
+              <div className="relative p-6 sm:p-8 rounded-3xl bg-white/[0.015] border border-white/10 backdrop-blur-2xl overflow-hidden shadow-2xl">
                 
-                {/* 1. ЮРИДИЧЕСКИЙ LSSI-CE & AEPD СКАНЕР */}
-                <div className="p-4 rounded-2xl bg-[#070A10]/90 border border-white/10 hover:border-rose-500/40 transition-all duration-300 group relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono text-rose-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                      <FileWarning className="w-3.5 h-3.5" /> Закон LSSI-CE
-                    </span>
-                    <span className="text-[9px] font-mono bg-rose-500/10 text-rose-300 border border-rose-500/20 px-1.5 py-0.5 rounded">
-                      Art. 10 Ley 34/2002
-                    </span>
-                  </div>
+                {/* SVG Оптоволоконные световые линии: физически прорастают из центра в стороны */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none hidden md:block" xmlns="http://www.w3.org/2000/svg">
+                  {/* Базовые статичные контуры */}
+                  <line x1="50%" y1="50%" x2="25%" y2="28%" stroke="rgba(244, 63, 94, 0.15)" strokeWidth="1" />
+                  <line x1="50%" y1="50%" x2="75%" y2="28%" stroke="rgba(251, 191, 36, 0.15)" strokeWidth="1" />
+                  <line x1="50%" y1="50%" x2="25%" y2="72%" stroke="rgba(96, 165, 250, 0.15)" strokeWidth="1" />
+                  <line x1="50%" y1="50%" x2="75%" y2="72%" stroke="rgba(52, 211, 153, 0.15)" strokeWidth="1" />
 
-                  <h3 className="text-sm font-bold text-white tracking-tight">Риск штрафов AEPD</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-snug">
-                    Проверка NIF/CIF, юридического адреса и согласий Cookie.
-                  </p>
+                  {/* Эффект прорастания лазерного луча при открытии страницы (Stroke Draw) */}
+                  <line x1="50%" y1="50%" x2="25%" y2="28%" stroke="#f43f5e" strokeWidth="2" className="animate-draw-laser" style={{ animationDelay: '800ms' }} />
+                  <line x1="50%" y1="50%" x2="75%" y2="28%" stroke="#fbbf24" strokeWidth="2" className="animate-draw-laser" style={{ animationDelay: '900ms' }} />
+                  <line x1="50%" y1="50%" x2="25%" y2="72%" stroke="#60a5fa" strokeWidth="2" className="animate-draw-laser" style={{ animationDelay: '1000ms' }} />
+                  <line x1="50%" y1="50%" x2="75%" y2="72%" stroke="#34d399" strokeWidth="2" className="animate-draw-laser" style={{ animationDelay: '1100ms' }} />
 
-                  {/* Терминальный лог внутри карточки */}
-                  <div className="mt-3 p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[11px] space-y-1">
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>SSL Handshake:</span>
-                      <span className="text-emerald-400">✓ TLS 1.3</span>
-                    </div>
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>NIF/CIF в футере:</span>
-                      <span className="text-rose-400 font-bold">НЕТ ⚠️</span>
-                    </div>
-                  </div>
+                  {/* Непрерывные пульсы данных после завершения прорастания */}
+                  <line x1="50%" y1="50%" x2="25%" y2="28%" stroke="#f43f5e" strokeWidth="2" className="pulse-path" />
+                  <line x1="50%" y1="50%" x2="75%" y2="28%" stroke="#fbbf24" strokeWidth="2" className="pulse-path" />
+                  <line x1="50%" y1="50%" x2="25%" y2="72%" stroke="#60a5fa" strokeWidth="2" className="pulse-path" />
+                  <line x1="50%" y1="50%" x2="75%" y2="72%" stroke="#34d399" strokeWidth="2" className="pulse-path" />
+                </svg>
 
-                  <div className="mt-3 text-[11px] text-slate-500 flex justify-between items-center">
-                    <span>Штраф регулятора:</span>
-                    <span className="text-rose-400 font-bold font-mono">До €30,000</span>
-                  </div>
+                {/* Центральный чип CORE 4.0 с квантовой вспышкой */}
+                <div className="relative z-10 w-20 h-20 mx-auto mb-8 rounded-2xl bg-gradient-to-tr from-rose-500/25 via-[#070A10] to-amber-500/25 border border-white/20 flex flex-col items-center justify-center animate-core-ignition" style={{ animationDelay: '700ms' }}>
+                  <Activity className="w-7 h-7 text-rose-400 animate-pulse" />
+                  <span className="text-[9px] font-mono font-bold tracking-widest text-slate-300 mt-1">CORE 4.0</span>
                 </div>
 
-                {/* 2. META ADS & WHATSAPP ВОРОНКА */}
-                <div className="p-4 rounded-2xl bg-[#070A10]/90 border border-white/10 hover:border-amber-500/40 transition-all duration-300 group relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                      <MessageCircle className="w-3.5 h-3.5" /> Слив Трафика
-                    </span>
-                    <span className="text-[9px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/20 px-1.5 py-0.5 rounded">
-                      Meta Pixel
-                    </span>
-                  </div>
+                {/* 4 Спутниковых сенсора: раскрываются веером один за другим */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-left relative z-10">
+                  {diagnosticNodes.map((node, index) => {
+                    const Icon = node.icon;
+                    const isHovered = activeHoverNode === node.id;
+                    // Рассчитываем поочередную задержку для каждого спутника
+                    const nodeDelays = ['delay-700', 'delay-800', 'delay-900', 'delay-1000'];
+                    
+                    return (
+                      <div
+                        key={node.id}
+                        onMouseEnter={() => setActiveHoverNode(node.id)}
+                        onMouseLeave={() => setActiveHoverNode(null)}
+                        className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer reveal-node ${nodeDelays[index]} ${
+                          isHovered 
+                            ? 'bg-white/[0.07] border-rose-500/60 shadow-xl shadow-rose-950/40 scale-[1.03]' 
+                            : 'bg-black/40 border-white/5 hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className={`p-2 rounded-xl bg-gradient-to-br ${node.color} text-white shadow-md`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-500">{node.badge}</span>
+                        </div>
 
-                  <h3 className="text-sm font-bold text-white tracking-tight">Отсутствие WhatsApp</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-snug">
-                    78% испанцев уходят, если на сайте нет быстрой связи в мессенджере.
-                  </p>
+                        <h4 className="text-sm font-bold text-white tracking-tight">{node.title}</h4>
+                        <p className="text-xs text-slate-400 mt-1 leading-snug line-clamp-2">{node.desc}</p>
 
-                  {/* Сплит-тест конверсии */}
-                  <div className="mt-3 p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[11px] space-y-1">
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>Форма на сайте:</span>
-                      <span className="text-slate-500">~2.4% conv</span>
-                    </div>
-                    <div className="flex items-center justify-between text-amber-300 font-bold">
-                      <span>Прямой WhatsApp:</span>
-                      <span className="text-emerald-400">~8.9% conv</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 text-[11px] text-slate-500 flex justify-between items-center">
-                    <span>Утечка бюджета:</span>
-                    <span className="text-amber-400 font-bold font-mono">~35-40% лидов</span>
-                  </div>
-                </div>
-
-                {/* 3. GOOGLE MAPS SENTIMENT РАДАР */}
-                <div className="p-4 rounded-2xl bg-[#070A10]/90 border border-white/10 hover:border-blue-500/40 transition-all duration-300 group relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono text-blue-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5" /> Репутация Maps
-                    </span>
-                    <span className="text-[9px] font-mono bg-blue-500/10 text-blue-300 border border-blue-500/20 px-1.5 py-0.5 rounded">
-                      Places API
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm font-bold text-white tracking-tight">Жалобы на недозвон</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-snug">
-                    Скрытые причины, почему клиенты не доходят до бронирования.
-                  </p>
-
-                  {/* Блок цитаты */}
-                  <div className="mt-3 p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[11px] space-y-1">
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>Рейтинг Google:</span>
-                      <span className="text-amber-400">4.8 ★ (280+)</span>
-                    </div>
-                    <div className="flex items-center justify-between text-rose-300">
-                      <span className="flex items-center gap-1"><PhoneOff className="w-3 h-3" /> «Не ответили»:</span>
-                      <span className="font-bold">7 жалоб</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 text-[11px] text-slate-500 flex justify-between items-center">
-                    <span>Узкое горлышко:</span>
-                    <span className="text-rose-400 font-bold font-mono">Потеря звонков</span>
-                  </div>
-                </div>
-
-                {/* 4. DOM & КОД ВАЛИДАТОР */}
-                <div className="p-4 rounded-2xl bg-[#070A10]/90 border border-white/10 hover:border-emerald-500/40 transition-all duration-300 group relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                      <Cpu className="w-3.5 h-3.5" /> Код & Скорость
-                    </span>
-                    <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-1.5 py-0.5 rounded">
-                      Core Web Vitals
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm font-bold text-white tracking-tight">Mixed Content & JS</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-snug">
-                    Поиск блокирующих скриптов и ошибок верстки на смартфонах iOS.
-                  </p>
-
-                  {/* Лог скорости */}
-                  <div className="mt-3 p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[11px] space-y-1">
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>Сервер TTFB:</span>
-                      <span className="text-emerald-400">142ms</span>
-                    </div>
-                    <div className="flex items-center justify-between text-slate-400">
-                      <span>Смешанный HTTP:</span>
-                      <span className="text-rose-400 font-bold">Отказ ~22%</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 text-[11px] text-slate-500 flex justify-between items-center">
-                    <span>Инспекция:</span>
-                    <span className="text-emerald-400 font-bold font-mono">Retina 390px</span>
-                  </div>
+                        <div className="mt-3 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono">
+                          <span className="text-slate-500">Метрика:</span>
+                          <span className="text-rose-400 font-semibold">{node.metric}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
               </div>
-
             </div>
 
-            {/* 5. Trust Badges */}
-            <div className="pt-4 border-t border-white/5 flex flex-wrap items-center justify-center gap-8 text-slate-500 text-xs font-mono grayscale opacity-70 reveal-node delay-800">
+            {/* 5. Trust Badges: мягко проявляются в самом конце (1400ms) */}
+            <div className="pt-4 border-t border-white/5 flex flex-wrap items-center justify-center gap-8 text-slate-500 text-xs font-mono grayscale opacity-70 reveal-node delay-1000">
               <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> Puppeteer v22</span>
               <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> Google Places Verified</span>
               <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> OpenAI GPT-4o Intelligence</span>
@@ -728,7 +693,7 @@ export default function AwwwardsMagicalLanding() {
       </main>
 
       {/* ================= ФУТЕР ================= */}
-      <footer className="relative z-10 border-t border-white/5 py-6 px-6 text-center text-xs text-slate-600 font-mono reveal-node delay-800">
+      <footer className="relative z-10 border-t border-white/5 py-6 px-6 text-center text-xs text-slate-600 font-mono reveal-node delay-1000">
         <p>© 2026 Audit2Revenue.es — Autonomous Telemetry & Site Intelligence Engine.</p>
       </footer>
 
