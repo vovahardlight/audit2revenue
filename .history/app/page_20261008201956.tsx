@@ -373,11 +373,11 @@ export default function AppleNordicGlacierPureLanding() {
 
       currentX +=
         (targetX - currentX) *
-        0.9;
+        0.075;
 
       currentY +=
         (targetY - currentY) *
-        0.9;
+        0.075;
 
       /*
        * Максимальный наклон:
@@ -390,10 +390,10 @@ export default function AppleNordicGlacierPureLanding() {
        */
 
       const rotateY =
-        currentX * 40;
+        currentX * 28;
 
       const rotateX =
-        -currentY * 30;
+        -currentY * 22;
 
       /*
        * Свет следует за той же точкой,
@@ -1353,36 +1353,36 @@ export default function AppleNordicGlacierPureLanding() {
            STATUS DOTS
         ================================================ */
 
-        @keyframes dot-pulse {
-          0%,
-          100% {
-            opacity:
-              0.55;
+        // @keyframes dot-pulse {
+        //   0%,
+        //   100% {
+        //     opacity:
+        //       0.55;
 
-            transform:
-              scale(
-                0.9
-              );
-          }
+        //     transform:
+        //       scale(
+        //         0.9
+        //       );
+        //   }
 
-          50% {
-            opacity:
-              1;
+        //   50% {
+        //     opacity:
+        //       1;
 
-            transform:
-              scale(
-                1.12
-              );
-          }
-        }
+        //     transform:
+        //       scale(
+        //         1.12
+        //       );
+        //   }
+        // }
 
-        .dot-pulse {
-          animation:
-            dot-pulse
-            2.2s
-            ease-in-out
-            infinite;
-        }
+        // .dot-pulse {
+        //   animation:
+        //     dot-pulse
+        //     2.2s
+        //     ease-in-out
+        //     infinite;
+        // }
 
         /* ================================================
            CTA SHIMMER
@@ -1646,7 +1646,23 @@ export default function AppleNordicGlacierPureLanding() {
 
                   {/* Decorative particles */}
 
-                
+                  <div className="absolute -top-2 left-[13%] w-1.5 h-1.5 rounded-full bg-[#0284C7] dot-pulse pointer-events-none" />
+
+                  <div
+                    className="absolute -right-1 top-[24%] w-1.5 h-1.5 rounded-full bg-[#7DD3FC] dot-pulse pointer-events-none"
+                    style={{
+                      animationDelay:
+                        '0.7s',
+                    }}
+                  />
+
+                  <div
+                    className="absolute -left-1 bottom-[18%] w-1 h-1 rounded-full bg-[#0284C7] dot-pulse pointer-events-none"
+                    style={{
+                      animationDelay:
+                        '1.2s',
+                    }}
+                  />
 
                   {/* =================================================
                       CARD SHELL

@@ -373,11 +373,11 @@ export default function AppleNordicGlacierPureLanding() {
 
       currentX +=
         (targetX - currentX) *
-        0.9;
+        0.075;
 
       currentY +=
         (targetY - currentY) *
-        0.9;
+        0.075;
 
       /*
        * Максимальный наклон:
@@ -390,10 +390,10 @@ export default function AppleNordicGlacierPureLanding() {
        */
 
       const rotateY =
-        currentX * 40;
+        currentX * 28;
 
       const rotateX =
-        -currentY * 30;
+        -currentY * 22;
 
       /*
        * Свет следует за той же точкой,

@@ -373,11 +373,11 @@ export default function AppleNordicGlacierPureLanding() {
 
       currentX +=
         (targetX - currentX) *
-        0.9;
+        0.075;
 
       currentY +=
         (targetY - currentY) *
-        0.9;
+        0.075;
 
       /*
        * Максимальный наклон:
@@ -390,10 +390,10 @@ export default function AppleNordicGlacierPureLanding() {
        */
 
       const rotateY =
-        currentX * 40;
+        currentX * 28;
 
       const rotateX =
-        -currentY * 30;
+        -currentY * 22;
 
       /*
        * Свет следует за той же точкой,
@@ -1243,61 +1243,61 @@ export default function AppleNordicGlacierPureLanding() {
          * Дополнительный мягкий moving-light слой.
          */
 
-        // .audit-card-light {
-        //   position:
-        //     absolute;
+        .audit-card-light {
+          position:
+            absolute;
 
-        //   width:
-        //     230px;
+          width:
+            230px;
 
-        //   height:
-        //     230px;
+          height:
+            230px;
 
-        //   left:
-        //     var(--light-x);
+          left:
+            var(--light-x);
 
-        //   top:
-        //     var(--light-y);
+          top:
+            var(--light-y);
 
-        //   transform:
-        //     translate(
-        //       -50%,
-        //       -50%
-        //     );
+          transform:
+            translate(
+              -50%,
+              -50%
+            );
 
-        //   background:
-        //     radial-gradient(
-        //       circle,
+          background:
+            radial-gradient(
+              circle,
 
-        //       rgba(
-        //         125,
-        //         211,
-        //         252,
-        //         0.20
-        //       )
-        //       0%,
+              rgba(
+                125,
+                211,
+                252,
+                0.20
+              )
+              0%,
 
-        //       rgba(
-        //         2,
-        //         132,
-        //         199,
-        //         0.08
-        //       )
-        //       25%,
+              rgba(
+                2,
+                132,
+                199,
+                0.08
+              )
+              25%,
 
-        //       transparent
-        //       70%
-        //     );
+              transparent
+              70%
+            );
 
-        //   opacity:
-        //     var(--glow-opacity);
+          opacity:
+            var(--glow-opacity);
 
-        //   pointer-events:
-        //     none;
+          pointer-events:
+            none;
 
-        //   z-index:
-        //     15;
-        // }
+          z-index:
+            15;
+        }
 
         .audit-card-shadow {
           position:
@@ -1646,7 +1646,23 @@ export default function AppleNordicGlacierPureLanding() {
 
                   {/* Decorative particles */}
 
-                
+                  <div className="absolute -top-2 left-[13%] w-1.5 h-1.5 rounded-full bg-[#0284C7] dot-pulse pointer-events-none" />
+
+                  <div
+                    className="absolute -right-1 top-[24%] w-1.5 h-1.5 rounded-full bg-[#7DD3FC] dot-pulse pointer-events-none"
+                    style={{
+                      animationDelay:
+                        '0.7s',
+                    }}
+                  />
+
+                  <div
+                    className="absolute -left-1 bottom-[18%] w-1 h-1 rounded-full bg-[#0284C7] dot-pulse pointer-events-none"
+                    style={{
+                      animationDelay:
+                        '1.2s',
+                    }}
+                  />
 
                   {/* =================================================
                       CARD SHELL

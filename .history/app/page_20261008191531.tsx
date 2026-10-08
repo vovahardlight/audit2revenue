@@ -315,161 +315,108 @@ export default function AppleNordicGlacierPureLanding() {
   }, []);
 
   // =========================================================
-  // 3D CARD — FULL VIEWPORT CURSOR TRACKING
+  // 3D CARD MOUSE INTERACTION
   // =========================================================
 
-  useEffect(() => {
-    const card =
-      auditCardRef.current;
-
-    if (!card) {
+  const handleCardPointerMove = (
+    e: React.PointerEvent<HTMLDivElement>
+  ) => {
+    // Не вмешиваемся в touch-жесты на телефоне
+    if (e.pointerType !== 'mouse') {
       return;
     }
 
-    let targetX = 0;
-    let targetY = 0;
+    const card =
+      auditCardRef.current;
 
-    let currentX = 0;
-    let currentY = 0;
+    if (!card) return;
 
-    let animationFrame = 0;
+    const rect =
+      card.getBoundingClientRect();
 
-    const handlePointerMove = (
-      e: PointerEvent
-    ) => {
-      if (e.pointerType !== 'mouse') {
-        return;
-      }
+    const x =
+      (e.clientX - rect.left) /
+      rect.width;
 
-      /*
-       * ВАЖНО:
-       * координаты считаются относительно ВСЕГО экрана.
-       * Поэтому карточка реагирует на мышь даже тогда,
-       * когда курсор находится далеко от самой карточки.
-       */
+    const y =
+      (e.clientY - rect.top) /
+      rect.height;
 
-      targetX =
-        e.clientX /
-          window.innerWidth -
-        0.5;
+    const centeredX =
+      x - 0.5;
 
-      targetY =
-        e.clientY /
-          window.innerHeight -
-        0.5;
-    };
+    const centeredY =
+      y - 0.5;
 
-    const handlePointerLeave = () => {
-      targetX = 0;
-      targetY = 0;
-    };
+    const rotateY =
+      centeredX * 12;
 
-    const animate = () => {
-      /*
-       * Плавное следование.
-       * Чем меньше число, тем более "тяжёлой"
-       * ощущается карточка.
-       */
+    const rotateX =
+      -centeredY * 10;
 
-      currentX +=
-        (targetX - currentX) *
-        0.9;
+    const lightX =
+      x * 100;
 
-      currentY +=
-        (targetY - currentY) *
-        0.9;
+    const lightY =
+      y * 100;
 
-      /*
-       * Максимальный наклон:
-       *
-       * currentX = -0.5 ... +0.5
-       * currentY = -0.5 ... +0.5
-       *
-       * 28 → примерно ±14°
-       * 22 → примерно ±11°
-       */
-
-      const rotateY =
-        currentX * 40;
-
-      const rotateX =
-        -currentY * 30;
-
-      /*
-       * Свет следует за той же точкой,
-       * где сейчас курсор на viewport.
-       */
-
-      const lightX =
-        (currentX + 0.5) *
-        100;
-
-      const lightY =
-        (currentY + 0.5) *
-        100;
-
-      card.style.setProperty(
-        '--rotate-x',
-        `${rotateX}deg`
-      );
-
-      card.style.setProperty(
-        '--rotate-y',
-        `${rotateY}deg`
-      );
-
-      card.style.setProperty(
-        '--light-x',
-        `${lightX}%`
-      );
-
-      card.style.setProperty(
-        '--light-y',
-        `${lightY}%`
-      );
-
-      card.style.setProperty(
-        '--glow-opacity',
-        '1'
-      );
-
-      animationFrame =
-        requestAnimationFrame(
-          animate
-        );
-    };
-
-    window.addEventListener(
-      'pointermove',
-      handlePointerMove,
-      {
-        passive: true,
-      }
+    card.style.setProperty(
+      '--rotate-x',
+      `${rotateX}deg`
     );
 
-    window.addEventListener(
-      'pointerleave',
-      handlePointerLeave
+    card.style.setProperty(
+      '--rotate-y',
+      `${rotateY}deg`
     );
 
-    animate();
+    card.style.setProperty(
+      '--light-x',
+      `${lightX}%`
+    );
 
-    return () => {
-      window.removeEventListener(
-        'pointermove',
-        handlePointerMove
-      );
+    card.style.setProperty(
+      '--light-y',
+      `${lightY}%`
+    );
 
-      window.removeEventListener(
-        'pointerleave',
-        handlePointerLeave
-      );
+    card.style.setProperty(
+      '--glow-opacity',
+      '1'
+    );
+  };
 
-      cancelAnimationFrame(
-        animationFrame
-      );
-    };
-  }, []);
+  const handleCardPointerLeave = () => {
+    const card =
+      auditCardRef.current;
+
+    if (!card) return;
+
+    card.style.setProperty(
+      '--rotate-x',
+      '0deg'
+    );
+
+    card.style.setProperty(
+      '--rotate-y',
+      '0deg'
+    );
+
+    card.style.setProperty(
+      '--light-x',
+      '50%'
+    );
+
+    card.style.setProperty(
+      '--light-y',
+      '50%'
+    );
+
+    card.style.setProperty(
+      '--glow-opacity',
+      '0'
+    );
+  };
 
   // =========================================================
   // SCANNING
@@ -554,25 +501,6 @@ export default function AppleNordicGlacierPureLanding() {
   }, [stage]);
 
   // =========================================================
-  // COOKIE CHOICE
-  // =========================================================
-
-  const handleCookieChoice = (
-    choice:
-      | 'all'
-      | 'necessary'
-  ) => {
-    localStorage.setItem(
-      'a2r_cookie_consent',
-      choice
-    );
-
-    setShowCookieModal(
-      false
-    );
-  };
-
-  // =========================================================
   // COOKIE MODAL
   // =========================================================
 
@@ -629,7 +557,7 @@ export default function AppleNordicGlacierPureLanding() {
       handleEscape
     );
 
-    const previousOverflow =
+    const originalOverflow =
       document.body.style.overflow;
 
     document.body.style.overflow =
@@ -642,9 +570,24 @@ export default function AppleNordicGlacierPureLanding() {
       );
 
       document.body.style.overflow =
-        previousOverflow;
+        originalOverflow;
     };
   }, [showCookieModal]);
+
+  const handleCookieChoice = (
+    choice:
+      | 'all'
+      | 'necessary'
+  ) => {
+    localStorage.setItem(
+      'a2r_cookie_consent',
+      choice
+    );
+
+    setShowCookieModal(
+      false
+    );
+  };
 
   // =========================================================
   // STRIPE
@@ -804,14 +747,12 @@ export default function AppleNordicGlacierPureLanding() {
         @keyframes header-drop {
           0% {
             opacity: 0;
-            transform:
-              translateY(-24px);
+            transform: translateY(-24px);
           }
 
           100% {
             opacity: 1;
-            transform:
-              translateY(0);
+            transform: translateY(0);
           }
         }
 
@@ -823,62 +764,13 @@ export default function AppleNordicGlacierPureLanding() {
             forwards;
         }
 
-        /* ================================================
-           CARD ENTRANCE
-        ================================================ */
-
-        @keyframes card-reveal {
-          0% {
-            opacity: 0;
-            transform:
-              translateY(34px)
-              scale(0.94)
-              rotateX(8deg);
-            filter:
-              blur(10px);
-          }
-
-          60% {
-            opacity: 1;
-            transform:
-              translateY(-3px)
-              scale(1.012)
-              rotateX(-1deg);
-            filter:
-              blur(0);
-          }
-
-          100% {
-            opacity: 1;
-            transform:
-              translateY(0)
-              scale(1)
-              rotateX(0);
-            filter:
-              blur(0);
-          }
-        }
-
-        .anim-card {
-          animation:
-            card-reveal
-            1s
-            cubic-bezier(0.16, 1, 0.3, 1)
-            forwards;
-        }
-
-        /* ================================================
-           H1
-        ================================================ */
-
         @keyframes text-line-unmask {
           0% {
             transform:
               translateY(125%)
               rotateX(-16deg);
             opacity: 0;
-            filter:
-              blur(6px);
+            filter: blur(6px);
           }
 
           100% {
@@ -886,8 +778,7 @@ export default function AppleNordicGlacierPureLanding() {
               translateY(0)
               rotateX(0);
             opacity: 1;
-            filter:
-              blur(0);
+            filter: blur(0);
           }
         }
 
@@ -900,26 +791,20 @@ export default function AppleNordicGlacierPureLanding() {
             forwards;
         }
 
-        /* ================================================
-           INPUT
-        ================================================ */
-
         @keyframes bar-ignition {
           0% {
             opacity: 0;
             transform:
               translateY(28px)
               scale(0.94);
-            filter:
-              blur(10px);
+            filter: blur(10px);
           }
 
           65% {
             transform:
               translateY(-2px)
               scale(1.01);
-            filter:
-              blur(0);
+            filter: blur(0);
           }
 
           100% {
@@ -927,8 +812,7 @@ export default function AppleNordicGlacierPureLanding() {
             transform:
               translateY(0)
               scale(1);
-            filter:
-              blur(0);
+            filter: blur(0);
           }
         }
 
@@ -940,21 +824,15 @@ export default function AppleNordicGlacierPureLanding() {
             forwards;
         }
 
-        /* ================================================
-           FOOTER
-        ================================================ */
-
         @keyframes footer-fade {
           0% {
             opacity: 0;
-            transform:
-              translateY(12px);
+            transform: translateY(12px);
           }
 
           100% {
             opacity: 1;
-            transform:
-              translateY(0);
+            transform: translateY(0);
           }
         }
 
@@ -966,82 +844,33 @@ export default function AppleNordicGlacierPureLanding() {
             forwards;
         }
 
-        /* ================================================
-           GENERIC FADE
-        ================================================ */
-
-        @keyframes simple-fade {
-          0% {
-            opacity: 0;
-            transform:
-              translateY(8px);
-          }
-
-          100% {
-            opacity: 1;
-            transform:
-              translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation:
-            simple-fade
-            0.5s
-            ease-out
-            forwards;
-        }
-
-        /* ================================================
-           3D CARD
-        ================================================ */
+        /* =====================================================
+           3D AUDIT CARD
+        ====================================================== */
 
         .audit-card-perspective {
-          perspective:
-            1200px;
-
-          perspective-origin:
-            50% 50%;
+          perspective: 1200px;
+          perspective-origin: 50% 50%;
         }
 
         .audit-card-3d {
           --rotate-x: 0deg;
           --rotate-y: 0deg;
-
           --light-x: 50%;
           --light-y: 50%;
-
           --glow-opacity: 0;
 
           transform:
-            rotateX(
-              var(--rotate-x)
-            )
-            rotateY(
-              var(--rotate-y)
-            );
+            rotateX(var(--rotate-x))
+            rotateY(var(--rotate-y));
 
-          transform-style:
-            preserve-3d;
-
-          transform-origin:
-            center center;
-
-          will-change:
-            transform;
+          transform-style: preserve-3d;
+          will-change: transform;
 
           transition:
             transform
-            120ms
-            linear;
-        }
-
-        .audit-card-shell {
-          position:
-            relative;
-
-          transform-style:
-            preserve-3d;
+            420ms
+            cubic-bezier(0.16, 1, 0.3, 1);
 
           animation:
             card-float
@@ -1050,329 +879,105 @@ export default function AppleNordicGlacierPureLanding() {
             infinite;
         }
 
-        /*
-         * Динамический светящийся край.
-         * Световая точка находится в том же направлении,
-         * где находится курсор относительно всего viewport.
-         */
-
-        .audit-card-shell::before {
-          content:
-            '';
-
-          position:
-            absolute;
-
-          inset:
-            0;
-
-          border-radius:
-            inherit;
-
-          padding:
-            2px;
-
-          background:
-            radial-gradient(
-              260px 200px
-              at
-              var(--light-x)
-              var(--light-y),
-
-              rgba(
-                125,
-                211,
-                252,
-                1
-              )
-              0%,
-
-              rgba(
-                2,
-                132,
-                199,
-                0.8
-              )
-              17%,
-
-              rgba(
-                2,
-                132,
-                199,
-                0.28
-              )
-              38%,
-
-              rgba(
-                2,
-                132,
-                199,
-                0.06
-              )
-              55%,
-
-              transparent
-              76%
-            );
-
-          -webkit-mask:
-            linear-gradient(
-              #000 0 0
-            )
-            content-box,
-
-            linear-gradient(
-              #000 0 0
-            );
-
-          -webkit-mask-composite:
-            xor;
-
-          mask:
-            linear-gradient(
-              #000 0 0
-            )
-            content-box,
-
-            linear-gradient(
-              #000 0 0
-            );
-
-          mask-composite:
-            exclude;
-
-          opacity:
-            var(--glow-opacity);
-
-          pointer-events:
-            none;
-
-          z-index:
-            50;
-
-          filter:
-            blur(0.2px);
-        }
-
-        /*
-         * Мягкая внутренняя засветка.
-         */
-
-        // .audit-card-shell::after 
-        // {
-        //   content:
-        //     '';
-
-        //   position:
-        //     absolute;
-
-        //   inset:
-        //     0;
-
-        //   border-radius:
-        //     inherit;
-
-        //   background:
-        //     radial-gradient(
-        //       300px 220px
-        //       at
-        //       var(--light-x)
-        //       var(--light-y),
-
-        //       rgba(
-        //         255,
-        //         255,
-        //         255,
-        //         0.58
-        //       )
-        //       0%,
-
-        //       rgba(
-        //         125,
-        //         211,
-        //         252,
-        //         0.11
-        //       )
-        //       24%,
-
-        //       transparent
-        //       68%
-        //     );
-
-        //   opacity:
-        //     var(--glow-opacity);
-
-        //   pointer-events:
-        //     none;
-
-        //   z-index:
-        //     20;
-
-        //   mix-blend-mode:
-        //     soft-light;
-        // }
-
-        .audit-card-content {
-          position:
-            relative;
-
-          z-index:
-            10;
-
-          transform-style:
-            preserve-3d;
+        .audit-card-shell {
+          transform-style: preserve-3d;
         }
 
         .audit-card-depth {
           transform:
             translateZ(14px);
-
-          transform-style:
-            preserve-3d;
+          transform-style: preserve-3d;
         }
 
         .audit-card-depth-strong {
           transform:
             translateZ(24px);
-
-          transform-style:
-            preserve-3d;
+          transform-style: preserve-3d;
         }
 
-        /*
-         * Дополнительный мягкий moving-light слой.
-         */
+        .audit-card-light {
+          position: absolute;
 
-        // .audit-card-light {
-        //   position:
-        //     absolute;
+          width: 240px;
+          height: 240px;
 
-        //   width:
-        //     230px;
+          left: var(--light-x);
+          top: var(--light-y);
 
-        //   height:
-        //     230px;
-
-        //   left:
-        //     var(--light-x);
-
-        //   top:
-        //     var(--light-y);
-
-        //   transform:
-        //     translate(
-        //       -50%,
-        //       -50%
-        //     );
-
-        //   background:
-        //     radial-gradient(
-        //       circle,
-
-        //       rgba(
-        //         125,
-        //         211,
-        //         252,
-        //         0.20
-        //       )
-        //       0%,
-
-        //       rgba(
-        //         2,
-        //         132,
-        //         199,
-        //         0.08
-        //       )
-        //       25%,
-
-        //       transparent
-        //       70%
-        //     );
-
-        //   opacity:
-        //     var(--glow-opacity);
-
-        //   pointer-events:
-        //     none;
-
-        //   z-index:
-        //     15;
-        // }
-
-        .audit-card-shadow {
-          position:
-            absolute;
-
-          inset:
-            15px
-            -8px
-            -14px;
-
-          border-radius:
-            28px;
+          transform:
+            translate(-50%, -50%);
 
           background:
-            rgba(
-              15,
-              39,
-              68,
-              0.13
+            radial-gradient(
+              circle,
+              rgba(125, 211, 252, 0.28)
+              0%,
+              rgba(2, 132, 199, 0.12)
+              24%,
+              rgba(255, 255, 255, 0)
+              68%
             );
+
+          opacity:
+            var(--glow-opacity);
+
+          pointer-events: none;
+
+          mix-blend-mode:
+            multiply;
+
+          transition:
+            opacity
+            250ms
+            ease;
+        }
+
+        .audit-card-shadow {
+          position: absolute;
+          inset: 15px -8px -12px;
+
+          border-radius: 28px;
+
+          background:
+            rgba(15, 39, 68, 0.12);
 
           filter:
             blur(28px);
 
           transform:
-            translateZ(
-              -18px
-            )
-            scale(
-              0.94
-            );
+            translateZ(-18px)
+            scale(0.94);
 
-          pointer-events:
-            none;
+          pointer-events: none;
         }
 
         @keyframes card-float {
           0%,
           100% {
-            translate:
-              0
-              0;
+            transform:
+              rotateX(var(--rotate-x))
+              rotateY(var(--rotate-y))
+              translateY(0);
           }
 
           50% {
-            translate:
-              0
-              -4px;
+            transform:
+              rotateX(var(--rotate-x))
+              rotateY(var(--rotate-y))
+              translateY(-4px);
           }
         }
-
-        /* ================================================
-           STATUS DOTS
-        ================================================ */
 
         @keyframes dot-pulse {
           0%,
           100% {
-            opacity:
-              0.55;
-
-            transform:
-              scale(
-                0.9
-              );
+            opacity: 0.55;
+            transform: scale(0.9);
           }
 
           50% {
-            opacity:
-              1;
-
-            transform:
-              scale(
-                1.12
-              );
+            opacity: 1;
+            transform: scale(1.12);
           }
         }
 
@@ -1384,77 +989,47 @@ export default function AppleNordicGlacierPureLanding() {
             infinite;
         }
 
-        /* ================================================
-           CTA SHIMMER
-        ================================================ */
-
         @keyframes shimmer {
           0% {
             transform:
-              translateX(
-                -160%
-              );
+              translateX(-160%);
           }
 
           100% {
             transform:
-              translateX(
-                420%
-              );
+              translateX(420%);
           }
         }
 
-        /* ================================================
+        /* =====================================================
            COOKIE
-        ================================================ */
+        ====================================================== */
 
         @keyframes cookie-backdrop-in {
           0% {
-            opacity:
-              0;
+            opacity: 0;
           }
 
           100% {
-            opacity:
-              1;
+            opacity: 1;
           }
         }
 
         @keyframes cookie-modal-in {
           0% {
-            opacity:
-              0;
-
+            opacity: 0;
             transform:
-              translateY(
-                24px
-              )
-              scale(
-                0.96
-              );
-
-            filter:
-              blur(
-                8px
-              );
+              translateY(24px)
+              scale(0.96);
+            filter: blur(8px);
           }
 
           100% {
-            opacity:
-              1;
-
+            opacity: 1;
             transform:
-              translateY(
-                0
-              )
-              scale(
-                1
-              );
-
-            filter:
-              blur(
-                0
-              );
+              translateY(0)
+              scale(1);
+            filter: blur(0);
           }
         }
 
@@ -1470,77 +1045,39 @@ export default function AppleNordicGlacierPureLanding() {
           animation:
             cookie-modal-in
             0.65s
-            cubic-bezier(
-              0.16,
-              1,
-              0.3,
-              1
-            )
+            cubic-bezier(0.16, 1, 0.3, 1)
             forwards;
         }
 
-        /* ================================================
-           SMALL HEIGHT DEVICES
-        ================================================ */
+        /* =====================================================
+           SMALL HEIGHTS
+        ====================================================== */
 
-        @media (
-          max-height: 720px
-        ) {
-          .audit-card-compact {
-            transform:
-              scale(
-                0.92
-              );
-
-            transform-origin:
-              center top;
-
-            margin-bottom:
-              -18px;
-          }
-        }
-
-        @media (
-          max-height: 640px
-        ) {
-          .audit-card-compact {
-            transform:
-              scale(
-                0.84
-              );
-
-            margin-bottom:
-              -30px;
-          }
-        }
-
-        @media (
-          max-width: 640px
-        ) {
+        @media (max-height: 760px) {
           .audit-card-3d {
-            transition:
-              transform
-              180ms
-              linear;
+            max-width: 460px;
           }
         }
 
-        @media (
-          prefers-reduced-motion: reduce
-        ) {
+        @media (max-height: 680px) {
           .audit-card-3d {
-            transition:
-              none;
+            max-width: 430px;
           }
 
-          .audit-card-shell {
-            animation:
-              none;
+          .audit-card-content {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .audit-card-3d {
+            animation: none;
+            transition: none;
           }
 
           .dot-pulse {
-            animation:
-              none;
+            animation: none;
           }
         }
       `}</style>
@@ -1576,29 +1113,23 @@ export default function AppleNordicGlacierPureLanding() {
           <div className="flex items-center p-0.5 rounded-full bg-black/[0.04] border border-black/[0.05]">
 
             {(
-              [
-                'es',
-                'en',
-                'ru',
-              ] as Lang[]
-            ).map(
-              (item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() =>
-                    setLang(item)
-                  }
-                  className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
-                    lang === item
-                      ? 'bg-white text-[#0284C7] shadow-sm font-bold'
-                      : 'text-[#6E6E73] hover:text-[#1D1D1F]'
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
+              ['es', 'en', 'ru'] as Lang[]
+            ).map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() =>
+                  setLang(item)
+                }
+                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
+                  lang === item
+                    ? 'bg-white text-[#0284C7] shadow-sm font-bold'
+                    : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
         </div>
       </header>
@@ -1607,7 +1138,7 @@ export default function AppleNordicGlacierPureLanding() {
           MAIN
       ====================================================== */}
 
-      <main className="relative z-10 flex-1 min-h-0 flex flex-col justify-center items-center px-4 sm:px-6 py-3 sm:py-4 w-full">
+      <main className="relative z-10 flex-1 min-h-0 flex flex-col justify-center items-center px-4 sm:px-6 py-3 sm:py-5 w-full">
 
         {/* ===================================================
             IDLE
@@ -1617,10 +1148,10 @@ export default function AppleNordicGlacierPureLanding() {
           <div className="w-full max-w-4xl flex flex-col items-center justify-center text-center">
 
             {/* =================================================
-                3D AUDIT CARD
+                3D CARD
             ================================================== */}
 
-            <div className="audit-card-perspective audit-card-compact w-full flex justify-center mb-2.5 sm:mb-3">
+            <div className="audit-card-perspective w-full flex justify-center mb-3 sm:mb-4">
 
               <div
                 className={`relative w-full max-w-[500px] ${
@@ -1628,6 +1159,12 @@ export default function AppleNordicGlacierPureLanding() {
                     ? 'anim-card'
                     : 'opacity-0'
                 }`}
+                onPointerMove={
+                  handleCardPointerMove
+                }
+                onPointerLeave={
+                  handleCardPointerLeave
+              }
               >
                 <div
                   ref={
@@ -1636,43 +1173,55 @@ export default function AppleNordicGlacierPureLanding() {
                   className="audit-card-3d relative"
                 >
 
-                  {/* Shadow */}
+                  {/* Deep shadow */}
 
                   <div className="audit-card-shadow" />
 
-                  {/* Ambient glow */}
+                  {/* Outer ambient glow */}
 
                   <div className="absolute -inset-5 rounded-[34px] bg-[#0284C7]/8 blur-2xl pointer-events-none" />
 
-                  {/* Decorative particles */}
+                  {/* Decorative dots */}
 
-                
+                  <div className="absolute -top-2 left-[13%] w-1.5 h-1.5 rounded-full bg-[#0284C7] dot-pulse pointer-events-none" />
 
-                  {/* =================================================
-                      CARD SHELL
-                  ================================================== */}
+                  <div
+                    className="absolute -right-1 top-[24%] w-1.5 h-1.5 rounded-full bg-[#7DD3FC] dot-pulse pointer-events-none"
+                    style={{
+                      animationDelay:
+                        '0.7s',
+                    }}
+                  />
+
+                  <div
+                    className="absolute -left-1 bottom-[18%] w-1 h-1 rounded-full bg-[#0284C7] dot-pulse pointer-events-none"
+                    style={{
+                      animationDelay:
+                        '1.2s',
+                    }}
+                  />
+
+                  {/* Main shell */}
 
                   <div className="audit-card-shell relative overflow-hidden rounded-[26px] bg-white border border-[#D5E1E9] shadow-[0_22px_65px_rgba(15,39,68,0.15)]">
 
-                    {/* top line */}
+                    {/* top highlight */}
 
-                    <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent z-[60]" />
+                    <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent" />
 
-                    {/* background glow */}
+                    {/* soft background */}
 
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#EFFAFF] to-transparent pointer-events-none z-[1]" />
+                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#EFFAFF] to-transparent pointer-events-none" />
 
-                    {/* moving light */}
+                    {/* pointer light */}
 
-                    <div className="audit-card-light" />
+                    <div className="audit-card-light z-20" />
 
-                    {/* content */}
+                    <div className="audit-card-content relative z-10 px-4 py-3.5 sm:px-5 sm:py-4">
 
-                    <div className="audit-card-content px-4 py-3.5 sm:px-5 sm:py-4">
-
-                      {/* ==========================================
+                      {/* ====================================
                           HEADER
-                      =========================================== */}
+                      ===================================== */}
 
                       <div className="audit-card-depth flex items-center justify-between gap-3">
 
@@ -1729,13 +1278,13 @@ export default function AppleNordicGlacierPureLanding() {
 
                       <div className="audit-card-depth h-px bg-[#E5EDF2] my-2.5 sm:my-3" />
 
-                      {/* ==========================================
+                      {/* ====================================
                           INSIGHTS
-                      =========================================== */}
+                      ===================================== */}
 
                       <div className="audit-card-depth space-y-1.5">
 
-                        {/* Decision Maker */}
+                        {/* Decision maker */}
 
                         <div className="flex items-center justify-between gap-3 rounded-xl bg-[#F8FAFC] border border-[#E4EBF0] px-2.5 sm:px-3 py-1.5 sm:py-2">
 
@@ -1799,9 +1348,9 @@ export default function AppleNordicGlacierPureLanding() {
                         </div>
                       </div>
 
-                      {/* ==========================================
+                      {/* ====================================
                           PITCH CTA
-                      =========================================== */}
+                      ===================================== */}
 
                       <div className="audit-card-depth-strong relative mt-2.5 rounded-xl border border-[#BFDEEC] bg-[#F3FAFD] overflow-hidden">
 
@@ -1852,10 +1401,10 @@ export default function AppleNordicGlacierPureLanding() {
             </div>
 
             {/* =================================================
-                H1
+                HEADLINE
             ================================================== */}
 
-            <div className="w-full space-y-0.5 mb-1.5">
+            <div className="w-full space-y-0.5 mb-2">
 
               <div className="overflow-hidden py-0.5">
 
@@ -1887,7 +1436,7 @@ export default function AppleNordicGlacierPureLanding() {
             {/* MICRO COPY */}
 
             <p
-              className={`text-[10px] sm:text-xs text-[#6E6E73] mb-2.5 sm:mb-3 transition-all duration-700 px-3 ${
+              className={`text-[10px] sm:text-xs text-[#6E6E73] mb-3 sm:mb-4 transition-all duration-700 px-3 ${
                 revealStep >= 4
                   ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-3'
@@ -2004,7 +1553,6 @@ export default function AppleNordicGlacierPureLanding() {
             <div className="flex items-center justify-between border-b border-black/[0.05] pb-3.5">
 
               <div className="text-left min-w-0">
-
                 <h3 className="text-base font-bold text-[#1D1D1F]">
                   {t.scanningTitle}
                 </h3>
@@ -2151,7 +1699,6 @@ export default function AppleNordicGlacierPureLanding() {
                 <div className="flex items-center gap-3">
 
                   <div className="p-2.5 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
-
                     <ShieldAlert className="w-6 h-6" />
                   </div>
 
@@ -2268,8 +1815,6 @@ export default function AppleNordicGlacierPureLanding() {
                 </div>
               </div>
             </div>
-
-            {/* PURCHASE */}
 
             <div className="p-5 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xl">
 

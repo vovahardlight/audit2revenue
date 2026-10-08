@@ -373,11 +373,11 @@ export default function AppleNordicGlacierPureLanding() {
 
       currentX +=
         (targetX - currentX) *
-        0.9;
+        0.075;
 
       currentY +=
         (targetY - currentY) *
-        0.9;
+        0.075;
 
       /*
        * Максимальный наклон:
