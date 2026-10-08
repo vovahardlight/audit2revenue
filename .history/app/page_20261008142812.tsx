@@ -34,7 +34,7 @@ const SHADER_CONFIG = {
   color3_Flow: '#7dd3fc',
   color4_Mist: '#f0f9ff',
   fresnelPower: 0.5,
-  specularShine: 0.75,
+  specularShine: 1.75,
 };
 
 export default function AppleNordicGlacierPureLanding() {

@@ -33,7 +33,7 @@ const SHADER_CONFIG = {
   color2_Brand: '#0284c7',
   color3_Flow: '#7dd3fc',
   color4_Mist: '#f0f9ff',
-  fresnelPower: 0.5,
+  fresnelPower: 1.0,
   specularShine: 0.75,
 };
 
