@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import Link from 'next/link';
+import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   CheckCircle2, 
@@ -32,26 +31,6 @@ function BusinessIntelligenceReport() {
 
   const [lang, setLang] = useState<Lang>(urlLang && ['ru', 'es', 'en'].includes(urlLang) ? urlLang : 'ru');
   const [activeFilter, setActiveFilter] = useState<'all' | 'issues' | 'healthy'>('all');
-
-  // 1. Считываем сохранённый язык при первой загрузке (из URL или из памяти)
-  useEffect(() => {
-    const saved = (searchParams.get('lang') as Lang) || (localStorage.getItem('a2r_lang') as Lang);
-    if (saved && ['ru', 'es', 'en'].includes(saved)) {
-      setLang(saved);
-    }
-  }, [searchParams]);
-
-  // 2. Функция смены языка: сохраняет в localStorage, cookie и обновляет URL (сохраняя параметр ?url=...)
-  const handleLangChange = (newLang: Lang) => {
-    setLang(newLang);
-    localStorage.setItem('a2r_lang', newLang);
-    document.cookie = `a2r_lang=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
-
-    // Сохраняем текущие параметры (?url=...&demo=...) и аккуратно обновляем lang
-    const params = new URLSearchParams(window.location.search);
-    params.set('lang', newLang);
-    window.history.replaceState(null, '', `?${params.toString()}`);
-  };
 
   const businessData = {
     brandName: 'Clínica & Estética Mabelle Madrid',
@@ -533,31 +512,28 @@ function BusinessIntelligenceReport() {
       <header className="border-b border-black/[0.05] bg-white/80 backdrop-blur-xl sticky top-0 z-30 px-6 sm:px-8 h-16 flex items-center">
         <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            {/* Клик по логотипу ведет на главную с сохранением текущего языка */}
-            <Link href={`/?lang=${lang}`} className="flex items-center gap-3 no-underline min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-xs shadow-sm shadow-[#0284C7]/20 shrink-0">
-                A2R
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-xs shadow-sm shadow-[#0284C7]/20 shrink-0">
+              A2R
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[#1D1D1F] text-sm truncate">{businessData.brandName}</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200 shrink-0">
+                  {t.auditReadyBadge}
+                </span>
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-[#1D1D1F] text-sm truncate">{businessData.brandName}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200 shrink-0">
-                    {t.auditReadyBadge}
-                  </span>
-                </div>
-                <span className="block text-[11px] text-[#6E6E73] font-mono truncate">{businessData.domain}</span>
-              </div>
-            </Link>
+              <span className="block text-[11px] text-[#6E6E73] font-mono truncate">{businessData.domain}</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
-            {/* Языковые кнопки вызывают handleLangChange */}
+            {/* Языковые кнопки */}
             <div className="flex items-center p-0.5 rounded-full bg-black/[0.04] border border-black/[0.05]">
               {(['es', 'en', 'ru'] as Lang[]).map((item) => (
                 <button
                   key={item}
                   type="button"
-                  onClick={() => handleLangChange(item)}
+                  onClick={() => setLang(item)}
                   className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
                     lang === item
                       ? 'bg-white text-[#0284C7] shadow-sm font-bold'
@@ -993,7 +969,7 @@ export default function AuditReportPage() {
       fallback={
         <div className="min-h-screen bg-[#FBFBFD] flex flex-col items-center justify-center gap-3 text-[#6E6E73]">
           <Loader2 className="w-8 h-8 animate-spin text-[#0284C7]" />
-          <p className="text-sm font-medium">Loading...</p>
+          <p className="text-sm font-medium">Cargando...</p>
         </div>
       }
     >

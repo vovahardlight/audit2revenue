@@ -584,11 +584,11 @@ export default function AppleNordicGlacierPureLanding() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true&lang=${lang}`);
-            }
+        router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true`);
+      }
     } catch {
-      router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true&lang=${lang}`);
-        } finally {
+      router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true`);
+    } finally {
       setIsRedirecting(false);
     }
   };
@@ -1022,8 +1022,8 @@ export default function AppleNordicGlacierPureLanding() {
               <button
                 key={item}
                 type="button"
-                onClick={() => handleLangChange(item)}
-                                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
+                onClick={() => setLang(item)}
+                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
                   lang === item
                     ? 'bg-white text-[#0284C7] shadow-sm font-bold'
                     : 'text-[#6E6E73] hover:text-[#1D1D1F]'
@@ -1577,15 +1577,19 @@ export default function AppleNordicGlacierPureLanding() {
             </p>
           </div>
 
-          <nav aria-label={t.footerLegalNav} className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]">
-  <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
-  <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
-  <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
-  <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
-  <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
-    {t.cookieSettings}
-  </button>
-</nav>
+          <nav
+            suppressHydrationWarning
+            aria-label={t.footerLegalNav}
+            className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]"
+          >
+            <a href="/aviso-legal" className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
+            <a href="/politica-de-privacidad" className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
+            <a href="/politica-de-cookies" className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
+            <a href="/condiciones-de-contratacion" className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
+            <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
+              {t.cookieSettings}
+            </button>
+          </nav>
         </div>
       </footer>
 

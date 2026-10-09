@@ -33,21 +33,6 @@ export default function AppleNordicGlacierPureLanding() {
   const [url, setUrl] = useState('');
   const [lang, setLang] = useState<Lang>('ru');
 
-  // Читаем сохраненный язык после загрузки (не ломает гидратацию)
-  useEffect(() => {
-    const saved = localStorage.getItem('a2r_lang') as Lang;
-    if (saved && ['ru', 'es', 'en'].includes(saved)) {
-      setLang(saved);
-    }
-  }, []);
-
-  // Функция переключения с сохранением в память
-  const handleLangChange = (newLang: Lang) => {
-    setLang(newLang);
-    localStorage.setItem('a2r_lang', newLang);
-    document.cookie = `a2r_lang=${newLang}; path=/; max-age=31536000`;
-  };
-
   const [stage, setStage] = useState<'idle' | 'scanning' | 'report'>('idle');
 
   const [progress, setProgress] = useState(0);
@@ -102,78 +87,15 @@ export default function AppleNordicGlacierPureLanding() {
       heroMicro:
         'Получите такой же аудит любого сайта за несколько секунд.',
 
-      // SCANNING
-      scanningBadge: 'AUDIT2REVENUE · АНАЛИЗ В РЕАЛЬНОМ ВРЕМЕНИ',
-      scanProgressCompleted: 'ЗАВЕРШЕНО',
-      scanProgressRunning: 'В ПРОЦЕССЕ',
-      scanChecksLabel: 'Проверки системы',
-      scanVerified: 'Проверено',
-      scanScanning: 'Анализируем',
+      reportLabel: 'DEMO · РЕЗУЛЬТАТЫ ЭКСПРЕСС-СКАНА',
       demoScanNotice:
         'Демонстрация интерфейса: тестовое сканирование структуры сайта и демонстрация аналитики.',
-
-      checklist: [
-        {
-          title: 'Доступность и мобильная скорость',
-          discovered: '✓ Сервер отвечает за 160ms, SSL TLS 1.3 активен',
-          type: 'ok',
-        },
-        {
-          title: 'Рекламные трекеры и пиксели',
-          discovered: '✓ Активны Meta Pixel (Instagram) и Google Ads Tag',
-          type: 'ok',
-        },
-        {
-          title: 'Конверсия мобильного трафика',
-          discovered: '⚠️ Найдено: нет кнопки WhatsApp, потеря до 40% переходов',
-          type: 'warn',
-        },
-        {
-          title: 'Репутация и отзывы в картах Google',
-          discovered: '✓ Рейтинг 4.8★ (384 отзыва), найдены жалобы на недозвон',
-          type: 'warn',
-        },
-        {
-          title: 'Юридический аудит LSSI-CE (Испания)',
-          discovered: '⚠️ Критично: тестовая заглушка вместо налогового NIF/CIF',
-          type: 'error',
-        },
-      ],
-
-      // REPORT
-      reportLabel: 'DEMO · РЕЗУЛЬТАТЫ ЭКСПРЕСС-СКАНА',
-      reportTitle: 'Результаты анализа сайта',
-      reportMissedRevenue: 'Упущенная выручка: ~€1,800/мес',
       demoReportNotice:
         'Демонстрационный отчёт. Цифры, оценки и найденные проблемы носят иллюстративный характер для тестирования интерфейса разработчиком.',
-
-      reportCard1Cat: 'Штрафы в Испании',
-      reportCard1Title: 'Риск проверки регулятором',
-      reportCard1Desc: 'Отсутствует обязательный NIF/CIF в футере...',
-      reportCard1Foot: 'Штраф до €30,000',
-
-      reportCard2Cat: 'Слив рекламы',
-      reportCard2Title: 'Потеря ~35% заявок',
-      reportCard2Desc: 'Клиенты уходят без быстрой связи в WhatsApp...',
-      reportCard2Foot: 'Рекламный бюджет',
-
-      reportCard3Cat: 'Карты Google',
-      reportCard3Title: 'Жалобы на недозвон',
-      reportCard3Desc: 'Потеря клиентов в часы пиковых обращений...',
-      reportCard3Foot: 'Подробности',
-
-      reportLocked: 'Скрыто 🔒',
-
-      reportPurchaseBadge: 'Полный 12-страничный аудит',
-      reportPurchaseTitle: 'Откройте полный отчет с готовыми решениями',
-      reportPurchaseDesc:
-        'Простой документ с пошаговым планом исправления всех ошибок для вашего программиста или юриста.',
       demoPriceBadge: 'DEMO · цена для примера',
       demoPriceNote: 'Показательная цена. Коммерческий приём платежей отключен.',
       demoPriceButton: 'Открыть демо-отчёт (Симуляция)',
-      connecting: 'Подключение...',
 
-      // FOOTER
       footerDisclaimer:
         'Проект находится в стадии некоммерческой разработки и демонстрации функционала. Платежи не принимаются, услуги не оказываются.',
       footer:
@@ -223,78 +145,15 @@ export default function AppleNordicGlacierPureLanding() {
       heroMicro:
         'Obtén una auditoría como esta para cualquier web en pocos segundos.',
 
-      // SCANNING
-      scanningBadge: 'AUDIT2REVENUE · ANÁLISIS EN VIVO',
-      scanProgressCompleted: 'COMPLETADO',
-      scanProgressRunning: 'EN PROGRESO',
-      scanChecksLabel: 'Comprobaciones del sistema',
-      scanVerified: 'Verificado',
-      scanScanning: 'Analizando',
+      reportLabel: 'DEMO · RESULTADOS DEL ESCANEO',
       demoScanNotice:
         'Demostración de interfaz: escaneo de prueba de estructura web y visualización de analítica.',
-
-      checklist: [
-        {
-          title: 'Accesibilidad y velocidad móvil',
-          discovered: '✓ El servidor responde en 160 ms, SSL TLS 1.3 activo',
-          type: 'ok',
-        },
-        {
-          title: 'Píxeles y rastreadores publicitarios',
-          discovered: '✓ Meta Pixel (Instagram) y Google Ads Tag activos',
-          type: 'ok',
-        },
-        {
-          title: 'Conversión de tráfico móvil',
-          discovered: '⚠️ Detectado: sin botón de WhatsApp, fuga de hasta 40% de visitas',
-          type: 'warn',
-        },
-        {
-          title: 'Reputación y reseñas en Google Maps',
-          discovered: '✓ Nota 4.8★ (384 reseñas), quejas por falta de respuesta telefónica',
-          type: 'warn',
-        },
-        {
-          title: 'Auditoría legal LSSI-CE (España)',
-          discovered: '⚠️ Crítico: texto de prueba en lugar de NIF/CIF fiscal',
-          type: 'error',
-        },
-      ],
-
-      // REPORT
-      reportLabel: 'DEMO · RESULTADOS DEL ESCANEO',
-      reportTitle: 'Resultados del análisis web',
-      reportMissedRevenue: 'Ingresos perdidos: ~1.800 €/mes',
       demoReportNotice:
         'Informe en modo demostración. Diseñado exclusivamente para pruebas de desarrollo e interfaz técnica.',
-
-      reportCard1Cat: 'Sanciones en España',
-      reportCard1Title: 'Riesgo de sanción regulatoria',
-      reportCard1Desc: 'Falta el NIF/CIF obligatorio en el pie de página...',
-      reportCard1Foot: 'Multa hasta 30.000 €',
-
-      reportCard2Cat: 'Fuga publicitaria',
-      reportCard2Title: 'Pérdida de ~35% de leads',
-      reportCard2Desc: 'Los usuarios se van sin contacto directo por WhatsApp...',
-      reportCard2Foot: 'Presupuesto publicitario',
-
-      reportCard3Cat: 'Google Maps',
-      reportCard3Title: 'Quejas por llamadas perdidas',
-      reportCard3Desc: 'Pérdida de clientes en horas punta de atención...',
-      reportCard3Foot: 'Detalles',
-
-      reportLocked: 'Bloqueado 🔒',
-
-      reportPurchaseBadge: 'Auditoría completa de 12 páginas',
-      reportPurchaseTitle: 'Desbloquea el informe completo con soluciones',
-      reportPurchaseDesc:
-        'Documento claro con el plan paso a paso para resolver todos los fallos con tu programador o asesor legal.',
       demoPriceBadge: 'DEMO · precio ilustrativo',
       demoPriceNote: 'Precio de ejemplo. Los pagos comerciales están desactivados en esta interfaz.',
       demoPriceButton: 'Ver informe demo (Simulación)',
-      connecting: 'Conectando...',
 
-      // FOOTER
       footerDisclaimer:
         'Entorno de pruebas de desarrollo técnico. No realiza actividad mercantil ni presta servicios remunerados.',
       footer:
@@ -344,78 +203,15 @@ export default function AppleNordicGlacierPureLanding() {
       heroMicro:
         'Get an audit like this for any website in just a few seconds.',
 
-      // SCANNING
-      scanningBadge: 'AUDIT2REVENUE · LIVE SCAN',
-      scanProgressCompleted: 'COMPLETED',
-      scanProgressRunning: 'IN PROGRESS',
-      scanChecksLabel: 'System checks',
-      scanVerified: 'Checked',
-      scanScanning: 'Scanning',
+      reportLabel: 'DEMO · SCAN RESULTS',
       demoScanNotice:
         'Interface preview: website layout scan test and analytical visualization.',
-
-      checklist: [
-        {
-          title: 'Accessibility & Mobile Speed',
-          discovered: '✓ Server responds in 160ms, SSL TLS 1.3 active',
-          type: 'ok',
-        },
-        {
-          title: 'Ad Trackers & Pixels',
-          discovered: '✓ Meta Pixel (Instagram) and Google Ads Tag active',
-          type: 'ok',
-        },
-        {
-          title: 'Mobile Traffic Conversion',
-          discovered: '⚠️ Detected: No WhatsApp button, losing up to 40% of leads',
-          type: 'warn',
-        },
-        {
-          title: 'Reputation & Google Maps Reviews',
-          discovered: '✓ Rating 4.8★ (384 reviews), complaints about unanswered calls',
-          type: 'warn',
-        },
-        {
-          title: 'Legal Compliance LSSI-CE (Spain)',
-          discovered: '⚠️ Critical: placeholder text instead of legal tax NIF/CIF',
-          type: 'error',
-        },
-      ],
-
-      // REPORT
-      reportLabel: 'DEMO · SCAN RESULTS',
-      reportTitle: 'Website Audit Results',
-      reportMissedRevenue: 'Missed revenue: ~€1,800/mo',
       demoReportNotice:
         'Demo report. Exclusively intended for technical development and UI testing purposes.',
-
-      reportCard1Cat: 'Fines in Spain',
-      reportCard1Title: 'Regulatory Penalty Risk',
-      reportCard1Desc: 'Missing mandatory NIF/CIF tax ID in the footer...',
-      reportCard1Foot: 'Fines up to €30,000',
-
-      reportCard2Cat: 'Ad Leak',
-      reportCard2Title: 'Losing ~35% of Leads',
-      reportCard2Desc: 'Visitors bounce without instant WhatsApp messaging...',
-      reportCard2Foot: 'Advertising Budget',
-
-      reportCard3Cat: 'Google Maps',
-      reportCard3Title: 'Unanswered Call Complaints',
-      reportCard3Desc: 'Losing high-intent customers during peak hours...',
-      reportCard3Foot: 'Details',
-
-      reportLocked: 'Locked 🔒',
-
-      reportPurchaseBadge: 'Complete 12-page Audit',
-      reportPurchaseTitle: 'Unlock the full report with actionable fixes',
-      reportPurchaseDesc:
-        'A clear step-by-step blueprint to fix all issues with your web developer or legal counsel.',
       demoPriceBadge: 'DEMO · illustrative price',
       demoPriceNote: 'Example price. Commercial payment processing is disabled in this interface.',
       demoPriceButton: 'View demo report (Simulation)',
-      connecting: 'Connecting...',
 
-      // FOOTER
       footerDisclaimer:
         'Technical prototype and developer sandbox. No commercial services are provided and no payments are accepted.',
       footer:
@@ -434,8 +230,6 @@ export default function AppleNordicGlacierPureLanding() {
       cookieNecessary: 'Necessary only',
     },
   }[lang];
-
-  const scanChecklist = t.checklist;
 
   // =========================================================
   // PRELOADER + INITIAL REVEAL
@@ -584,11 +378,11 @@ export default function AppleNordicGlacierPureLanding() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true&lang=${lang}`);
-            }
+        router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true`);
+      }
     } catch {
-      router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true&lang=${lang}`);
-        } finally {
+      router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true`);
+    } finally {
       setIsRedirecting(false);
     }
   };
@@ -631,6 +425,34 @@ export default function AppleNordicGlacierPureLanding() {
       document.body.style.overflow = previousOverflow;
     };
   }, [showCookieModal]);
+
+  const scanChecklist = [
+    {
+      title: 'Доступность и мобильная скорость',
+      discovered: '✓ Сервер отвечает за 160ms, SSL TLS 1.3 активен',
+      type: 'ok',
+    },
+    {
+      title: 'Рекламные трекеры и пиксели',
+      discovered: '✓ Активны Meta Pixel (Instagram) и Google Ads Tag',
+      type: 'ok',
+    },
+    {
+      title: 'Конверсия мобильного трафика',
+      discovered: '⚠️ Найдено: нет кнопки WhatsApp, потеря до 40% переходов',
+      type: 'warn',
+    },
+    {
+      title: 'Репутация и отзывы в картах Google',
+      discovered: '✓ Рейтинг 4.8★ (384 отзыва), найдены жалобы на недозвон',
+      type: 'warn',
+    },
+    {
+      title: 'Юридический аудит LSSI-CE (Испания)',
+      discovered: '⚠️ Критично: тестовая заглушка вместо налогового NIF/CIF',
+      type: 'error',
+    },
+  ];
 
   return (
     <div className="relative min-h-[100dvh] bg-[#FBFBFD] text-[#1D1D1F] flex flex-col overflow-x-hidden selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased">
@@ -676,10 +498,8 @@ export default function AppleNordicGlacierPureLanding() {
         </div>
       </div>
 
-      {/* ================= СТИЛИ АНИМАЦИИ (БЕЗ STYLED-JSX ДЛЯ ЧИСТОЙ ГИДРАТАЦИИ) ================= */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
+      {/* ================= СТИЛИ АНИМАЦИИ ================= */}
+      <style jsx global>{`
         @keyframes header-drop {
           0% {
             opacity: 0;
@@ -993,9 +813,7 @@ export default function AppleNordicGlacierPureLanding() {
             transition: transform 180ms linear;
           }
         }
-      `,
-        }}
-      />
+      `}</style>
 
       {/* =====================================================
           HEADER
@@ -1022,8 +840,8 @@ export default function AppleNordicGlacierPureLanding() {
               <button
                 key={item}
                 type="button"
-                onClick={() => handleLangChange(item)}
-                                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
+                onClick={() => setLang(item)}
+                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
                   lang === item
                     ? 'bg-white text-[#0284C7] shadow-sm font-bold'
                     : 'text-[#6E6E73] hover:text-[#1D1D1F]'
@@ -1291,14 +1109,14 @@ export default function AppleNordicGlacierPureLanding() {
         )}
 
         {/* ===================================================
-            SCANNING (СТРАНИЦА АНАЛИЗА — ПОЛНОСТЬЮ ЛОКАЛИЗОВАНА)
+            SCANNING (СТРАНИЦА АНАЛИЗА)
         ==================================================== */}
         {stage !== 'idle' && (
           <div className="w-full max-w-4xl px-1 sm:px-3 py-5 sm:py-7 space-y-6 text-left animate-fade-in">
             <div className="flex items-start justify-between gap-5 pb-1">
               <div className="min-w-0">
                 <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-[#0284C7] font-bold mb-1.5">
-                  {t.scanningBadge}
+                  {lang === 'es' ? 'AUDIT2REVENUE · ANÁLISIS EN VIVO' : lang === 'en' ? 'AUDIT2REVENUE · LIVE SCAN' : 'AUDIT2REVENUE · АНАЛИЗ В РЕАЛЬНОМ ВРЕМЕНИ'}
                 </div>
 
                 <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0F2744]">
@@ -1321,7 +1139,7 @@ export default function AppleNordicGlacierPureLanding() {
                   <span className="text-sm sm:text-base font-bold text-[#7DD3FC]">%</span>
                 </div>
                 <span className="block mt-2 text-[9px] sm:text-[10px] uppercase tracking-[0.16em] font-semibold text-[#94A3B8]">
-                  {progress >= 100 ? t.scanProgressCompleted : t.scanProgressRunning}
+                  {progress >= 100 ? (lang === 'es' ? 'COMPLETADO' : lang === 'en' ? 'COMPLETED' : 'ЗАВЕРШЕНО') : (lang === 'es' ? 'EN PROGRESO' : lang === 'en' ? 'IN PROGRESS' : 'В ПРОЦЕССЕ')}
                 </span>
               </div>
             </div>
@@ -1336,7 +1154,7 @@ export default function AppleNordicGlacierPureLanding() {
             <div className="pt-1">
               <div className="flex items-center justify-between gap-3 mb-1.5">
                 <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] font-bold text-[#64748B]">
-                  {t.scanChecksLabel}
+                  {lang === 'es' ? 'Comprobaciones del sistema' : lang === 'en' ? 'System checks' : 'Проверки системы'}
                 </span>
                 <span className="text-[10px] sm:text-[11px] font-semibold tabular-nums text-[#0284C7]">
                   {Math.min(Math.floor(progress / 20), scanChecklist.length)} / {scanChecklist.length}
@@ -1381,11 +1199,11 @@ export default function AppleNordicGlacierPureLanding() {
 
                             {isPassed ? (
                               <span className="text-[9px] uppercase tracking-[0.12em] font-bold text-[#94A3B8]">
-                                {t.scanVerified}
+                                {lang === 'es' ? 'Verificado' : lang === 'en' ? 'Checked' : 'Проверено'}
                               </span>
                             ) : isCurrent ? (
                               <span className="text-[9px] uppercase tracking-[0.12em] font-bold text-[#0284C7] animate-pulse">
-                                {t.scanScanning}
+                                {lang === 'es' ? 'Analizando' : lang === 'en' ? 'Scanning' : 'Анализируем'}
                               </span>
                             ) : null}
                           </div>
@@ -1408,7 +1226,7 @@ export default function AppleNordicGlacierPureLanding() {
         )}
 
         {/* ===================================================
-            TEASER / REPORT (ПОЛНОСТЬЮ ЛОКАЛИЗОВАН)
+            TEASER
         ==================================================== */}
         {stage === 'report' && (
           <div className="w-full max-w-4xl space-y-5 sm:space-y-6 text-left animate-fade-in">
@@ -1424,7 +1242,7 @@ export default function AppleNordicGlacierPureLanding() {
                       {t.reportLabel}
                     </span>
                     <h2 className="text-lg sm:text-xl font-bold text-[#1D1D1F]">
-                      {t.reportTitle}
+                      Результаты анализа сайта
                     </h2>
                     <p className="mt-1 text-xs sm:text-sm text-[#0284C7] font-mono break-all">
                       {url}
@@ -1433,7 +1251,7 @@ export default function AppleNordicGlacierPureLanding() {
                 </div>
 
                 <div className="px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold">
-                  {t.reportMissedRevenue}
+                  Упущенная выручка: ~€1,800/мес
                 </div>
               </div>
 
@@ -1444,52 +1262,52 @@ export default function AppleNordicGlacierPureLanding() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-5">
                 <div className="p-4 rounded-2xl bg-[#F5F5F7] border border-black/[0.04]">
                   <div className="flex items-center justify-between text-xs text-rose-600 font-bold mb-1.5">
-                    <span>{t.reportCard1Cat}</span>
+                    <span>Штрафы в Испании</span>
                     <Lock className="w-3.5 h-3.5 text-[#86868B]" />
                   </div>
                   <h4 className="text-xs font-bold text-[#1D1D1F]">
-                    {t.reportCard1Title}
+                    Риск проверки регулятором
                   </h4>
                   <p className="text-[11px] text-[#6E6E73] mt-0.5">
-                    {t.reportCard1Desc}
+                    Отсутствует обязательный NIF/CIF в футере...
                   </p>
                   <div className="mt-3 pt-2 border-t border-black/[0.05] flex justify-between text-[11px]">
-                    <span className="text-[#86868B]">{t.reportCard1Foot}</span>
-                    <span className="text-rose-600 font-medium">{t.reportLocked}</span>
+                    <span className="text-[#86868B]">Штраф до €30,000</span>
+                    <span className="text-rose-600 font-medium">Скрыто 🔒</span>
                   </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#F5F5F7] border border-black/[0.04]">
                   <div className="flex items-center justify-between text-xs text-rose-600 font-bold mb-1.5">
-                    <span>{t.reportCard2Cat}</span>
+                    <span>Слив рекламы</span>
                     <Lock className="w-3.5 h-3.5 text-[#86868B]" />
                   </div>
                   <h4 className="text-xs font-bold text-[#1D1D1F]">
-                    {t.reportCard2Title}
+                    Потеря ~35% заявок
                   </h4>
                   <p className="text-[11px] text-[#6E6E73] mt-0.5">
-                    {t.reportCard2Desc}
+                    Клиенты уходят без быстрой связи в WhatsApp...
                   </p>
                   <div className="mt-3 pt-2 border-t border-black/[0.05] flex justify-between text-[11px]">
-                    <span className="text-[#86868B]">{t.reportCard2Foot}</span>
-                    <span className="text-rose-600 font-medium">{t.reportLocked}</span>
+                    <span className="text-[#86868B]">Рекламный бюджет</span>
+                    <span className="text-rose-600 font-medium">Скрыто 🔒</span>
                   </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[#F5F5F7] border border-black/[0.04]">
                   <div className="flex items-center justify-between text-xs text-rose-600 font-bold mb-1.5">
-                    <span>{t.reportCard3Cat}</span>
+                    <span>Карты Google</span>
                     <Lock className="w-3.5 h-3.5 text-[#86868B]" />
                   </div>
                   <h4 className="text-xs font-bold text-[#1D1D1F]">
-                    {t.reportCard3Title}
+                    Жалобы на недозвон
                   </h4>
                   <p className="text-[11px] text-[#6E6E73] mt-0.5">
-                    {t.reportCard3Desc}
+                    Потеря клиентов в часы пиковых обращений...
                   </p>
                   <div className="mt-3 pt-2 border-t border-black/[0.05] flex justify-between text-[11px]">
-                    <span className="text-[#86868B]">{t.reportCard3Foot}</span>
-                    <span className="text-rose-600 font-medium">{t.reportLocked}</span>
+                    <span className="text-[#86868B]">Подробности</span>
+                    <span className="text-rose-600 font-medium">Скрыто 🔒</span>
                   </div>
                 </div>
               </div>
@@ -1501,13 +1319,13 @@ export default function AppleNordicGlacierPureLanding() {
                 <div className="md:col-span-3 space-y-3">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0284C7]/10 text-[#0284C7] text-xs font-semibold">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>{t.reportPurchaseBadge}</span>
+                    <span>Полный 12-страничный аудит</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-bold text-[#1D1D1F] tracking-tight">
-                    {t.reportPurchaseTitle}
+                    Откройте полный отчет с готовыми решениями
                   </h3>
                   <p className="text-xs sm:text-sm text-[#6E6E73] leading-relaxed">
-                    {t.reportPurchaseDesc}
+                    Простой документ с пошаговым планом исправления всех ошибок для вашего программиста или юриста.
                   </p>
                 </div>
 
@@ -1539,7 +1357,7 @@ export default function AppleNordicGlacierPureLanding() {
                     {isRedirecting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{t.connecting}</span>
+                        <span>Подключение...</span>
                       </>
                     ) : (
                       <>
@@ -1556,36 +1374,28 @@ export default function AppleNordicGlacierPureLanding() {
       </main>
 
       {/* =====================================================
-          FOOTER (ЗАЩИЩЕН ОТ HYDRATION MISMATCH И ЛОКАЛИЗОВАН)
+          FOOTER (ПОЛНОСТЬЮ ЛОКАЛИЗОВАН)
       ====================================================== */}
       <footer
-        suppressHydrationWarning
         className={`relative z-20 min-h-12 sm:min-h-14 shrink-0 border-t border-black/[0.05] bg-white/70 backdrop-blur-xl px-4 sm:px-8 py-3 flex items-center ${
           revealStep >= 6 ? 'anim-footer' : 'opacity-0'
         }`}
       >
-        <div
-          suppressHydrationWarning
-          className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between text-[10px] sm:text-[11px] text-[#64748B] gap-3 text-center lg:text-left"
-        >
-          <div suppressHydrationWarning translate="no" className="notranslate">
-            <p suppressHydrationWarning className="font-medium text-[#1D1D1F]">
-              {t.footer}
-            </p>
-            <p suppressHydrationWarning className="text-[9px] text-[#86868B] mt-0.5 max-w-xl">
-              {t.footerDisclaimer}
-            </p>
+        <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between text-[10px] sm:text-[11px] text-[#64748B] gap-3 text-center lg:text-left">
+          <div>
+            <p className="font-medium text-[#1D1D1F]">{t.footer}</p>
+            <p className="text-[9px] text-[#86868B] mt-0.5 max-w-xl">{t.footerDisclaimer}</p>
           </div>
 
           <nav aria-label={t.footerLegalNav} className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]">
-  <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
-  <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
-  <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
-  <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
-  <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
-    {t.cookieSettings}
-  </button>
-</nav>
+            <a href="/aviso-legal" className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
+            <a href="/politica-de-privacidad" className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
+            <a href="/politica-de-cookies" className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
+            <a href="/condiciones-de-contratacion" className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
+            <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
+              {t.cookieSettings}
+            </button>
+          </nav>
         </div>
       </footer>
 

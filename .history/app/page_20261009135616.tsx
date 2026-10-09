@@ -1577,15 +1577,19 @@ export default function AppleNordicGlacierPureLanding() {
             </p>
           </div>
 
-          <nav aria-label={t.footerLegalNav} className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]">
-  <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
-  <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
-  <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
-  <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
-  <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
-    {t.cookieSettings}
-  </button>
-</nav>
+          <nav
+            suppressHydrationWarning
+            aria-label={t.footerLegalNav}
+            className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]"
+          >
+            <a href="/aviso-legal" className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
+            <a href="/politica-de-privacidad" className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
+            <a href="/politica-de-cookies" className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
+            <a href="/condiciones-de-contratacion" className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
+            <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
+              {t.cookieSettings}
+            </button>
+          </nav>
         </div>
       </footer>
 
