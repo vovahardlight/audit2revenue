@@ -690,6 +690,15 @@ export default function AppleNordicGlacierPureLanding() {
           color-scheme: light !important;
         }
 
+        /* ГАРАНТИЯ ПРОТИВ АВТО-ЗУМА В МОБИЛЬНЫХ БРАУЗЕРАХ (SAFARI / CHROME) */
+        @media screen and (max-width: 768px) {
+          input[type="text"],
+          input[type="url"],
+          input {
+            font-size: 16px !important;
+          }
+        }
+
         /* Плавное проявление контента лоадера */
         @keyframes preloader-appear {
           0% {
@@ -1247,7 +1256,7 @@ export default function AppleNordicGlacierPureLanding() {
               {t.heroMicro}
             </p>
 
-            {/* INPUT */}
+            {/* INPUT С ЗАЩИТОЙ ОТ АВТО-МАСШТАБИРОВАНИЯ */}
             <form
               onSubmit={handleStartScan}
               className={`w-full max-w-[540px] relative will-change-transform ${
@@ -1270,7 +1279,7 @@ export default function AppleNordicGlacierPureLanding() {
                     hasUrl ? 'shadow-[0_0_0_2px_#0284C7]' : ''
                   }`}
                 >
-                  <div className="flex-1 w-full flex items-center gap-3 px-3.5 h-10 sm:h-12">
+                  <div className="flex-1 w-full flex items-center gap-3 px-3.5 h-11 sm:h-12">
                     <div className="relative flex items-center justify-center shrink-0">
                       <div
                         className={`absolute inset-0 rounded-full bg-[#0284C7] blur-md transition-all duration-500 ${
@@ -1286,21 +1295,26 @@ export default function AppleNordicGlacierPureLanding() {
                       />
                     </div>
 
+                    {/* Поле ввода: text-[16px] на мобильных исключает авто-зум в iOS Safari */}
                     <input
                       type="text"
                       required
+                      inputMode="url"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
                       placeholder={t.placeholder}
                       value={url}
                       onFocus={() => setIsInputFocused(true)}
                       onBlur={() => setIsInputFocused(false)}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="w-full min-w-0 bg-transparent text-[13px] sm:text-[15px] text-[#1D1D1F] placeholder-[#86868B] focus:outline-none font-medium"
+                      className="w-full min-w-0 bg-transparent text-[16px] sm:text-[15px] text-[#1D1D1F] placeholder-[#86868B] focus:outline-none font-medium"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full sm:w-auto h-10 sm:h-11 px-5 sm:px-6 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-semibold text-[13px] sm:text-[14px] flex items-center justify-center gap-2 transition duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+                    className="w-full sm:w-auto h-11 sm:h-11 px-5 sm:px-6 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-semibold text-[14px] flex items-center justify-center gap-2 transition duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
                   >
                     <span>{t.btn}</span>
                     <ArrowRight className="w-4 h-4" />

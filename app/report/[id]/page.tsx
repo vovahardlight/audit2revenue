@@ -34,6 +34,23 @@ function BusinessIntelligenceReport() {
   const [lang, setLang] = useState<Lang>(urlLang && ['ru', 'es', 'en'].includes(urlLang) ? urlLang : 'ru');
   const [activeFilter, setActiveFilter] = useState<'all' | 'issues' | 'healthy'>('all');
 
+  // Состояния для тапа на мобильных устройствах
+  const [openDevPlanId, setOpenDevPlanId] = useState<number | null>(null);
+  const [openLeakId, setOpenLeakId] = useState<number | null>(null);
+  const [openParamId, setOpenParamId] = useState<string | null>(null);
+
+  const toggleDevPlan = (id: number) => {
+    setOpenDevPlanId(prev => (prev === id ? null : id));
+  };
+
+  const toggleLeak = (id: number) => {
+    setOpenLeakId(prev => (prev === id ? null : id));
+  };
+
+  const toggleParam = (id: string) => {
+    setOpenParamId(prev => (prev === id ? null : id));
+  };
+
   // 1. Считываем сохранённый язык при первой загрузке
   useEffect(() => {
     const saved = (searchParams.get('lang') as Lang) || (localStorage.getItem('a2r_lang') as Lang);
@@ -151,16 +168,17 @@ function BusinessIntelligenceReport() {
 
       // Матрица параметров
       matrixTitle: 'Инспекция параметров сайта',
-      matrixSubtitle: 'Наведите на любой пункт, чтобы открыть детали без сдвига страницы',
+      matrixSubtitle: 'Нажмите или наведите на карточку, чтобы открыть диагностику без сдвига страницы',
       filterAll: 'Все',
       filterIssues: 'Только сбои',
       filterHealthy: 'Исправные',
       diagnosisTitle: 'Диагностика:',
-      detailsHint: 'Детали →',
+      detailsHint: 'Детали ▾',
+      closeHint: '✕ Скрыть',
 
       // Детализация 4 утечек
       leaksTitle: '4 ключевые точки потери клиентов',
-      leaksSubtitle: 'Главные ошибки, влияющие на прибыль клиники (наведите для доказательства)',
+      leaksSubtitle: 'Главные ошибки, влияющие на прибыль клиники (нажмите для доказательств)',
       proofsTitle: 'Детали проверки:',
 
       leak1Title: '1. Слив платного трафика без WhatsApp',
@@ -252,16 +270,17 @@ function BusinessIntelligenceReport() {
 
       // Матрица параметров
       matrixTitle: 'Inspección de parámetros web',
-      matrixSubtitle: 'Pasa el cursor por cualquier elemento para ver los detalles sin desplazar la página',
+      matrixSubtitle: 'Toca o pasa el cursor por cualquier elemento para ver los detalles sin desplazar la página',
       filterAll: 'Todos',
       filterIssues: 'Solo incidencias',
       filterHealthy: 'Correctos',
       diagnosisTitle: 'Diagnóstico:',
-      detailsHint: 'Detalles →',
+      detailsHint: 'Detalles ▾',
+      closeHint: '✕ Cerrar',
 
       // Детализация 4 утечек
       leaksTitle: '4 puntos clave de fuga de pacientes',
-      leaksSubtitle: 'Los fallos con mayor impacto en ingresos (pasa el cursor para ver evidencias)',
+      leaksSubtitle: 'Los fallos con mayor impacto en ingresos (toca para ver evidencias)',
       proofsTitle: 'Detalle de inspección:',
 
       leak1Title: '1. Fuga de tráfico de pago sin WhatsApp',
@@ -353,16 +372,17 @@ function BusinessIntelligenceReport() {
 
       // Матрица параметров
       matrixTitle: 'Website Parameters Inspection',
-      matrixSubtitle: 'Hover over any item to inspect technical details without shifting layout',
+      matrixSubtitle: 'Tap or hover over any item to inspect technical details without shifting layout',
       filterAll: 'All',
       filterIssues: 'Issues only',
       filterHealthy: 'Healthy',
       diagnosisTitle: 'Diagnosis:',
-      detailsHint: 'Details →',
+      detailsHint: 'Details ▾',
+      closeHint: '✕ Close',
 
       // Детализация 4 утечек
       leaksTitle: '4 Core Revenue Leak Points',
-      leaksSubtitle: 'High-impact bottlenecks draining clinical bookings (hover to inspect proof)',
+      leaksSubtitle: 'High-impact bottlenecks draining clinical bookings (tap to inspect proof)',
       proofsTitle: 'Forensic details:',
 
       leak1Title: '1. Paid Traffic Waste without WhatsApp',
@@ -595,6 +615,13 @@ function BusinessIntelligenceReport() {
     });
   }, [allParameters, activeFilter]);
 
+  const devPlanItems = [
+    { id: 1, title: t.devPlan1Title, desc: t.devPlan1Desc },
+    { id: 2, title: t.devPlan2Title, desc: t.devPlan2Desc },
+    { id: 3, title: t.devPlan3Title, desc: t.devPlan3Desc },
+    { id: 4, title: t.devPlan4Title, desc: t.devPlan4Desc },
+  ];
+
   const phoneWhatsApp = '34600123456'; 
   const whatsappUrl = `https://wa.me/${phoneWhatsApp}?text=${encodeURIComponent(t.waMessage)}`;
 
@@ -682,6 +709,7 @@ function BusinessIntelligenceReport() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-[#1D1D1F] text-sm truncate">{businessData.brandName}</span>
+                  {/* Защитный бейдж демо-симуляции */}
                   <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-black border border-amber-300 tracking-wide shrink-0">
                     {t.auditReadyBadge}
                   </span>
@@ -921,18 +949,23 @@ function BusinessIntelligenceReport() {
             {filteredParameters.map((param) => {
               const isCrit = param.status === 'critical';
               const isWarn = param.status === 'warning';
+              const isOpen = openParamId === param.id;
 
               return (
                 <div key={param.id} className="relative h-[72px] sm:h-[76px]">
                   {/* ПАРЯЩАЯ КАРТОЧКА (ВЫДВИГАЕТСЯ В Z-INDEX ПОВЕРХ ВСЕГО) */}
                   <div
+                    role="button"
                     tabIndex={0}
-                    className={`group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl border transition-all duration-200 bg-white cursor-pointer focus:outline-none ${
-                      isCrit 
-                        ? 'border-rose-200/90 shadow-2xs hover:shadow-[0_16px_36px_rgba(225,29,72,0.18)] hover:border-rose-400' 
-                        : isWarn 
-                          ? 'border-amber-200/90 shadow-2xs hover:shadow-[0_16px_36px_rgba(217,119,6,0.18)] hover:border-amber-400' 
-                          : 'border-black/[0.06] shadow-2xs hover:shadow-[0_16px_36px_rgba(15,39,68,0.14)] hover:border-[#0284C7]/40'
+                    onClick={() => toggleParam(param.id)}
+                    className={`group absolute inset-x-0 top-0 rounded-2xl border transition-all duration-200 bg-white cursor-pointer select-none focus:outline-none ${
+                      isOpen
+                        ? 'z-40 border-[#0284C7] shadow-[0_16px_36px_rgba(15,39,68,0.18)]'
+                        : isCrit 
+                          ? 'z-10 border-rose-200/90 shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(225,29,72,0.18)] hover:border-rose-400' 
+                          : isWarn 
+                            ? 'z-10 border-amber-200/90 shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(217,119,6,0.18)] hover:border-amber-400' 
+                            : 'z-10 border-black/[0.06] shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(15,39,68,0.14)] hover:border-[#0284C7]/40'
                     }`}
                   >
                     {/* ВСЕГДА ВИДНО: ЗАГОЛОВОК, ИКОНКА, ЖИРНАЯ МЕТРИКА */}
@@ -965,8 +998,10 @@ function BusinessIntelligenceReport() {
                       </div>
                     </div>
 
-                    {/* ВЫДВИГАЮЩИЙСЯ ПАРАГРАФ С ДЕТАЛЯМИ (В Z-INDEX БЕЗ СМЕЩЕНИЯ КОНТЕНТА) */}
-                    <div className="hidden group-hover:block group-focus-within:block px-4 pb-4 sm:px-4.5 sm:pb-4.5 pt-0 anim-popout">
+                    {/* ВЫДВИГАЮЩИЙСЯ ПАРАГРАФ С ДЕТАЛЯМИ: при клике на тапе ИЛИ при hover на ПК */}
+                    <div className={`px-4 pb-4 sm:px-4.5 sm:pb-4.5 pt-0 anim-popout ${
+                      isOpen ? 'block' : 'hidden sm:group-hover:block'
+                    }`}>
                       <div className="pt-2.5 border-t border-black/[0.06] text-xs leading-relaxed text-[#454B54] bg-[#FBFBFD] p-3 rounded-xl border border-black/[0.03]">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] block mb-1">
                           {t.diagnosisTitle}
@@ -997,8 +1032,14 @@ function BusinessIntelligenceReport() {
             {/* 1. WhatsApp Leak */}
             <div className="relative h-[116px] sm:h-[120px]">
               <div
+                role="button"
                 tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+                onClick={() => toggleLeak(1)}
+                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                  openLeakId === 1
+                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
+                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
+                }`}
               >
                 <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
                   <div className="flex items-center gap-2 min-w-0">
@@ -1009,18 +1050,23 @@ function BusinessIntelligenceReport() {
                       {t.leak1Title}
                     </h3>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
-                    {t.leak1Badge}
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+                      {t.leak1Badge}
+                    </span>
+                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 1 ? 'underline' : ''}`}>
+                      {openLeakId === 1 ? t.closeHint : t.detailsHint}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Главный факт крупно и жирно — всегда на виду */}
                 <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
                   {t.leak1Punch}
                 </div>
 
-                {/* Мелкий текст выплывает поверх в z-index при наведении */}
-                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
+                  openLeakId === 1 ? 'block' : 'hidden sm:group-hover:block'
+                }`}>
                   <p className="text-xs text-[#52525B] leading-relaxed">
                     {t.leak1Desc}
                   </p>
@@ -1035,8 +1081,14 @@ function BusinessIntelligenceReport() {
             {/* 2. NIF / CIF Leak */}
             <div className="relative h-[116px] sm:h-[120px]">
               <div
+                role="button"
                 tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+                onClick={() => toggleLeak(2)}
+                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                  openLeakId === 2
+                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
+                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
+                }`}
               >
                 <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
                   <div className="flex items-center gap-2 min-w-0">
@@ -1047,17 +1099,23 @@ function BusinessIntelligenceReport() {
                       {t.leak2Title}
                     </h3>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
-                    {t.leak2Badge}
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+                      {t.leak2Badge}
+                    </span>
+                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 2 ? 'underline' : ''}`}>
+                      {openLeakId === 2 ? t.closeHint : t.detailsHint}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
                   {t.leak2Punch}
                 </div>
 
-                {/* Мелкий текст и код заглушки выплывают поверх в z-index */}
-                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
+                  openLeakId === 2 ? 'block' : 'hidden sm:group-hover:block'
+                }`}>
                   <code className="text-[11px] font-mono bg-[#F5F5F7] p-2 rounded-lg border border-rose-200 block text-rose-700 font-bold truncate">
                     {businessData.cifPlaceholder}
                   </code>
@@ -1071,8 +1129,14 @@ function BusinessIntelligenceReport() {
             {/* 3. Lost Calls */}
             <div className="relative h-[116px] sm:h-[120px]">
               <div
+                role="button"
                 tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+                onClick={() => toggleLeak(3)}
+                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                  openLeakId === 3
+                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
+                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
+                }`}
               >
                 <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
                   <div className="flex items-center gap-2 min-w-0">
@@ -1083,17 +1147,23 @@ function BusinessIntelligenceReport() {
                       {t.leak3Title}
                     </h3>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
-                    {t.leak3Badge}
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+                      {t.leak3Badge}
+                    </span>
+                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 3 ? 'underline' : ''}`}>
+                      {openLeakId === 3 ? t.closeHint : t.detailsHint}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
                   {t.leak3Punch}
                 </div>
 
-                {/* Цитата из отзыва в парящем блоке */}
-                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
+                  openLeakId === 3 ? 'block' : 'hidden sm:group-hover:block'
+                }`}>
                   <blockquote className="p-2.5 rounded-xl bg-[#F5F5F7] text-xs text-[#3F3F46] font-medium italic border-l-2 border-rose-400">
                     {t.leak3Quote}
                   </blockquote>
@@ -1107,8 +1177,14 @@ function BusinessIntelligenceReport() {
             {/* 4. Booking Widget */}
             <div className="relative h-[116px] sm:h-[120px]">
               <div
+                role="button"
                 tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+                onClick={() => toggleLeak(4)}
+                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                  openLeakId === 4
+                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
+                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
+                }`}
               >
                 <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
                   <div className="flex items-center gap-2 min-w-0">
@@ -1119,16 +1195,23 @@ function BusinessIntelligenceReport() {
                       {t.leak4Title}
                     </h3>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
-                    {t.leak4Badge}
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+                      {t.leak4Badge}
+                    </span>
+                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 4 ? 'underline' : ''}`}>
+                      {openLeakId === 4 ? t.closeHint : t.detailsHint}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
                   {t.leak4Punch}
                 </div>
 
-                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
+                  openLeakId === 4 ? 'block' : 'hidden sm:group-hover:block'
+                }`}>
                   <p className="text-xs text-[#52525B] leading-relaxed">
                     {t.leak4Desc}
                   </p>
@@ -1143,7 +1226,7 @@ function BusinessIntelligenceReport() {
           </div>
         </div>
 
-        {/* ================= ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА (КОМПАКТНЫЕ БЕЙДЖИ) ================= */}
+        {/* ================= ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА (МГНОВЕННЫЙ ТАП НА СМАРТФОНЕ) ================= */}
         <div className="p-6 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-black/[0.05] pb-3">
             <ListChecks className="w-4 h-4 text-[#0284C7]" />
@@ -1153,85 +1236,43 @@ function BusinessIntelligenceReport() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            {/* 1. WhatsApp */}
-            <div className="relative h-[64px]">
-              <div
-                tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
-              >
-                <div className="flex items-center justify-between gap-2 h-[36px]">
-                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
-                    {t.devPlan1Title}
-                  </strong>
-                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    {t.detailsHint}
-                  </span>
-                </div>
-                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
-                  {t.devPlan1Desc}
-                </div>
-              </div>
-            </div>
+            {devPlanItems.map((item) => {
+              const isOpen = openDevPlanId === item.id;
+              return (
+                <div key={item.id} className="relative h-[64px]">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => toggleDevPlan(item.id)}
+                    className={`group absolute inset-x-0 top-0 transition-all duration-200 cursor-pointer rounded-2xl p-3.5 select-none focus:outline-none ${
+                      isOpen
+                        ? 'z-40 bg-white border border-[#0284C7]/40 shadow-[0_16px_36px_rgba(15,39,68,0.16)]'
+                        : 'z-10 bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] hover:z-40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 h-[36px]">
+                      <strong className={`text-xs font-bold truncate transition-colors ${
+                        isOpen ? 'text-[#0284C7]' : 'text-[#1D1D1F] group-hover:text-[#0284C7]'
+                      }`}>
+                        {item.title}
+                      </strong>
+                      <span className={`text-[11px] font-semibold transition-all shrink-0 text-[#0284C7] ${
+                        isOpen ? 'opacity-100 font-bold' : 'opacity-80 sm:opacity-0 sm:group-hover:opacity-100'
+                      }`}>
+                        {isOpen ? t.closeHint : t.detailsHint}
+                      </span>
+                    </div>
 
-            {/* 2. NIF / CIF */}
-            <div className="relative h-[64px]">
-              <div
-                tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
-              >
-                <div className="flex items-center justify-between gap-2 h-[36px]">
-                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
-                    {t.devPlan2Title}
-                  </strong>
-                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    {t.detailsHint}
-                  </span>
+                    {/* Выплывающая инструкция: на тапе смартфона ИЛИ на ховере ПК */}
+                    <div className={`pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03] ${
+                      isOpen ? 'block' : 'hidden sm:group-hover:block'
+                    }`}>
+                      {item.desc}
+                    </div>
+                  </div>
                 </div>
-                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
-                  {t.devPlan2Desc}
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Automation */}
-            <div className="relative h-[64px]">
-              <div
-                tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
-              >
-                <div className="flex items-center justify-between gap-2 h-[36px]">
-                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
-                    {t.devPlan3Title}
-                  </strong>
-                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    {t.detailsHint}
-                  </span>
-                </div>
-                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
-                  {t.devPlan3Desc}
-                </div>
-              </div>
-            </div>
-
-            {/* 4. Booking button */}
-            <div className="relative h-[64px]">
-              <div
-                tabIndex={0}
-                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
-              >
-                <div className="flex items-center justify-between gap-2 h-[36px]">
-                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
-                    {t.devPlan4Title}
-                  </strong>
-                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    {t.detailsHint}
-                  </span>
-                </div>
-                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
-                  {t.devPlan4Desc}
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
 
