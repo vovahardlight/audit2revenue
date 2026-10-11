@@ -1,0 +1,28 @@
+
+
+@import "tailwindcss";
+
+:root {
+  /* 1. Задаем точный цвет фона сайта (#FBFBFD вместо белого #ffffff) */
+  --background: #FBFBFD;
+  --foreground: #1D1D1F;
+
+  /* 2. ГЛАВНОЕ: принудительно сообщаем браузеру, что сайт светлый */
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* 3. Применяем фон не только к body, но и к html (холсту браузера) */
+html,
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+}

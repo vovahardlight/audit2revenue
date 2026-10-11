@@ -45,7 +45,7 @@ export default function AppleNordicGlacierPureLanding() {
   const handleLangChange = (newLang: Lang) => {
     setLang(newLang);
     localStorage.setItem('a2r_lang', newLang);
-    document.cookie = `a2r_lang=${newLang}; path=/; max-age=31536000`;
+    document.cookie = `a2r_lang=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
   };
 
   const [stage, setStage] = useState<'idle' | 'scanning' | 'report'>('idle');
@@ -585,10 +585,10 @@ export default function AppleNordicGlacierPureLanding() {
         window.location.href = data.url;
       } else {
         router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true&lang=${lang}`);
-            }
+      }
     } catch {
       router.push(`/report/demo-audit?url=${encodeURIComponent(url || 'https://clinica-mabelle.es')}&demo=true&lang=${lang}`);
-        } finally {
+    } finally {
       setIsRedirecting(false);
     }
   };
@@ -633,24 +633,26 @@ export default function AppleNordicGlacierPureLanding() {
   }, [showCookieModal]);
 
   return (
-    <div className="relative min-h-[100dvh] bg-[#FBFBFD] text-[#1D1D1F] flex flex-col overflow-x-hidden selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased">
-
-      {/* ================= ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА ================= */}
+    <div
+      suppressHydrationWarning
+      className="relative min-h-[100dvh] bg-[#FBFBFD] text-[#1D1D1F] flex flex-col overflow-x-hidden selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased"
+    >
+      {/* ================= 1. ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА ================= */}
       <div className="relative z-30 bg-[#0F2744] text-white px-3 py-1.5 text-center text-[10px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-2">
         <Code2 className="w-3.5 h-3.5 text-[#7DD3FC] shrink-0" />
         <span className="tracking-wide text-slate-200">{t.devBadge}</span>
       </div>
 
-      {/* ================= PRELOADER ================= */}
+      {/* ================= 2. PRELOADER (ПЕРЕКРЫВАЕТ ЭКРАН И ПЛАВНО ПРОЯВЛЯЕТСЯ) ================= */}
       <div
-        className={`fixed inset-0 z-[100] bg-[#FBFBFD] flex flex-col items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none ${
+        className={`fixed inset-0 z-[100] bg-[#FBFBFD] flex flex-col items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           pageLoading
-            ? 'opacity-100 scale-100'
-            : 'opacity-0 scale-[1.04] blur-md invisible'
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 scale-[1.02] blur-sm pointer-events-none invisible'
         }`}
       >
-        <div className="w-64 space-y-4 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-sm shadow-lg mx-auto animate-pulse">
+        <div className="w-64 space-y-4 text-center anim-preloader-in">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-[#0284C7]/25 mx-auto">
             A2R
           </div>
 
@@ -665,9 +667,9 @@ export default function AppleNordicGlacierPureLanding() {
             </div>
           </div>
 
-          <div className="w-full bg-black/[0.04] h-[2px] rounded-full overflow-hidden">
+          <div className="w-full bg-[#0284C7]/10 h-[3px] rounded-full overflow-hidden">
             <div
-              className="bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC] h-full transition-all duration-100 ease-out"
+              className="bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC] h-full transition-all duration-100 ease-out rounded-full"
               style={{
                 width: `${loadProgress}%`,
               }}
@@ -676,10 +678,36 @@ export default function AppleNordicGlacierPureLanding() {
         </div>
       </div>
 
-      {/* ================= СТИЛИ АНИМАЦИИ (БЕЗ STYLED-JSX ДЛЯ ЧИСТОЙ ГИДРАТАЦИИ) ================= */}
+      {/* ================= 3. СТИЛИ АНИМАЦИИ ================= */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
+        /* Защита от мигания: принудительно фиксируем светлый фон */
+        :root, html, body {
+          background-color: #FBFBFD !important;
+          background: #FBFBFD !important;
+          color: #1D1D1F !important;
+          color-scheme: light !important;
+        }
+
+        /* Плавное проявление контента лоадера */
+        @keyframes preloader-appear {
+          0% {
+            opacity: 0;
+            transform: scale(0.96) translateY(6px);
+            filter: blur(6px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            filter: blur(0);
+          }
+        }
+
+        .anim-preloader-in {
+          animation: preloader-appear 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
         @keyframes header-drop {
           0% {
             opacity: 0;
@@ -997,9 +1025,7 @@ export default function AppleNordicGlacierPureLanding() {
         }}
       />
 
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
+      {/* ================= 4. HEADER ================= */}
       <header
         className={`relative z-20 h-14 sm:h-16 shrink-0 border-b border-black/[0.05] backdrop-blur-xl bg-white/80 px-4 sm:px-8 flex items-center ${
           revealStep >= 1 ? 'anim-header' : 'opacity-0'
@@ -1023,7 +1049,7 @@ export default function AppleNordicGlacierPureLanding() {
                 key={item}
                 type="button"
                 onClick={() => handleLangChange(item)}
-                                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
+                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
                   lang === item
                     ? 'bg-white text-[#0284C7] shadow-sm font-bold'
                     : 'text-[#6E6E73] hover:text-[#1D1D1F]'
@@ -1036,14 +1062,10 @@ export default function AppleNordicGlacierPureLanding() {
         </div>
       </header>
 
-      {/* =====================================================
-          MAIN
-      ====================================================== */}
+      {/* ================= 5. MAIN ================= */}
       <main className={`relative z-10 flex-1 min-h-0 flex flex-col ${stage === 'idle' ? 'justify-center' : 'justify-start gap-5 sm:gap-6 pt-5 sm:pt-8'} items-center px-4 sm:px-6 py-3 sm:py-4 w-full`}>
 
-        {/* ===================================================
-            IDLE (ГЛАВНЫЙ ЭКРАН)
-        ==================================================== */}
+        {/* ================= IDLE ================= */}
         {stage === 'idle' && (
           <div className="w-full max-w-4xl flex flex-col items-center justify-center text-center">
 
@@ -1104,7 +1126,6 @@ export default function AppleNordicGlacierPureLanding() {
                         </div>
                       </div>
 
-                      {/* DIVIDER */}
                       <div className="audit-card-depth h-px bg-[#E5EDF2] my-2.5 sm:my-3" />
 
                       {/* ПАРАМЕТРЫ */}
@@ -1290,9 +1311,7 @@ export default function AppleNordicGlacierPureLanding() {
           </div>
         )}
 
-        {/* ===================================================
-            SCANNING (СТРАНИЦА АНАЛИЗА — ПОЛНОСТЬЮ ЛОКАЛИЗОВАНА)
-        ==================================================== */}
+        {/* ================= SCANNING ================= */}
         {stage !== 'idle' && (
           <div className="w-full max-w-4xl px-1 sm:px-3 py-5 sm:py-7 space-y-6 text-left animate-fade-in">
             <div className="flex items-start justify-between gap-5 pb-1">
@@ -1407,9 +1426,7 @@ export default function AppleNordicGlacierPureLanding() {
           </div>
         )}
 
-        {/* ===================================================
-            TEASER / REPORT (ПОЛНОСТЬЮ ЛОКАЛИЗОВАН)
-        ==================================================== */}
+        {/* ================= REPORT ================= */}
         {stage === 'report' && (
           <div className="w-full max-w-4xl space-y-5 sm:space-y-6 text-left animate-fade-in">
             <div className="p-5 sm:p-7 rounded-3xl bg-white/95 border border-rose-200 shadow-lg backdrop-blur-xl">
@@ -1555,9 +1572,7 @@ export default function AppleNordicGlacierPureLanding() {
         )}
       </main>
 
-      {/* =====================================================
-          FOOTER (ЗАЩИЩЕН ОТ HYDRATION MISMATCH И ЛОКАЛИЗОВАН)
-      ====================================================== */}
+      {/* ================= 6. FOOTER ================= */}
       <footer
         suppressHydrationWarning
         className={`relative z-20 min-h-12 sm:min-h-14 shrink-0 border-t border-black/[0.05] bg-white/70 backdrop-blur-xl px-4 sm:px-8 py-3 flex items-center ${
@@ -1578,20 +1593,18 @@ export default function AppleNordicGlacierPureLanding() {
           </div>
 
           <nav aria-label={t.footerLegalNav} className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]">
-  <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
-  <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
-  <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
-  <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
-  <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
-    {t.cookieSettings}
-  </button>
-</nav>
+            <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
+            <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
+            <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
+            <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
+            <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
+              {t.cookieSettings}
+            </button>
+          </nav>
         </div>
       </footer>
 
-      {/* =====================================================
-          COOKIE MODAL
-      ====================================================== */}
+      {/* ================= 7. COOKIE MODAL ================= */}
       {showCookieModal && (
         <div
           className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4 sm:p-6"

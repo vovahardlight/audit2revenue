@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   XCircle,
   AlertTriangle,
+  Code2,
 } from 'lucide-react';
 
 type Lang = 'ru' | 'es' | 'en';
@@ -33,7 +34,7 @@ function BusinessIntelligenceReport() {
   const [lang, setLang] = useState<Lang>(urlLang && ['ru', 'es', 'en'].includes(urlLang) ? urlLang : 'ru');
   const [activeFilter, setActiveFilter] = useState<'all' | 'issues' | 'healthy'>('all');
 
-  // 1. Считываем сохранённый язык при первой загрузке (из URL или из памяти)
+  // 1. Считываем сохранённый язык при первой загрузке
   useEffect(() => {
     const saved = (searchParams.get('lang') as Lang) || (localStorage.getItem('a2r_lang') as Lang);
     if (saved && ['ru', 'es', 'en'].includes(saved)) {
@@ -41,13 +42,12 @@ function BusinessIntelligenceReport() {
     }
   }, [searchParams]);
 
-  // 2. Функция смены языка: сохраняет в localStorage, cookie и обновляет URL (сохраняя параметр ?url=...)
+  // 2. Функция смены языка с сохранением
   const handleLangChange = (newLang: Lang) => {
     setLang(newLang);
     localStorage.setItem('a2r_lang', newLang);
     document.cookie = `a2r_lang=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
 
-    // Сохраняем текущие параметры (?url=...&demo=...) и аккуратно обновляем lang
     const params = new URLSearchParams(window.location.search);
     params.set('lang', newLang);
     window.history.replaceState(null, '', `?${params.toString()}`);
@@ -65,15 +65,63 @@ function BusinessIntelligenceReport() {
     overallHealthScore: 46,
   };
 
+  // =========================================================
+  // АНИМАЦИЯ ПОКАЗАТЕЛЕЙ И ДАШБОРДА (EASE-OUT COUNTER)
+  // =========================================================
+  const [isGaugeAnimated, setIsGaugeAnimated] = useState(false);
+  const [animatedScore, setAnimatedScore] = useState(0);
+  const [animatedCrit, setAnimatedCrit] = useState(0);
+  const [animatedWarn, setAnimatedWarn] = useState(0);
+  const [animatedHealthy, setAnimatedHealthy] = useState(0);
+
+  const criticalCount = 4;
+  const warningCount = 2;
+  const healthyCount = 8;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsGaugeAnimated(true);
+    }, 150);
+
+    const duration = 1400;
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      setAnimatedScore(Math.round(ease * businessData.overallHealthScore));
+      setAnimatedCrit(Math.round(ease * criticalCount));
+      setAnimatedWarn(Math.round(ease * warningCount));
+      setAnimatedHealthy(Math.round(ease * healthyCount));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    const animId = requestAnimationFrame(animate);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(animId);
+    };
+  }, [businessData.overallHealthScore]);
+
+  const circumference = 163.36;
+  const targetOffset = circumference - (circumference * businessData.overallHealthScore) / 100;
+
   const t = {
     ru: {
-      auditReadyBadge: 'Аудит готов',
+      devBadge:
+        'ТЕХНИЧЕСКИЙ ПРОТОТИП · Некоммерческая демонстрация интерфейса (Без экономической деятельности · Смоделированные данные · Платежи отключены)',
+      auditReadyBadge: 'ДЕМО · СИМУЛЯЦИЯ',
       exportPdf: 'Экспорт PDF',
 
       // Главная карточка
-      salesReadinessBadge: 'Интеллектуальный отчет готовности к продажам',
+      salesReadinessBadge: 'Интеллектуальный отчет готовности к продажам (Демо-режим)',
       dashboardTitle: `Дашборд эффективности: ${businessData.domain}`,
-      dashboardSubtitle: 'Анализ по нормам Испании (LSSI-CE / AEPD) и воронке мобильного трафика',
+      dashboardSubtitle: 'Моделирование аудита по нормам Испании (LSSI-CE / AEPD) и воронке мобильного трафика для тестирования UI',
       retentionIndex: 'Индекс удержания',
       revenueLossWarning: 'Критические потери выручки',
       retentionNote: '100% = идеальная конверсия',
@@ -102,31 +150,39 @@ function BusinessIntelligenceReport() {
       radarCallDesc: 'Жалобы в Google картах на неотвеченные звонки и отсутствие онлайн-брони.',
 
       // Матрица параметров
-      matrixTitle: 'Инспекция всех параметров сайта',
-      matrixSubtitle: 'Интерактивный срез диагностических индикаторов платформы',
+      matrixTitle: 'Инспекция параметров сайта',
+      matrixSubtitle: 'Наведите на любой пункт, чтобы открыть детали без сдвига страницы',
       filterAll: 'Все',
       filterIssues: 'Только сбои',
       filterHealthy: 'Исправные',
+      diagnosisTitle: 'Диагностика:',
+      detailsHint: 'Детали →',
 
       // Детализация 4 утечек
-      leaksTitle: 'Детализация 4 критических утечек',
-      leaksSubtitle: 'Доказательства, обнаруженные на сайте',
+      leaksTitle: '4 ключевые точки потери клиентов',
+      leaksSubtitle: 'Главные ошибки, влияющие на прибыль клиники (наведите для доказательства)',
+      proofsTitle: 'Детали проверки:',
 
       leak1Title: '1. Слив платного трафика без WhatsApp',
       leak1Badge: '-40% лидов',
-      leak1Desc: `Вы инвестируете в рекламу Meta Ads около ${businessData.monthlyAdSpendEst}, но на сайте отсутствует прямая воронка записи в мессенджер. 78% пользователей закрывают статичную форму.`,
+      leak1Punch: '78% мобильных кликов из рекламы закрывают сайт без звонка',
+      leak1Desc: `В рекламу Meta Ads инвестируется около ${businessData.monthlyAdSpendEst}, но на сайте нет прямой кнопки мессенджера. Пользователи уходят без обращения.`,
 
       leak2Title: '2. Отсутствие NIF/CIF (Закон LSSI-CE)',
-      leak2Badge: 'Риск €30,000',
-      leak2Desc: 'В разделе Aviso Legal обнаружена тестовая заглушка темы:',
+      leak2Badge: 'Штраф до €30,000',
+      leak2Punch: 'В разделе Aviso Legal оставлена тестовая заглушка темы разработчика',
+      leak2Desc: 'Статья 10 LSSI-CE обязывает публиковать реальный фискальный CIF компании. Нарушение наказывается регулятором AEPD штрафом до 30.000 €.',
 
-      leak3Title: '3. Потеря звонков в Google Maps',
+      leak3Title: '3. Потеря звонков в картах Google',
       leak3Badge: '~16 записей/мес',
+      leak3Punch: 'Повторяющиеся жалобы пациентов на недозвон в вечерние часы пик',
       leak3Quote: '«No cogen el teléfono nunca por las tardes, tuve que ir en persona para cambiar la cita...»',
+      leak3Desc: 'При анализе 384 отзывов обнаружено 14 негативных упоминаний о сбросе звонков в часы пик.',
 
       leak4Title: '4. Каталог без онлайн-записи',
       leak4Badge: 'Отказ без брони',
-      leak4Desc: 'На сайте опубликован каталог на 46 услуг с ценами, но нет кнопки бронирования в 1 клик.',
+      leak4Punch: 'Прайс-лист содержит 46 услуг, но нет кнопки бронирования в 1 клик',
+      leak4Desc: 'Пользователи смотрят прайс-лист, но без мгновенного виджета бронирования уходят в поисковик к конкурентам.',
 
       // Чек-лист разработчика
       devPlanTitle: 'План устранения для вашего разработчика',
@@ -140,31 +196,33 @@ function BusinessIntelligenceReport() {
       devPlan4Desc: 'Добавить кнопку брони под каждой из 46 позиций прайс-листа.',
 
       // Upsell
-      upsellBadge: 'Решение под ключ за 5 рабочих дней',
+      upsellBadge: 'ДЕМО · Пример коммерческого предложения',
       upsellTitle: 'Устранить все ошибки и внедрить WhatsApp AI-ассистента',
-      upsellDesc: 'Мы устраним 100% найденных багов, приведем сайт в соответствие нормам AEPD и подключим AI-ассистента, который отвечает за 3 секунды и ведет запись клиентов 24/7.',
-      upsellPrice: '€900',
+      upsellDesc: 'Интерфейсная демонстрация готового внедрения: устранение багов, приведение к нормам AEPD и подключение AI-ассистента (симуляция оформления заявки).',
+      upsellPrice: '€900 (Демо)',
       upsellInstallment: 'или 2 платежа по €450',
-      upsellGuarantee: 'Гарантия: возврат денег, если система не принесет новые записи за 14 дней.',
-      upsellWaBtn: 'Обсудить в WhatsApp',
+      upsellGuarantee: 'Пример гарантии: возврат денег, если система не принесет новые записи за 14 дней.',
+      upsellWaBtn: 'Обсудить в WhatsApp (Тест)',
       upsellCallBtn: '15-мин звонок',
 
       // Нижний бар
-      bottomBarTitle: 'Исправить все 4 критические утечки и запустить WhatsApp AI-ассистента под ключ',
-      bottomBarSub: 'Срок: 5 рабочих дней • Стоимость: €900 • 100% гарантия окупаемости',
-      bottomBarBtn: 'Написать в WhatsApp ➔',
+      bottomBarTitle: 'Демонстрационный режим • Коммерческий приём платежей отключен',
+      bottomBarSub: 'Срок: 5 рабочих дней • Стоимость: €900 (Иллюстративный пример) • Прототип интерфейса',
+      bottomBarBtn: 'Написать в WhatsApp (Тест) ➔',
 
-      waMessage: `Здравствуйте! Я ознакомился с отчетом аудита по сайту ${targetUrl}. Хочу обсудить внедрение решений и WhatsApp AI-ассистента за €900.`,
+      waMessage: `Здравствуйте! Я ознакомился с демонстрационным отчетом аудита по сайту ${targetUrl}. Хочу обсудить функционал прототипа.`,
     },
 
     es: {
-      auditReadyBadge: 'Auditoría completada',
+      devBadge:
+        'PROTOTIPO TÉCNICO · Entorno de pruebas no comercial (Sin actividad económica · Datos ficticios/simulados · Pasarela de pago desactivada)',
+      auditReadyBadge: 'DEMO · SIMULACIÓN',
       exportPdf: 'Exportar PDF',
 
       // Главная карточка
-      salesReadinessBadge: 'Informe inteligente de preparación comercial',
+      salesReadinessBadge: 'Informe inteligente de preparación comercial (Modo Demostración)',
       dashboardTitle: `Panel de rendimiento: ${businessData.domain}`,
-      dashboardSubtitle: 'Análisis según normativa española (LSSI-CE / AEPD) y embudo de tráfico móvil',
+      dashboardSubtitle: 'Simulación técnica según normativa española (LSSI-CE / AEPD) exclusivamente para evaluación de interfaz',
       retentionIndex: 'Índice de retención',
       revenueLossWarning: 'Fuga crítica de ingresos',
       retentionNote: '100% = conversión óptima',
@@ -193,31 +251,39 @@ function BusinessIntelligenceReport() {
       radarCallDesc: 'Reseñas en Google Maps con quejas por llamadas sin respuesta y falta de reserva online.',
 
       // Матрица параметров
-      matrixTitle: 'Inspección de todos los parámetros web',
-      matrixSubtitle: 'Vista interactiva de los indicadores de diagnóstico del sitio',
+      matrixTitle: 'Inspección de parámetros web',
+      matrixSubtitle: 'Pasa el cursor por cualquier elemento para ver los detalles sin desplazar la página',
       filterAll: 'Todos',
       filterIssues: 'Solo incidencias',
       filterHealthy: 'Correctos',
+      diagnosisTitle: 'Diagnóstico:',
+      detailsHint: 'Detalles →',
 
       // Детализация 4 утечек
-      leaksTitle: 'Detalle de las 4 fugas críticas',
-      leaksSubtitle: 'Evidencias detectadas en la web',
+      leaksTitle: '4 puntos clave de fuga de pacientes',
+      leaksSubtitle: 'Los fallos con mayor impacto en ingresos (pasa el cursor para ver evidencias)',
+      proofsTitle: 'Detalle de inspección:',
 
       leak1Title: '1. Fuga de tráfico de pago sin WhatsApp',
       leak1Badge: '-40% de leads',
-      leak1Desc: `Inviertes en Meta Ads aproximadamente ${businessData.monthlyAdSpendEst}, pero no existe canal directo hacia WhatsApp. El 78% de usuarios abandona los formularios estáticos.`,
+      leak1Punch: 'El 78% del tráfico móvil desde anuncios abandona la web sin llamar',
+      leak1Desc: `Se invierten en Meta Ads unos ${businessData.monthlyAdSpendEst}, pero no hay botón de WhatsApp directo. Los usuarios se van sin contactar.`,
 
       leak2Title: '2. Falta de NIF/CIF (Ley LSSI-CE)',
-      leak2Badge: 'Riesgo 30.000 €',
-      leak2Desc: 'En la sección Aviso Legal se ha detectado el texto de plantilla:',
+      leak2Badge: 'Multa hasta 30.000 €',
+      leak2Punch: 'En el Aviso Legal figura una plantilla de prueba dejada por el programador',
+      leak2Desc: 'El art. 10 LSSI-CE exige publicar el NIF/CIF fiscal visible. Las sanciones de la AEPD alcanzan los 30.000 € en webs comerciales.',
 
       leak3Title: '3. Pérdida de llamadas en Google Maps',
       leak3Badge: '~16 citas/mes',
+      leak3Punch: 'Quejas reiteradas de pacientes por falta de atención telefónica por las tardes',
       leak3Quote: '«No cogen el teléfono nunca por las tardes, tuve que ir en persona para cambiar la cita...»',
+      leak3Desc: 'Se detectaron 14 reseñas negativas en horas punta vespertinas por llamadas no contestadas.',
 
       leak4Title: '4. Catálogo sin reserva online',
       leak4Badge: 'Fuga sin reserva',
-      leak4Desc: 'La web publica un catálogo de 46 tratamientos con precios, pero sin botón de reserva directa en 1 clic.',
+      leak4Punch: 'Tarifas con 46 servicios publicadas sin botón de cita directa en 1 clic',
+      leak4Desc: 'Los pacientes consultan precios pero se marchan a buscar otra clínica al no poder reservar al instante.',
 
       // Чек-лист разработчика
       devPlanTitle: 'Plan de corrección para tu programador',
@@ -231,31 +297,33 @@ function BusinessIntelligenceReport() {
       devPlan4Desc: 'Añadir botón de reserva directa bajo cada una de las 46 tarifas del catálogo.',
 
       // Upsell
-      upsellBadge: 'Solución llave en mano en 5 días laborables',
+      upsellBadge: 'DEMO · Oferta ilustrativa de ejemplo',
       upsellTitle: 'Solucionar todos los fallos e integrar asistente IA en WhatsApp',
-      upsellDesc: 'Corregimos el 100% de los fallos, adaptamos tu web a la normativa de la AEPD y conectamos un asistente IA que responde en 3 segundos y agenda citas 24/7.',
-      upsellPrice: '900 €',
+      upsellDesc: 'Demostración de interfaz de contratación técnica: no constituye oferta vinculante comercial en esta versión de pruebas.',
+      upsellPrice: '900 € (Demo)',
       upsellInstallment: 'o 2 pagos de 450 €',
-      upsellGuarantee: 'Garantía: devolución íntegra si el sistema no genera nuevas citas en 14 días.',
-      upsellWaBtn: 'Hablar por WhatsApp',
+      upsellGuarantee: 'Garantía simulada: devolución íntegra si el sistema no genera nuevas citas en 14 días.',
+      upsellWaBtn: 'Hablar por WhatsApp (Prueba)',
       upsellCallBtn: 'Llamada de 15 min',
 
       // Нижний бар
-      bottomBarTitle: 'Corregir las 4 fugas críticas y activar el asistente IA de WhatsApp llave en mano',
-      bottomBarSub: 'Plazo: 5 días laborables • Precio: 900 € • 100% garantía de resultados',
-      bottomBarBtn: 'Contactar por WhatsApp ➔',
+      bottomBarTitle: 'Entorno de demostración técnica • Sin actividad económica mercantil',
+      bottomBarSub: 'Plazo: 5 días laborables • Precio: 900 € (Ilustrativo) • Sin captación de clientes',
+      bottomBarBtn: 'Contactar por WhatsApp (Prueba) ➔',
 
-      waMessage: `¡Hola! He revisado el informe de auditoría de ${targetUrl}. Me gustaría hablar sobre la implementación y el asistente IA de WhatsApp por 900 €.`,
+      waMessage: `¡Hola! He revisado el informe de demostración de ${targetUrl}. Me gustaría consultar sobre el prototipo técnico.`,
     },
 
     en: {
-      auditReadyBadge: 'Audit Ready',
+      devBadge:
+        'TECHNICAL PROTOTYPE · Non-commercial testing sandbox (No economic activity · Simulated/mock data · Payments disabled)',
+      auditReadyBadge: 'DEMO · SIMULATION',
       exportPdf: 'Export PDF',
 
       // Главная карточка
-      salesReadinessBadge: 'AI Sales-Readiness Intelligence Report',
+      salesReadinessBadge: 'AI Sales-Readiness Intelligence Report (Demo Mode)',
       dashboardTitle: `Performance Dashboard: ${businessData.domain}`,
-      dashboardSubtitle: 'Audit based on Spanish compliance (LSSI-CE / AEPD) & mobile traffic funnel',
+      dashboardSubtitle: 'Technical simulation based on Spanish compliance (LSSI-CE / AEPD) for UI development purposes',
       retentionIndex: 'Retention Index',
       revenueLossWarning: 'Critical Revenue Leak',
       retentionNote: '100% = optimal conversion',
@@ -284,31 +352,39 @@ function BusinessIntelligenceReport() {
       radarCallDesc: 'Google Maps reviews complaining about unanswered calls and missing online booking.',
 
       // Матрица параметров
-      matrixTitle: 'Full Website Parameters Inspection',
-      matrixSubtitle: 'Interactive breakdown of diagnostic platform indicators',
+      matrixTitle: 'Website Parameters Inspection',
+      matrixSubtitle: 'Hover over any item to inspect technical details without shifting layout',
       filterAll: 'All',
       filterIssues: 'Issues only',
       filterHealthy: 'Healthy',
+      diagnosisTitle: 'Diagnosis:',
+      detailsHint: 'Details →',
 
       // Детализация 4 утечек
-      leaksTitle: 'Breakdown of 4 Critical Leaks',
-      leaksSubtitle: 'Evidence detected on the website',
+      leaksTitle: '4 Core Revenue Leak Points',
+      leaksSubtitle: 'High-impact bottlenecks draining clinical bookings (hover to inspect proof)',
+      proofsTitle: 'Forensic details:',
 
       leak1Title: '1. Paid Traffic Waste without WhatsApp',
       leak1Badge: '-40% leads',
-      leak1Desc: `You invest approximately ${businessData.monthlyAdSpendEst} in Meta Ads, but there is no direct WhatsApp funnel. 78% of users bounce from static forms.`,
+      leak1Punch: '78% of mobile ad clicks bounce immediately without calling',
+      leak1Desc: `Approx. ${businessData.monthlyAdSpendEst} is invested in Meta Ads, but there is no direct WhatsApp button. Visitors bounce with zero interaction.`,
 
       leak2Title: '2. Missing NIF/CIF (LSSI-CE Law)',
-      leak2Badge: 'Risk €30,000',
-      leak2Desc: 'In the Legal Notice section, template placeholder text was detected:',
+      leak2Badge: 'Fines up to €30,000',
+      leak2Punch: 'The Legal Notice footer contains developer template placeholder text',
+      leak2Desc: 'Art. 10 LSSI-CE requires a visible corporate CIF tax ID. AEPD non-compliance fines reach up to €30,000 for commercial websites.',
 
       leak3Title: '3. Lost Calls in Google Maps',
       leak3Badge: '~16 bookings/mo',
+      leak3Punch: 'Repeated patient complaints about unanswered phone calls in the evening',
       leak3Quote: '«No cogen el teléfono nunca por las tardes, tuve que ir en persona para cambiar la cita...»',
+      leak3Desc: 'Analysis of 384 reviews revealed 14 complaints regarding unanswered calls during peak evening hours.',
 
       leak4Title: '4. Catalog without 1-Click Booking',
       leak4Badge: 'Drop-off without Booking',
-      leak4Desc: 'Website publishes a catalog of 46 treatments with pricing, but no 1-click online booking button.',
+      leak4Punch: '46 medical treatments displayed with pricing, but no 1-click booking button',
+      leak4Desc: 'Visitors review prices but leave to search competitor clinics because instant online booking is unavailable.',
 
       // Чек-лист разработчика
       devPlanTitle: 'Action Plan for Your Web Developer',
@@ -322,21 +398,21 @@ function BusinessIntelligenceReport() {
       devPlan4Desc: 'Add instant booking buttons under all 46 price list services.',
 
       // Upsell
-      upsellBadge: 'Turnkey Solution in 5 Business Days',
+      upsellBadge: 'DEMO · Illustrative Offer Sample',
       upsellTitle: 'Fix All Issues & Deploy WhatsApp AI Assistant',
-      upsellDesc: 'We fix 100% of discovered bugs, ensure full AEPD compliance, and deploy an AI assistant that responds in 3 seconds and books clients 24/7.',
-      upsellPrice: '€900',
+      upsellDesc: 'Technical interface preview: payments and client onboarding are disabled on this demo.',
+      upsellPrice: '€900 (Demo)',
       upsellInstallment: 'or 2 payments of €450',
-      upsellGuarantee: 'Guarantee: Full refund if the system does not generate new bookings within 14 days.',
-      upsellWaBtn: 'Discuss on WhatsApp',
+      upsellGuarantee: 'Illustrative guarantee: Full refund if the system does not generate new bookings within 14 days.',
+      upsellWaBtn: 'Discuss on WhatsApp (Test)',
       upsellCallBtn: '15-min Call',
 
       // Нижний бар
-      bottomBarTitle: 'Fix all 4 critical leaks and deploy turnkey WhatsApp AI assistant',
-      bottomBarSub: 'Timeline: 5 business days • Price: €900 • 100% money-back guarantee',
-      bottomBarBtn: 'Chat on WhatsApp ➔',
+      bottomBarTitle: 'Technical Prototype Sandbox • No Commercial Activity',
+      bottomBarSub: 'Timeline: 5 business days • Price: €900 (Example only) • Payments Disabled',
+      bottomBarBtn: 'Chat on WhatsApp (Test) ➔',
 
-      waMessage: `Hello! I reviewed the website audit report for ${targetUrl}. I would like to discuss the implementation and WhatsApp AI assistant for €900.`,
+      waMessage: `Hello! I reviewed the technical demo audit report for ${targetUrl}. I would like to inquire about the UI prototype.`,
     },
   }[lang];
 
@@ -519,21 +595,86 @@ function BusinessIntelligenceReport() {
     });
   }, [allParameters, activeFilter]);
 
-  const criticalCount = allParameters.filter(p => p.status === 'critical').length;
-  const warningCount = allParameters.filter(p => p.status === 'warning').length;
-  const healthyCount = allParameters.filter(p => p.status === 'ok').length;
-
   const phoneWhatsApp = '34600123456'; 
   const whatsappUrl = `https://wa.me/${phoneWhatsApp}?text=${encodeURIComponent(t.waMessage)}`;
 
   return (
     <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] pb-32 selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased">
       
-      {/* ================= ШАПКА С ЯЗЫКОВЫМ ПЕРЕКЛЮЧАТЕЛЕМ ================= */}
+      {/* СТИЛИ АНИМАЦИИ ДАШБОРДА */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes card-entrance {
+              0% {
+                opacity: 0;
+                transform: translateY(22px) scale(0.985);
+                filter: blur(8px);
+              }
+              100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+              }
+            }
+
+            @keyframes radar-sweep {
+              0% {
+                transform: translateX(-100%);
+              }
+              100% {
+                transform: translateX(250%);
+              }
+            }
+
+            @keyframes popout-reveal {
+              0% {
+                opacity: 0;
+                transform: translateY(-4px);
+              }
+              100% {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+
+            .anim-card-entrance {
+              animation: card-entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+
+            .anim-stagger-1 {
+              animation: card-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+            }
+
+            .anim-stagger-2 {
+              animation: card-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.22s backwards;
+            }
+
+            .anim-stagger-3 {
+              animation: card-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.34s backwards;
+            }
+
+            .radar-beam {
+              animation: radar-sweep 4s ease-in-out infinite;
+            }
+
+            .anim-popout {
+              animation: popout-reveal 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+          `,
+        }}
+      />
+
+      {/* ================= ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА (LSSI-CE / AEPD COMPLIANCE) ================= */}
+      <div className="relative z-40 bg-[#0F2744] text-white px-3 py-1.5 text-center text-[10px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-2">
+        <Code2 className="w-3.5 h-3.5 text-[#7DD3FC] shrink-0" />
+        <span className="tracking-wide text-slate-200">{t.devBadge}</span>
+      </div>
+
+      {/* ================= ШАПКА ================= */}
       <header className="border-b border-black/[0.05] bg-white/80 backdrop-blur-xl sticky top-0 z-30 px-6 sm:px-8 h-16 flex items-center">
         <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            {/* Клик по логотипу ведет на главную с сохранением текущего языка */}
             <Link href={`/?lang=${lang}`} className="flex items-center gap-3 no-underline min-w-0">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-xs shadow-sm shadow-[#0284C7]/20 shrink-0">
                 A2R
@@ -541,7 +682,7 @@ function BusinessIntelligenceReport() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-[#1D1D1F] text-sm truncate">{businessData.brandName}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200 shrink-0">
+                  <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-black border border-amber-300 tracking-wide shrink-0">
                     {t.auditReadyBadge}
                   </span>
                 </div>
@@ -551,7 +692,6 @@ function BusinessIntelligenceReport() {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">
-            {/* Языковые кнопки вызывают handleLangChange */}
             <div className="flex items-center p-0.5 rounded-full bg-black/[0.04] border border-black/[0.05]">
               {(['es', 'en', 'ru'] as Lang[]).map((item) => (
                 <button
@@ -584,12 +724,16 @@ function BusinessIntelligenceReport() {
       {/* ================= ДАШБОРД ================= */}
       <main className="max-w-5xl mx-auto px-6 py-8 sm:py-10 space-y-8">
         
-        {/* Главная карточка здоровья */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-black/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.04)] space-y-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black/[0.05] pb-6">
+        {/* ================= ГЛАВНАЯ КАРТОЧКА ЗДОРОВЬЯ ================= */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-black/[0.06] shadow-[0_12px_42px_rgba(15,39,68,0.06)] space-y-6 relative overflow-hidden anim-card-entrance">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="radar-beam absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#0284C7]/[0.04] to-transparent -skew-x-12" />
+          </div>
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black/[0.05] pb-6 relative z-10">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] text-xs font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] text-xs font-semibold shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 animate-pulse" />
                 <span>{t.salesReadinessBadge}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#1D1D1F] tracking-tight">
@@ -600,78 +744,108 @@ function BusinessIntelligenceReport() {
               </p>
             </div>
 
-            {/* Индекс конверсии */}
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] shrink-0">
-              <div className="relative w-16 h-16 flex items-center justify-center">
-                <svg className="w-16 h-16 transform -rotate-90">
-                  <circle cx="32" cy="32" r="26" stroke="#E5E7EB" strokeWidth="5" fill="transparent" />
+            {/* ИНТЕРАКТИВНЫЙ КРУГОВОЙ ИНДИКАТОР ЗДОРОВЬЯ */}
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-b from-[#FBFBFD] to-[#F5F5F7] border border-black/[0.05] shrink-0 shadow-xs hover:border-[#DC2626]/20 transition-all duration-300">
+              <div className="relative w-18 h-18 sm:w-20 sm:h-20 flex items-center justify-center">
+                <svg className="w-18 h-18 sm:w-20 sm:h-20 transform -rotate-90">
                   <circle 
-                    cx="32" 
-                    cy="32" 
+                    cx="36" 
+                    cy="36" 
+                    r="26" 
+                    stroke="#E2E8F0" 
+                    strokeWidth="5.5" 
+                    fill="transparent" 
+                  />
+                  <circle 
+                    cx="36" 
+                    cy="36" 
                     r="26" 
                     stroke="#DC2626" 
-                    strokeWidth="5" 
+                    strokeWidth="5.5" 
                     fill="transparent" 
-                    strokeDasharray="163.3" 
-                    strokeDashoffset={163.3 - (163.3 * businessData.overallHealthScore) / 100}
+                    strokeDasharray={circumference} 
+                    strokeDashoffset={isGaugeAnimated ? targetOffset : circumference}
                     strokeLinecap="round" 
+                    style={{
+                      transition: 'stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                      filter: 'drop-shadow(0 0 6px rgba(220, 38, 38, 0.35))',
+                    }}
                   />
                 </svg>
-                <span className="absolute text-base font-black text-[#1D1D1F]">
-                  {businessData.overallHealthScore}%
-                </span>
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+                  <span suppressHydrationWarning className="text-lg sm:text-xl font-black text-[#1D1D1F] tracking-tight tabular-nums">
+                    {animatedScore}%
+                  </span>
+                </div>
               </div>
+
               <div>
-                <span className="text-xs font-bold text-[#1D1D1F] block">{t.retentionIndex}</span>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  <span className="text-xs font-bold text-[#1D1D1F]">{t.retentionIndex}</span>
+                </div>
                 <span className="text-[11px] text-rose-600 font-bold block">{t.revenueLossWarning}</span>
                 <span className="text-[10px] text-[#6E6E73]">{t.retentionNote}</span>
               </div>
             </div>
           </div>
 
-          {/* Светофорная сводка */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div className="p-3.5 rounded-2xl bg-rose-50/60 border border-rose-200/80 flex items-center justify-between">
+          {/* СВЕТОФОРНАЯ СВОДКА */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 relative z-10">
+            <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/90 flex items-center justify-between shadow-xs hover:scale-[1.02] transition-transform duration-200 anim-stagger-1">
               <div className="flex items-center gap-2.5">
-                <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                <div className="w-8 h-8 rounded-xl bg-white border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
+                  <XCircle className="w-4 h-4 text-rose-600" />
+                </div>
                 <div>
-                  <strong className="text-xs text-rose-900 block font-bold">{t.criticalTitle}</strong>
-                  <span className="text-[11px] text-rose-700">{t.criticalSub}</span>
+                  <strong className="text-xs text-rose-950 block font-bold">{t.criticalTitle}</strong>
+                  <span className="text-[11px] text-rose-700 font-medium">{t.criticalSub}</span>
                 </div>
               </div>
-              <span className="text-lg font-black text-rose-600">{criticalCount}</span>
+              <span suppressHydrationWarning className="text-2xl font-black text-rose-600 tabular-nums">
+                {animatedCrit}
+              </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/90 flex items-center justify-between shadow-xs hover:scale-[1.02] transition-transform duration-200 anim-stagger-2">
               <div className="flex items-center gap-2.5">
-                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                <div className="w-8 h-8 rounded-xl bg-white border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                </div>
                 <div>
-                  <strong className="text-xs text-amber-900 block font-bold">{t.warningTitle}</strong>
-                  <span className="text-[11px] text-amber-700">{t.warningSub}</span>
+                  <strong className="text-xs text-amber-950 block font-bold">{t.warningTitle}</strong>
+                  <span className="text-[11px] text-amber-700 font-medium">{t.warningSub}</span>
                 </div>
               </div>
-              <span className="text-lg font-black text-amber-600">{warningCount}</span>
+              <span suppressHydrationWarning className="text-2xl font-black text-amber-600 tabular-nums">
+                {animatedWarn}
+              </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 flex items-center justify-between shadow-xs hover:scale-[1.02] transition-transform duration-200 anim-stagger-3">
               <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center shrink-0 shadow-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                </div>
                 <div>
-                  <strong className="text-xs text-emerald-900 block font-bold">{t.healthyTitle}</strong>
-                  <span className="text-[11px] text-emerald-700">{t.healthySub}</span>
+                  <strong className="text-xs text-emerald-950 block font-bold">{t.healthyTitle}</strong>
+                  <span className="text-[11px] text-emerald-700 font-medium">{t.healthySub}</span>
                 </div>
               </div>
-              <span className="text-lg font-black text-emerald-600">{healthyCount}</span>
+              <span suppressHydrationWarning className="text-2xl font-black text-emerald-600 tabular-nums">
+                {animatedHealthy}
+              </span>
             </div>
           </div>
 
-          {/* Радар финансовых потерь */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#F0F9FF] to-white border border-[#BAE6FD]/70">
+          {/* РАДАР ПОТЕРЬ */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 relative z-10">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#F0F9FF] to-white border border-[#BAE6FD]/80 shadow-xs hover:shadow-md transition-shadow duration-300 anim-stagger-1">
               <span className="text-xs font-semibold text-[#0284C7] flex items-center gap-1.5">
-                <Coins className="w-4 h-4" /> {t.radarAdSpendTag}
+                <Coins className="w-4 h-4 animate-bounce" /> {t.radarAdSpendTag}
               </span>
-              <div className="text-2xl font-black text-[#1D1D1F] mt-1.5">
+              <div className="text-2xl font-black text-[#1D1D1F] mt-1.5 tracking-tight">
                 {t.radarAdSpendVal} <span className="text-xs font-normal text-[#6E6E73]">{t.radarAdSpendPerMonth}</span>
               </div>
               <p className="text-[11px] text-[#6E6E73] mt-1 leading-relaxed">
@@ -679,11 +853,11 @@ function BusinessIntelligenceReport() {
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FEF2F2] to-white border border-rose-200">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FEF2F2] to-white border border-rose-200 shadow-xs hover:shadow-md transition-shadow duration-300 anim-stagger-2">
               <span className="text-xs font-semibold text-rose-600 flex items-center gap-1.5">
-                <AlertOctagon className="w-4 h-4" /> {t.radarFineTag}
+                <AlertOctagon className="w-4 h-4 animate-pulse" /> {t.radarFineTag}
               </span>
-              <div className="text-2xl font-black text-rose-700 mt-1.5">
+              <div className="text-2xl font-black text-rose-700 mt-1.5 tracking-tight">
                 {t.radarFineVal}
               </div>
               <p className="text-[11px] text-[#6E6E73] mt-1 leading-relaxed">
@@ -691,11 +865,11 @@ function BusinessIntelligenceReport() {
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-white border border-amber-200">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-white border border-amber-200 shadow-xs hover:shadow-md transition-shadow duration-300 anim-stagger-3">
               <span className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
                 <PhoneCall className="w-4 h-4" /> {t.radarCallTag}
               </span>
-              <div className="text-2xl font-black text-[#1D1D1F] mt-1.5">
+              <div className="text-2xl font-black text-[#1D1D1F] mt-1.5 tracking-tight">
                 {t.radarCallVal} <span className="text-xs font-normal text-[#6E6E73]">{t.radarCallPerMonth}</span>
               </div>
               <p className="text-[11px] text-[#6E6E73] mt-1 leading-relaxed">
@@ -705,7 +879,7 @@ function BusinessIntelligenceReport() {
           </div>
         </div>
 
-        {/* ================= МАТРИЦА ПАРАМЕТРОВ САЙТА ================= */}
+        {/* ================= МАТРИЦА ПАРАМЕТРОВ САЙТА (ZERO LAYOUT SHIFT + FLOATING POPOUT) ================= */}
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
             <div>
@@ -742,60 +916,73 @@ function BusinessIntelligenceReport() {
             </div>
           </div>
 
+          {/* СЕТКА С ФИКСИРОВАННОЙ ВЫСОТОЙ ЯЧЕЕК (НЕ УДЛИНЯЕТ СТРАНИЦУ) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {filteredParameters.map((param) => {
               const isCrit = param.status === 'critical';
               const isWarn = param.status === 'warning';
 
               return (
-                <div
-                  key={param.id}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 ${
-                    isCrit 
-                      ? 'bg-white border-rose-200 shadow-xs hover:border-rose-300' 
-                      : isWarn 
-                        ? 'bg-white border-amber-200 shadow-xs hover:border-amber-300' 
-                        : 'bg-white/80 border-black/[0.06] hover:border-emerald-200'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
-                      {isCrit && <XCircle className="w-4 h-4 text-rose-600 shrink-0" />}
-                      {isWarn && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />}
-                      {!isCrit && !isWarn && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
+                <div key={param.id} className="relative h-[72px] sm:h-[76px]">
+                  {/* ПАРЯЩАЯ КАРТОЧКА (ВЫДВИГАЕТСЯ В Z-INDEX ПОВЕРХ ВСЕГО) */}
+                  <div
+                    tabIndex={0}
+                    className={`group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl border transition-all duration-200 bg-white cursor-pointer focus:outline-none ${
+                      isCrit 
+                        ? 'border-rose-200/90 shadow-2xs hover:shadow-[0_16px_36px_rgba(225,29,72,0.18)] hover:border-rose-400' 
+                        : isWarn 
+                          ? 'border-amber-200/90 shadow-2xs hover:shadow-[0_16px_36px_rgba(217,119,6,0.18)] hover:border-amber-400' 
+                          : 'border-black/[0.06] shadow-2xs hover:shadow-[0_16px_36px_rgba(15,39,68,0.14)] hover:border-[#0284C7]/40'
+                    }`}
+                  >
+                    {/* ВСЕГДА ВИДНО: ЗАГОЛОВОК, ИКОНКА, ЖИРНАЯ МЕТРИКА */}
+                    <div className="h-[72px] sm:h-[76px] p-4 sm:p-4.5 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {isCrit && <XCircle className="w-4.5 h-4.5 text-rose-600 shrink-0" />}
+                        {isWarn && <AlertTriangle className="w-4.5 h-4.5 text-amber-600 shrink-0" />}
+                        {!isCrit && !isWarn && <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />}
 
-                      <div>
-                        <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider block font-mono">
-                          {param.category}
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider block font-mono leading-tight">
+                            {param.category}
+                          </span>
+                          <h4 className="text-sm font-bold text-[#1D1D1F] truncate group-hover:text-[#0284C7] transition-colors">
+                            {param.title}
+                          </h4>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-tight shadow-2xs ${
+                          isCrit 
+                            ? 'bg-rose-50 text-rose-700 border border-rose-200' 
+                            : isWarn 
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200' 
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        }`}>
+                          {param.metric}
                         </span>
-                        <h4 className="text-sm font-bold text-[#1D1D1F]">
-                          {param.title}
-                        </h4>
                       </div>
                     </div>
 
-                    <span className={`px-2 py-0.5 rounded-md text-[11px] font-bold shrink-0 ${
-                      isCrit 
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                        : isWarn 
-                          ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    }`}>
-                      {param.metric}
-                    </span>
+                    {/* ВЫДВИГАЮЩИЙСЯ ПАРАГРАФ С ДЕТАЛЯМИ (В Z-INDEX БЕЗ СМЕЩЕНИЯ КОНТЕНТА) */}
+                    <div className="hidden group-hover:block group-focus-within:block px-4 pb-4 sm:px-4.5 sm:pb-4.5 pt-0 anim-popout">
+                      <div className="pt-2.5 border-t border-black/[0.06] text-xs leading-relaxed text-[#454B54] bg-[#FBFBFD] p-3 rounded-xl border border-black/[0.03]">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] block mb-1">
+                          {t.diagnosisTitle}
+                        </span>
+                        <p>{param.desc}</p>
+                      </div>
+                    </div>
                   </div>
-
-                  <p className="text-xs text-[#6E6E73] mt-2.5 leading-relaxed pl-6.5">
-                    {param.desc}
-                  </p>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* ================= ДЕТАЛИЗАЦИЯ КРИТИЧЕСКИХ ОШИБОК ================= */}
-        <div className="space-y-4">
+        {/* ================= 4 КЛЮЧЕВЫЕ ТОЧКИ ПОТЕРИ (С ПАРЯЩИМ Z-INDEX ПОПОУВЕРОМ) ================= */}
+        <div className="space-y-4 pt-2">
           <div className="px-1">
             <h2 className="text-xl font-bold text-[#1D1D1F] tracking-tight">
               {t.leaksTitle}
@@ -805,82 +992,159 @@ function BusinessIntelligenceReport() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-            <div className="p-6 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between border-b border-black/[0.05] pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
-                    <Coins className="w-4 h-4" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+            
+            {/* 1. WhatsApp Leak */}
+            <div className="relative h-[116px] sm:h-[120px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                      <Coins className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
+                      {t.leak1Title}
+                    </h3>
                   </div>
-                  <h3 className="font-bold text-sm text-[#1D1D1F]">{t.leak1Title}</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
+                    {t.leak1Badge}
+                  </span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold">
-                  {t.leak1Badge}
-                </span>
+
+                {/* Главный факт крупно и жирно — всегда на виду */}
+                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                  {t.leak1Punch}
+                </div>
+
+                {/* Мелкий текст выплывает поверх в z-index при наведении */}
+                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                  <p className="text-xs text-[#52525B] leading-relaxed">
+                    {t.leak1Desc}
+                  </p>
+                  <div className="text-[11px] text-[#71717A] bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
+                    <strong className="text-[#1D1D1F] block mb-0.5">{t.proofsTitle}</strong>
+                    Кнопка прямой записи в WhatsApp отсутствует в мобильной версии. Конверсия рекламных переходов снижена на 40%.
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-[#424245] leading-relaxed">
-                {t.leak1Desc}
-              </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between border-b border-black/[0.05] pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
-                    <Building2 className="w-4 h-4" />
+            {/* 2. NIF / CIF Leak */}
+            <div className="relative h-[116px] sm:h-[120px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
+                      {t.leak2Title}
+                    </h3>
                   </div>
-                  <h3 className="font-bold text-sm text-[#1D1D1F]">{t.leak2Title}</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
+                    {t.leak2Badge}
+                  </span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold">
-                  {t.leak2Badge}
-                </span>
+
+                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                  {t.leak2Punch}
+                </div>
+
+                {/* Мелкий текст и код заглушки выплывают поверх в z-index */}
+                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                  <code className="text-[11px] font-mono bg-[#F5F5F7] p-2 rounded-lg border border-rose-200 block text-rose-700 font-bold truncate">
+                    {businessData.cifPlaceholder}
+                  </code>
+                  <p className="text-xs text-[#52525B] leading-relaxed">
+                    {t.leak2Desc}
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-[#424245] leading-relaxed">
-                {t.leak2Desc}
-              </p>
-              <code className="text-[11px] font-mono bg-[#F5F5F7] p-2 rounded-lg border border-rose-200 block text-rose-700 truncate">
-                {businessData.cifPlaceholder}
-              </code>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between border-b border-black/[0.05] pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
-                    <Star className="w-4 h-4" />
+            {/* 3. Lost Calls */}
+            <div className="relative h-[116px] sm:h-[120px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                      <Star className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
+                      {t.leak3Title}
+                    </h3>
                   </div>
-                  <h3 className="font-bold text-sm text-[#1D1D1F]">{t.leak3Title}</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
+                    {t.leak3Badge}
+                  </span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold">
-                  {t.leak3Badge}
-                </span>
+
+                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                  {t.leak3Punch}
+                </div>
+
+                {/* Цитата из отзыва в парящем блоке */}
+                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                  <blockquote className="p-2.5 rounded-xl bg-[#F5F5F7] text-xs text-[#3F3F46] font-medium italic border-l-2 border-rose-400">
+                    {t.leak3Quote}
+                  </blockquote>
+                  <p className="text-xs text-[#52525B] leading-relaxed">
+                    {t.leak3Desc}
+                  </p>
+                </div>
               </div>
-              <blockquote className="p-2.5 rounded-xl bg-[#F5F5F7] text-xs text-[#424245] italic">
-                {t.leak3Quote}
-              </blockquote>
             </div>
 
-            <div className="p-6 rounded-3xl bg-white border border-rose-200 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between border-b border-black/[0.05] pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
-                    <Cpu className="w-4 h-4" />
+            {/* 4. Booking Widget */}
+            <div className="relative h-[116px] sm:h-[120px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-3xl bg-white border border-rose-200 p-5 sm:p-5.5 shadow-xs hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                      <Cpu className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
+                      {t.leak4Title}
+                    </h3>
                   </div>
-                  <h3 className="font-bold text-sm text-[#1D1D1F]">{t.leak4Title}</h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black shrink-0 border border-rose-200">
+                    {t.leak4Badge}
+                  </span>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold">
-                  {t.leak4Badge}
-                </span>
+
+                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                  {t.leak4Punch}
+                </div>
+
+                <div className="hidden group-hover:block group-focus-within:block pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2">
+                  <p className="text-xs text-[#52525B] leading-relaxed">
+                    {t.leak4Desc}
+                  </p>
+                  <div className="text-[11px] text-[#71717A] bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
+                    <strong className="text-[#1D1D1F] block mb-0.5">{t.proofsTitle}</strong>
+                    Без мгновенной онлайн-записи 62% пациентов уходят к конкурентам с рейтингом в Google картах.
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-[#424245] leading-relaxed">
-                {t.leak4Desc}
-              </p>
             </div>
+
           </div>
         </div>
 
-        {/* ================= ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА ================= */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-black/[0.06] shadow-sm space-y-4">
+        {/* ================= ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА (КОМПАКТНЫЕ БЕЙДЖИ) ================= */}
+        <div className="p-6 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-black/[0.05] pb-3">
             <ListChecks className="w-4 h-4 text-[#0284C7]" />
             <h3 className="text-base font-bold text-[#1D1D1F]">
@@ -889,21 +1153,84 @@ function BusinessIntelligenceReport() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3.5 rounded-2xl bg-[#F5F5F7] space-y-1">
-              <strong>{t.devPlan1Title}</strong>
-              <p className="text-[#6E6E73]">{t.devPlan1Desc}</p>
+            {/* 1. WhatsApp */}
+            <div className="relative h-[64px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between gap-2 h-[36px]">
+                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
+                    {t.devPlan1Title}
+                  </strong>
+                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    {t.detailsHint}
+                  </span>
+                </div>
+                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
+                  {t.devPlan1Desc}
+                </div>
+              </div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#F5F5F7] space-y-1">
-              <strong>{t.devPlan2Title}</strong>
-              <p className="text-[#6E6E73]">{t.devPlan2Desc}</p>
+
+            {/* 2. NIF / CIF */}
+            <div className="relative h-[64px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between gap-2 h-[36px]">
+                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
+                    {t.devPlan2Title}
+                  </strong>
+                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    {t.detailsHint}
+                  </span>
+                </div>
+                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
+                  {t.devPlan2Desc}
+                </div>
+              </div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#F5F5F7] space-y-1">
-              <strong>{t.devPlan3Title}</strong>
-              <p className="text-[#6E6E73]">{t.devPlan3Desc}</p>
+
+            {/* 3. Automation */}
+            <div className="relative h-[64px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between gap-2 h-[36px]">
+                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
+                    {t.devPlan3Title}
+                  </strong>
+                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    {t.detailsHint}
+                  </span>
+                </div>
+                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
+                  {t.devPlan3Desc}
+                </div>
+              </div>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#F5F5F7] space-y-1">
-              <strong>{t.devPlan4Title}</strong>
-              <p className="text-[#6E6E73]">{t.devPlan4Desc}</p>
+
+            {/* 4. Booking button */}
+            <div className="relative h-[64px]">
+              <div
+                tabIndex={0}
+                className="group absolute inset-x-0 top-0 z-10 hover:z-40 focus-within:z-40 rounded-2xl bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] p-3.5 transition-all duration-200 cursor-pointer focus:outline-none"
+              >
+                <div className="flex items-center justify-between gap-2 h-[36px]">
+                  <strong className="text-[#1D1D1F] text-xs font-bold truncate group-hover:text-[#0284C7] transition-colors">
+                    {t.devPlan4Title}
+                  </strong>
+                  <span className="text-[10px] text-[#0284C7] font-semibold opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    {t.detailsHint}
+                  </span>
+                </div>
+                <div className="hidden group-hover:block pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
+                  {t.devPlan4Desc}
+                </div>
+              </div>
             </div>
           </div>
         </div>
