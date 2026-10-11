@@ -168,7 +168,7 @@ function BusinessIntelligenceReport() {
 
       // Матрица параметров
       matrixTitle: 'Инспекция параметров сайта',
-      matrixSubtitle: 'Нажмите или наведите на карточку, чтобы открыть диагностику без сдвига страницы',
+      matrixSubtitle: 'Нажмите на карточку, чтобы открыть подробную диагностику',
       filterAll: 'Все',
       filterIssues: 'Только сбои',
       filterHealthy: 'Исправные',
@@ -270,7 +270,7 @@ function BusinessIntelligenceReport() {
 
       // Матрица параметров
       matrixTitle: 'Inspección de parámetros web',
-      matrixSubtitle: 'Toca o pasa el cursor por cualquier elemento para ver los detalles sin desplazar la página',
+      matrixSubtitle: 'Toca en cualquier elemento para ver los detalles del diagnóstico',
       filterAll: 'Todos',
       filterIssues: 'Solo incidencias',
       filterHealthy: 'Correctos',
@@ -372,7 +372,7 @@ function BusinessIntelligenceReport() {
 
       // Матрица параметров
       matrixTitle: 'Website Parameters Inspection',
-      matrixSubtitle: 'Tap or hover over any item to inspect technical details without shifting layout',
+      matrixSubtitle: 'Tap on any item to inspect technical diagnostic findings',
       filterAll: 'All',
       filterIssues: 'Issues only',
       filterHealthy: 'Healthy',
@@ -692,7 +692,7 @@ function BusinessIntelligenceReport() {
         }}
       />
 
-      {/* ================= ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА (LSSI-CE / AEPD COMPLIANCE) ================= */}
+      {/* ================= ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА ================= */}
       <div className="relative z-40 bg-[#0F2744] text-white px-3 py-1.5 text-center text-[10px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-2">
         <Code2 className="w-3.5 h-3.5 text-[#7DD3FC] shrink-0" />
         <span className="tracking-wide text-slate-200">{t.devBadge}</span>
@@ -709,7 +709,6 @@ function BusinessIntelligenceReport() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-[#1D1D1F] text-sm truncate">{businessData.brandName}</span>
-                  {/* Защитный бейдж демо-симуляции */}
                   <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-black border border-amber-300 tracking-wide shrink-0">
                     {t.auditReadyBadge}
                   </span>
@@ -750,10 +749,10 @@ function BusinessIntelligenceReport() {
       </header>
 
       {/* ================= ДАШБОРД ================= */}
-      <main className="max-w-5xl mx-auto px-6 py-8 sm:py-10 space-y-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8">
         
         {/* ================= ГЛАВНАЯ КАРТОЧКА ЗДОРОВЬЯ ================= */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-white border border-black/[0.06] shadow-[0_12px_42px_rgba(15,39,68,0.06)] space-y-6 relative overflow-hidden anim-card-entrance">
+        <div className="p-5 sm:p-8 rounded-3xl bg-white border border-black/[0.06] shadow-[0_12px_42px_rgba(15,39,68,0.06)] space-y-6 relative overflow-hidden anim-card-entrance">
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="radar-beam absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#0284C7]/[0.04] to-transparent -skew-x-12" />
           </div>
@@ -764,10 +763,10 @@ function BusinessIntelligenceReport() {
                 <ShieldCheck className="w-3.5 h-3.5 animate-pulse" />
                 <span>{t.salesReadinessBadge}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-[#1D1D1F] tracking-tight">
+              <h1 className="text-xl sm:text-3xl font-black text-[#1D1D1F] tracking-tight leading-snug">
                 {t.dashboardTitle}
               </h1>
-              <p className="text-xs text-[#6E6E73]">
+              <p className="text-xs text-[#6E6E73] leading-relaxed">
                 {t.dashboardSubtitle}
               </p>
             </div>
@@ -907,7 +906,7 @@ function BusinessIntelligenceReport() {
           </div>
         </div>
 
-        {/* ================= МАТРИЦА ПАРАМЕТРОВ САЙТА (ZERO LAYOUT SHIFT + FLOATING POPOUT) ================= */}
+        {/* ================= 1. МАТРИЦА ПАРАМЕТРОВ САЙТА ================= */}
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
             <div>
@@ -944,7 +943,7 @@ function BusinessIntelligenceReport() {
             </div>
           </div>
 
-          {/* СЕТКА С ФИКСИРОВАННОЙ ВЫСОТОЙ ЯЧЕЕК (НЕ УДЛИНЯЕТ СТРАНИЦУ) */}
+          {/* СЕТКА ПАРАМЕТРОВ: ЗАГОЛОВКИ НЕ ОБРЕЗАЮТСЯ НА МОБИЛЬНЫХ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {filteredParameters.map((param) => {
               const isCrit = param.status === 'critical';
@@ -952,13 +951,12 @@ function BusinessIntelligenceReport() {
               const isOpen = openParamId === param.id;
 
               return (
-                <div key={param.id} className="relative h-[72px] sm:h-[76px]">
-                  {/* ПАРЯЩАЯ КАРТОЧКА (ВЫДВИГАЕТСЯ В Z-INDEX ПОВЕРХ ВСЕГО) */}
+                <div key={param.id} className="relative min-h-[84px] sm:h-[76px]">
                   <div
                     role="button"
                     tabIndex={0}
                     onClick={() => toggleParam(param.id)}
-                    className={`group absolute inset-x-0 top-0 rounded-2xl border transition-all duration-200 bg-white cursor-pointer select-none focus:outline-none ${
+                    className={`group sm:absolute inset-x-0 top-0 rounded-2xl border transition-all duration-200 bg-white cursor-pointer select-none focus:outline-none ${
                       isOpen
                         ? 'z-40 border-[#0284C7] shadow-[0_16px_36px_rgba(15,39,68,0.18)]'
                         : isCrit 
@@ -968,25 +966,13 @@ function BusinessIntelligenceReport() {
                             : 'z-10 border-black/[0.06] shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(15,39,68,0.14)] hover:border-[#0284C7]/40'
                     }`}
                   >
-                    {/* ВСЕГДА ВИДНО: ЗАГОЛОВОК, ИКОНКА, ЖИРНАЯ МЕТРИКА */}
-                    <div className="h-[72px] sm:h-[76px] p-4 sm:p-4.5 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {isCrit && <XCircle className="w-4.5 h-4.5 text-rose-600 shrink-0" />}
-                        {isWarn && <AlertTriangle className="w-4.5 h-4.5 text-amber-600 shrink-0" />}
-                        {!isCrit && !isWarn && <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />}
-
-                        <div className="min-w-0">
-                          <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider block font-mono leading-tight">
-                            {param.category}
-                          </span>
-                          <h4 className="text-sm font-bold text-[#1D1D1F] truncate group-hover:text-[#0284C7] transition-colors">
-                            {param.title}
-                          </h4>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-tight shadow-2xs ${
+                    <div className="p-4 sm:p-4.5">
+                      {/* Верхняя микро-строка на мобильных: категория и бейдж метрики */}
+                      <div className="flex items-center justify-between gap-2 mb-1.5 sm:hidden">
+                        <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider font-mono">
+                          {param.category}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-black tracking-tight ${
                           isCrit 
                             ? 'bg-rose-50 text-rose-700 border border-rose-200' 
                             : isWarn 
@@ -996,9 +982,43 @@ function BusinessIntelligenceReport() {
                           {param.metric}
                         </span>
                       </div>
+
+                      {/* Основная строка: заголовок получает 100% ширины на мобильном */}
+                      <div className="flex items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
+                          <div className="mt-0.5 sm:mt-0 shrink-0">
+                            {isCrit && <XCircle className="w-4.5 h-4.5 text-rose-600" />}
+                            {isWarn && <AlertTriangle className="w-4.5 h-4.5 text-amber-600" />}
+                            {!isCrit && !isWarn && <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider font-mono hidden sm:block">
+                              {param.category}
+                            </span>
+                            {/* БЕЗ TRUNCATE: весь заголовок полностью виден */}
+                            <h4 className="text-xs sm:text-sm font-bold text-[#1D1D1F] leading-snug sm:truncate group-hover:text-[#0284C7] transition-colors">
+                              {param.title}
+                            </h4>
+                          </div>
+                        </div>
+
+                        {/* На десктопе бейдж метрики справа */}
+                        <div className="hidden sm:flex items-center gap-2 shrink-0">
+                          <span className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-tight shadow-2xs ${
+                            isCrit 
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200' 
+                              : isWarn 
+                                ? 'bg-amber-50 text-amber-800 border border-amber-200' 
+                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          }`}>
+                            {param.metric}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* ВЫДВИГАЮЩИЙСЯ ПАРАГРАФ С ДЕТАЛЯМИ: при клике на тапе ИЛИ при hover на ПК */}
+                    {/* Выплывающий параграф с деталями при открытии */}
                     <div className={`px-4 pb-4 sm:px-4.5 sm:pb-4.5 pt-0 anim-popout ${
                       isOpen ? 'block' : 'hidden sm:group-hover:block'
                     }`}>
@@ -1016,7 +1036,7 @@ function BusinessIntelligenceReport() {
           </div>
         </div>
 
-        {/* ================= 4 КЛЮЧЕВЫЕ ТОЧКИ ПОТЕРИ (С ПАРЯЩИМ Z-INDEX ПОПОУВЕРОМ) ================= */}
+        {/* ================= 2. 4 КЛЮЧЕВЫЕ ТОЧКИ ПОТЕРИ (ЗАГОЛОВОК НЕ СЪЕДАЕТСЯ КНОПКАМИ) ================= */}
         <div className="space-y-4 pt-2">
           <div className="px-1">
             <h2 className="text-xl font-bold text-[#1D1D1F] tracking-tight">
@@ -1030,40 +1050,44 @@ function BusinessIntelligenceReport() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             
             {/* 1. WhatsApp Leak */}
-            <div className="relative h-[116px] sm:h-[120px]">
+            <div className="relative min-h-[126px] sm:h-[124px]">
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleLeak(1)}
-                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
                   openLeakId === 1
                     ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
                     : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
                 }`}
               >
-                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                      <Coins className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
-                      {t.leak1Title}
-                    </h3>
+                {/* Верхняя строка метаданных: иконка слева, бейдж и кнопка справа */}
+                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
+                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <Coins className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
                       {t.leak1Badge}
                     </span>
-                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 1 ? 'underline' : ''}`}>
+                    <span className="text-[11px] text-rose-600 font-bold">
                       {openLeakId === 1 ? t.closeHint : t.detailsHint}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                {/* Название полностью на 100% ширины, без truncate */}
+                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
+                  {t.leak1Title}
+                </h3>
+
+                {/* Главный панчлайн */}
+                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
                   {t.leak1Punch}
                 </div>
 
+                {/* Детали при открытии */}
                 <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
                   openLeakId === 1 ? 'block' : 'hidden sm:group-hover:block'
                 }`}>
@@ -1079,37 +1103,37 @@ function BusinessIntelligenceReport() {
             </div>
 
             {/* 2. NIF / CIF Leak */}
-            <div className="relative h-[116px] sm:h-[120px]">
+            <div className="relative min-h-[126px] sm:h-[124px]">
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleLeak(2)}
-                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
                   openLeakId === 2
                     ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
                     : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
                 }`}
               >
-                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
-                      {t.leak2Title}
-                    </h3>
+                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
+                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <Building2 className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
                       {t.leak2Badge}
                     </span>
-                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 2 ? 'underline' : ''}`}>
+                    <span className="text-[11px] text-rose-600 font-bold">
                       {openLeakId === 2 ? t.closeHint : t.detailsHint}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
+                  {t.leak2Title}
+                </h3>
+
+                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
                   {t.leak2Punch}
                 </div>
 
@@ -1127,37 +1151,37 @@ function BusinessIntelligenceReport() {
             </div>
 
             {/* 3. Lost Calls */}
-            <div className="relative h-[116px] sm:h-[120px]">
+            <div className="relative min-h-[126px] sm:h-[124px]">
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleLeak(3)}
-                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
                   openLeakId === 3
                     ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
                     : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
                 }`}
               >
-                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                      <Star className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
-                      {t.leak3Title}
-                    </h3>
+                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
+                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <Star className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
                       {t.leak3Badge}
                     </span>
-                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 3 ? 'underline' : ''}`}>
+                    <span className="text-[11px] text-rose-600 font-bold">
                       {openLeakId === 3 ? t.closeHint : t.detailsHint}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
+                  {t.leak3Title}
+                </h3>
+
+                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
                   {t.leak3Punch}
                 </div>
 
@@ -1175,37 +1199,37 @@ function BusinessIntelligenceReport() {
             </div>
 
             {/* 4. Booking Widget */}
-            <div className="relative h-[116px] sm:h-[120px]">
+            <div className="relative min-h-[126px] sm:h-[124px]">
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => toggleLeak(4)}
-                className={`group absolute inset-x-0 top-0 rounded-3xl bg-white border p-5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
+                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
                   openLeakId === 4
                     ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
                     : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
                 }`}
               >
-                <div className="flex items-center justify-between border-b border-black/[0.05] pb-2.5">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                      <Cpu className="w-4 h-4" />
-                    </div>
-                    <h3 className="font-bold text-sm text-[#1D1D1F] truncate">
-                      {t.leak4Title}
-                    </h3>
+                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
+                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+                    <Cpu className="w-4 h-4" />
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-xs font-black border border-rose-200">
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
                       {t.leak4Badge}
                     </span>
-                    <span className={`text-[10px] text-rose-600 font-bold sm:hidden ${openLeakId === 4 ? 'underline' : ''}`}>
+                    <span className="text-[11px] text-rose-600 font-bold">
                       {openLeakId === 4 ? t.closeHint : t.detailsHint}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-2 text-[13px] sm:text-sm font-black text-[#1D1D1F] leading-snug">
+                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
+                  {t.leak4Title}
+                </h3>
+
+                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
                   {t.leak4Punch}
                 </div>
 
@@ -1226,8 +1250,8 @@ function BusinessIntelligenceReport() {
           </div>
         </div>
 
-        {/* ================= ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА (МГНОВЕННЫЙ ТАП НА СМАРТФОНЕ) ================= */}
-        <div className="p-6 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xs space-y-4">
+        {/* ================= 3. ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА (ДВУХУРОВНЕВАЯ СТРУКТУРА) ================= */}
+        <div className="p-5 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xs space-y-4">
           <div className="flex items-center gap-2 border-b border-black/[0.05] pb-3">
             <ListChecks className="w-4 h-4 text-[#0284C7]" />
             <h3 className="text-base font-bold text-[#1D1D1F]">
@@ -1239,23 +1263,22 @@ function BusinessIntelligenceReport() {
             {devPlanItems.map((item) => {
               const isOpen = openDevPlanId === item.id;
               return (
-                <div key={item.id} className="relative h-[64px]">
+                <div key={item.id} className="relative min-h-[68px] sm:h-[64px]">
                   <div
                     role="button"
                     tabIndex={0}
                     onClick={() => toggleDevPlan(item.id)}
-                    className={`group absolute inset-x-0 top-0 transition-all duration-200 cursor-pointer rounded-2xl p-3.5 select-none focus:outline-none ${
+                    className={`group sm:absolute inset-x-0 top-0 transition-all duration-200 cursor-pointer rounded-2xl p-3.5 select-none focus:outline-none ${
                       isOpen
                         ? 'z-40 bg-white border border-[#0284C7]/40 shadow-[0_16px_36px_rgba(15,39,68,0.16)]'
                         : 'z-10 bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] hover:z-40'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 h-[36px]">
-                      <strong className={`text-xs font-bold truncate transition-colors ${
-                        isOpen ? 'text-[#0284C7]' : 'text-[#1D1D1F] group-hover:text-[#0284C7]'
-                      }`}>
-                        {item.title}
-                      </strong>
+                    {/* Верхняя строка: номер слева, кнопка справа */}
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="w-5 h-5 rounded-full bg-[#0284C7]/10 text-[#0284C7] font-bold text-[10px] flex items-center justify-center shrink-0">
+                        {item.id}
+                      </span>
                       <span className={`text-[11px] font-semibold transition-all shrink-0 text-[#0284C7] ${
                         isOpen ? 'opacity-100 font-bold' : 'opacity-80 sm:opacity-0 sm:group-hover:opacity-100'
                       }`}>
@@ -1263,8 +1286,15 @@ function BusinessIntelligenceReport() {
                       </span>
                     </div>
 
-                    {/* Выплывающая инструкция: на тапе смартфона ИЛИ на ховере ПК */}
-                    <div className={`pt-2 border-t border-black/[0.05] mt-1 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03] ${
+                    {/* Название задачи целиком на всю ширину, без truncate */}
+                    <strong className={`text-xs font-bold leading-snug block transition-colors ${
+                      isOpen ? 'text-[#0284C7]' : 'text-[#1D1D1F] group-hover:text-[#0284C7]'
+                    }`}>
+                      {item.title}
+                    </strong>
+
+                    {/* Выплывающая инструкция */}
+                    <div className={`pt-2 border-t border-black/[0.05] mt-2 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03] ${
                       isOpen ? 'block' : 'hidden sm:group-hover:block'
                     }`}>
                       {item.desc}
@@ -1277,13 +1307,13 @@ function BusinessIntelligenceReport() {
         </div>
 
         {/* ================= HIGH-TICKET UPSELL €900 ПОД КЛЮЧ ================= */}
-        <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#0F2744] text-white shadow-xl space-y-6">
+        <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#0F2744] text-white shadow-xl space-y-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-[#7DD3FC]" />
               <span>{t.upsellBadge}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+            <h2 className="text-xl sm:text-3xl font-black tracking-tight leading-snug">
               {t.upsellTitle}
             </h2>
             <p className="text-xs sm:text-sm text-white/80 max-w-xl leading-relaxed">
@@ -1329,13 +1359,13 @@ function BusinessIntelligenceReport() {
       </main>
 
       {/* ================= ПЛАВАЮЩИЙ НИЖНИЙ БАР ================= */}
-      <aside className="fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-xl border-t border-black/[0.06] px-6 py-3">
+      <aside className="fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-xl border-t border-black/[0.06] px-4 sm:px-6 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs sm:text-sm font-semibold text-[#1D1D1F]">
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm font-semibold text-[#1D1D1F] truncate">
               {t.bottomBarTitle}
             </p>
-            <p className="text-[11px] text-[#6E6E73]">
+            <p className="text-[11px] text-[#6E6E73] truncate">
               {t.bottomBarSub}
             </p>
           </div>
@@ -1344,7 +1374,7 @@ function BusinessIntelligenceReport() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-semibold text-xs sm:text-sm shadow-sm transition whitespace-nowrap"
+            className="px-4 py-2 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-semibold text-xs sm:text-sm shadow-sm transition whitespace-nowrap shrink-0"
           >
             <span>{t.bottomBarBtn}</span>
           </a>

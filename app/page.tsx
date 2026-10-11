@@ -76,7 +76,7 @@ export default function AppleNordicGlacierPureLanding() {
         'ПРОТОТИП · Некоммерческая разработка (Платежи отключены / Тестовый режим)',
       h1_1: 'Найдите проблемы на сайте,',
       h1_2: 'которые мешают вам зарабатывать.',
-      btn: 'Проверить сайт',
+      btn: 'Проверить',
       placeholder: 'https://vash-salon-ili-klinika.es',
       scanningTitle: 'Интеллектуальная диагностика',
 
@@ -197,7 +197,7 @@ export default function AppleNordicGlacierPureLanding() {
         'PROTOTIPO · Demostración técnica no comercial (Sin actividad económica)',
       h1_1: 'Encuentra los fallos en tu web,',
       h1_2: 'que te hacen perder clientes.',
-      btn: 'Analizar web',
+      btn: 'Analizar',
       placeholder: 'https://tu-clinica-o-salon.es',
       scanningTitle: 'Diagnóstico inteligente',
 
@@ -318,7 +318,7 @@ export default function AppleNordicGlacierPureLanding() {
         'PROTOTYPE · Non-commercial technical demo (Payments disabled)',
       h1_1: 'Find the website issues,',
       h1_2: 'that cost you customers.',
-      btn: 'Analyze Website',
+      btn: 'Analyze',
       placeholder: 'https://your-business.es',
       scanningTitle: 'Intelligent Website Audit',
 
@@ -635,15 +635,19 @@ export default function AppleNordicGlacierPureLanding() {
   return (
     <div
       suppressHydrationWarning
-      className="relative min-h-[100dvh] bg-[#FBFBFD] text-[#1D1D1F] flex flex-col overflow-x-hidden selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased"
+      className={`relative ${
+        stage === 'idle'
+          ? 'h-[100dvh] max-h-[100dvh] overflow-hidden overscroll-none'
+          : 'min-h-[100dvh] overflow-y-auto'
+      } bg-[#FBFBFD] text-[#1D1D1F] flex flex-col selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased`}
     >
       {/* ================= 1. ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА ================= */}
-      <div className="relative z-30 bg-[#0F2744] text-white px-3 py-1.5 text-center text-[10px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-2">
-        <Code2 className="w-3.5 h-3.5 text-[#7DD3FC] shrink-0" />
-        <span className="tracking-wide text-slate-200">{t.devBadge}</span>
+      <div className="relative z-30 bg-[#0F2744] text-white px-3 py-1 sm:py-1.5 text-center text-[9px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-1.5 shrink-0">
+        <Code2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#7DD3FC] shrink-0" />
+        <span className="tracking-wide text-slate-200 truncate">{t.devBadge}</span>
       </div>
 
-      {/* ================= 2. PRELOADER (ПЕРЕКРЫВАЕТ ЭКРАН И ПЛАВНО ПРОЯВЛЯЕТСЯ) ================= */}
+      {/* ================= 2. PRELOADER ================= */}
       <div
         className={`fixed inset-0 z-[100] bg-[#FBFBFD] flex flex-col items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           pageLoading
@@ -682,7 +686,6 @@ export default function AppleNordicGlacierPureLanding() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        /* Защита от мигания: принудительно фиксируем светлый фон */
         :root, html, body {
           background-color: #FBFBFD !important;
           background: #FBFBFD !important;
@@ -690,7 +693,7 @@ export default function AppleNordicGlacierPureLanding() {
           color-scheme: light !important;
         }
 
-        /* ГАРАНТИЯ ПРОТИВ АВТО-ЗУМА В МОБИЛЬНЫХ БРАУЗЕРАХ (SAFARI / CHROME) */
+        /* Защита от авто-зума Safari */
         @media screen and (max-width: 768px) {
           input[type="text"],
           input[type="url"],
@@ -699,7 +702,6 @@ export default function AppleNordicGlacierPureLanding() {
           }
         }
 
-        /* Плавное проявление контента лоадера */
         @keyframes preloader-appear {
           0% {
             opacity: 0;
@@ -735,52 +737,8 @@ export default function AppleNordicGlacierPureLanding() {
         @keyframes card-reveal {
           0% {
             opacity: 0;
-            transform: translateY(34px) scale(0.94) rotateX(8deg);
-            filter: blur(10px);
-          }
-          60% {
-            opacity: 1;
-            transform: translateY(-3px) scale(1.012) rotateX(-1deg);
-            filter: blur(0);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1) rotateX(0);
-            filter: blur(0);
-          }
-        }
-
-        .anim-card {
-          animation: card-reveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes text-line-unmask {
-          0% {
-            transform: translateY(125%) rotateX(-16deg);
-            opacity: 0;
+            transform: translateY(24px) scale(0.95);
             filter: blur(6px);
-          }
-          100% {
-            transform: translateY(0) rotateX(0);
-            opacity: 1;
-            filter: blur(0);
-          }
-        }
-
-        .anim-line-1,
-        .anim-line-2 {
-          animation: text-line-unmask 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes bar-ignition {
-          0% {
-            opacity: 0;
-            transform: translateY(28px) scale(0.94);
-            filter: blur(10px);
-          }
-          65% {
-            transform: translateY(-2px) scale(1.01);
-            filter: blur(0);
           }
           100% {
             opacity: 1;
@@ -789,8 +747,41 @@ export default function AppleNordicGlacierPureLanding() {
           }
         }
 
+        .anim-card {
+          animation: card-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes text-line-unmask {
+          0% {
+            transform: translateY(120%);
+            opacity: 0;
+            filter: blur(4px);
+          }
+          100% {
+            transform: translateY(0);
+            opacity: 1;
+            filter: blur(0);
+          }
+        }
+
+        .anim-line-1,
+        .anim-line-2 {
+          animation: text-line-unmask 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes bar-ignition {
+          0% {
+            opacity: 0;
+            transform: translateY(20px) scale(0.96);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
         .anim-bar {
-          animation: bar-ignition 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: bar-ignition 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animated-input-border {
@@ -838,36 +829,6 @@ export default function AppleNordicGlacierPureLanding() {
           to {
             transform: rotate(360deg);
           }
-        }
-
-        @keyframes footer-fade {
-          0% {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .anim-footer {
-          animation: footer-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes simple-fade {
-          0% {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: simple-fade 0.5s ease-out forwards;
         }
 
         .audit-card-perspective {
@@ -926,22 +887,22 @@ export default function AppleNordicGlacierPureLanding() {
         }
 
         .audit-card-depth {
-          transform: translateZ(14px);
+          transform: translateZ(12px);
           transform-style: preserve-3d;
         }
 
         .audit-card-depth-strong {
-          transform: translateZ(24px);
+          transform: translateZ(20px);
           transform-style: preserve-3d;
         }
 
         .audit-card-shadow {
           position: absolute;
-          inset: 15px -8px -14px;
+          inset: 12px -6px -12px;
           border-radius: 28px;
-          background: rgba(15, 39, 68, 0.13);
-          filter: blur(28px);
-          transform: translateZ(-18px) scale(0.94);
+          background: rgba(15, 39, 68, 0.12);
+          filter: blur(24px);
+          transform: translateZ(-16px) scale(0.94);
           pointer-events: none;
         }
 
@@ -951,7 +912,7 @@ export default function AppleNordicGlacierPureLanding() {
             transform: translateY(0);
           }
           50% {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
           }
         }
 
@@ -980,54 +941,27 @@ export default function AppleNordicGlacierPureLanding() {
           }
         }
 
-        @keyframes cookie-backdrop-in {
-          0% {
-            opacity: 0;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-
-        @keyframes cookie-modal-in {
-          0% {
-            opacity: 0;
-            transform: translateY(24px) scale(0.96);
-            filter: blur(8px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-          }
-        }
-
-        .anim-cookie-backdrop {
-          animation: cookie-backdrop-in 0.45s ease-out forwards;
-        }
-
-        .anim-cookie-modal {
-          animation: cookie-modal-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
+        /* Адаптивное масштабирование карточки под высоту экрана */
         @media (max-height: 720px) {
           .audit-card-compact {
-            transform: scale(0.92);
+            transform: scale(0.9);
             transform-origin: center top;
-            margin-bottom: -18px;
+            margin-bottom: -16px;
           }
         }
 
         @media (max-height: 640px) {
           .audit-card-compact {
-            transform: scale(0.84);
-            margin-bottom: -30px;
+            transform: scale(0.82);
+            transform-origin: center top;
+            margin-bottom: -28px;
           }
         }
 
-        @media (max-width: 640px) {
-          .audit-card-3d {
-            transition: transform 180ms linear;
+        @media (max-height: 580px) {
+          .audit-card-compact {
+            transform: scale(0.74);
+            margin-bottom: -40px;
           }
         }
       `,
@@ -1036,16 +970,16 @@ export default function AppleNordicGlacierPureLanding() {
 
       {/* ================= 4. HEADER ================= */}
       <header
-        className={`relative z-20 h-14 sm:h-16 shrink-0 border-b border-black/[0.05] backdrop-blur-xl bg-white/80 px-4 sm:px-8 flex items-center ${
+        className={`relative z-20 h-12 sm:h-16 shrink-0 border-b border-black/[0.05] backdrop-blur-xl bg-white/80 px-3 sm:px-8 flex items-center ${
           revealStep >= 1 ? 'anim-header' : 'opacity-0'
         }`}
       >
         <div className="max-w-6xl mx-auto w-full flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-xs text-white shadow-sm shadow-[#0284C7]/30">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-xs text-white shadow-sm shadow-[#0284C7]/30">
               A2R
             </div>
-            <span className="font-semibold tracking-tight text-[#1D1D1F] text-[14px] sm:text-[15px]">
+            <span className="font-semibold tracking-tight text-[#1D1D1F] text-[13px] sm:text-[15px]">
               Audit
               <span className="text-[#0284C7]">2</span>
               Revenue
@@ -1058,7 +992,7 @@ export default function AppleNordicGlacierPureLanding() {
                 key={item}
                 type="button"
                 onClick={() => handleLangChange(item)}
-                className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
+                className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all uppercase tracking-wider text-[9px] sm:text-[11px] ${
                   lang === item
                     ? 'bg-white text-[#0284C7] shadow-sm font-bold'
                     : 'text-[#6E6E73] hover:text-[#1D1D1F]'
@@ -1071,150 +1005,155 @@ export default function AppleNordicGlacierPureLanding() {
         </div>
       </header>
 
-      {/* ================= 5. MAIN ================= */}
-      <main className={`relative z-10 flex-1 min-h-0 flex flex-col ${stage === 'idle' ? 'justify-center' : 'justify-start gap-5 sm:gap-6 pt-5 sm:pt-8'} items-center px-4 sm:px-6 py-3 sm:py-4 w-full`}>
-
-        {/* ================= IDLE ================= */}
+      {/* ================= 5. MAIN (БЕЗ СКРОЛЛА В РЕЖИМЕ IDLE) ================= */}
+      <main
+        className={`relative z-10 flex-1 min-h-0 flex flex-col ${
+          stage === 'idle'
+            ? 'justify-center py-1 sm:py-4'
+            : 'justify-start gap-4 sm:gap-6 pt-4 sm:pt-8 py-4 sm:py-6'
+        } items-center px-3 sm:px-6 w-full max-w-4xl mx-auto`}
+      >
+        {/* ================= IDLE (ГЛАВНЫЙ ЭКРАН 100% ВЫСОТЫ) ================= */}
         {stage === 'idle' && (
-          <div className="w-full max-w-4xl flex flex-col items-center justify-center text-center">
+          <div className="w-full flex flex-col items-center justify-center text-center my-auto">
 
-            {/* 3D AUDIT CARD */}
-            <div className="audit-card-perspective audit-card-compact w-full flex justify-center mb-2.5 sm:mb-3">
+            {/* 3D AUDIT CARD (КОМПАКТНАЯ И АДАПТИВНАЯ) */}
+            <div className="audit-card-perspective audit-card-compact w-full flex justify-center mb-1.5 sm:mb-3">
               <div
-                className={`relative w-full max-w-[500px] ${
+                className={`relative w-full max-w-[380px] sm:max-w-[480px] ${
                   revealStep >= 2 ? 'anim-card' : 'opacity-0'
                 }`}
               >
                 <div ref={auditCardRef} className="audit-card-3d relative">
                   <div className="audit-card-shadow" />
-                  <div className="absolute -inset-5 rounded-[34px] bg-[#0284C7]/8 blur-2xl pointer-events-none" />
+                  <div className="absolute -inset-4 rounded-[30px] bg-[#0284C7]/8 blur-xl pointer-events-none" />
 
-                  <div className="audit-card-shell relative overflow-hidden rounded-[26px] bg-white border border-[#D5E1E9] shadow-[0_22px_65px_rgba(15,39,68,0.15)]">
+                  <div className="audit-card-shell relative overflow-hidden rounded-[22px] sm:rounded-[26px] bg-white border border-[#D5E1E9] shadow-[0_16px_50px_rgba(15,39,68,0.12)]">
                     <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent z-[60]" />
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#EFFAFF] to-transparent pointer-events-none z-[1]" />
+                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#EFFAFF] to-transparent pointer-events-none z-[1]" />
 
-                    <div className="audit-card-content px-4 py-3.5 sm:px-5 sm:py-4">
+                    <div className="audit-card-content px-3.5 py-3 sm:px-5 sm:py-4">
                       {/* HEADER КАРТОЧКИ */}
-                      <div className="audit-card-depth flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="relative w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-[#EFF9FD] border border-[#C9EAF7] flex items-center justify-center shadow-sm">
-                            <Activity className="w-[18px] h-[18px] text-[#0284C7]" />
-                            <span className="absolute -right-0.5 -top-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dot-pulse" />
+                      <div className="audit-card-depth flex items-center justify-between gap-2.5">
+                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                          <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-[#EFF9FD] border border-[#C9EAF7] flex items-center justify-center shadow-xs">
+                            <Activity className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-[#0284C7]" />
+                            <span className="absolute -right-0.5 -top-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 border-2 border-white dot-pulse" />
                           </div>
 
                           <div className="text-left min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.14em] text-[#0284C7] font-extrabold">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[7.5px] sm:text-[9px] uppercase tracking-[0.14em] text-[#0284C7] font-extrabold">
                                 {t.previewLabel}
                               </span>
-                              <span className="px-1.5 py-[2px] rounded-full bg-slate-100 border border-slate-200 text-[7px] sm:text-[8px] text-slate-500 font-extrabold uppercase tracking-wider">
+                              <span className="px-1 py-[1px] rounded-full bg-slate-100 border border-slate-200 text-[6.5px] sm:text-[8px] text-slate-500 font-extrabold uppercase tracking-wider">
                                 {t.demo}
                               </span>
                             </div>
 
-                            <div className="text-[13px] sm:text-[14px] font-bold text-[#0F2744] truncate mt-0.5">
+                            <div className="text-[12px] sm:text-[14px] font-bold text-[#0F2744] truncate mt-0.5">
                               {t.exampleBusiness}
                             </div>
                           </div>
                         </div>
 
                         {/* SCORE */}
-                        <div className="audit-card-depth-strong shrink-0 px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-right shadow-sm">
-                          <div className="text-[7px] uppercase tracking-[0.12em] text-rose-500 font-extrabold leading-none mb-1">
+                        <div className="audit-card-depth-strong shrink-0 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-right shadow-xs">
+                          <div className="text-[6.5px] sm:text-[7px] uppercase tracking-[0.12em] text-rose-500 font-extrabold leading-none mb-0.5 sm:mb-1">
                             {t.scoreLabel}
                           </div>
 
                           <div className="flex items-baseline justify-end gap-0.5">
-                            <span className="text-[24px] sm:text-[27px] leading-none font-black text-rose-600 tracking-tight">
+                            <span className="text-[20px] sm:text-[26px] leading-none font-black text-rose-600 tracking-tight">
                               85
                             </span>
-                            <span className="text-[9px] text-rose-400 font-bold">
+                            <span className="text-[8px] sm:text-[9px] text-rose-400 font-bold">
                               /100
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="audit-card-depth h-px bg-[#E5EDF2] my-2.5 sm:my-3" />
+                      <div className="audit-card-depth h-px bg-[#E5EDF2] my-2 sm:my-3" />
 
                       {/* ПАРАМЕТРЫ */}
-                      <div className="audit-card-depth space-y-1.5">
-                        <div className="flex items-center justify-between gap-3 rounded-xl bg-[#F8FAFC] border border-[#E4EBF0] px-2.5 sm:px-3 py-1.5 sm:py-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded-lg bg-[#EFF9FD] border border-[#D7EDF6] flex items-center justify-center shrink-0">
-                              <TrendingDown className="w-3.5 h-3.5 text-amber-600" />
+                      <div className="audit-card-depth space-y-1 sm:space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 rounded-xl bg-[#F8FAFC] border border-[#E4EBF0] px-2.5 py-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="w-5 h-5 rounded-lg bg-[#EFF9FD] border border-[#D7EDF6] flex items-center justify-center shrink-0">
+                              <TrendingDown className="w-3 h-3 text-amber-600" />
                             </div>
-                            <span className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] whitespace-nowrap">
+                            <span className="text-[9.5px] sm:text-[11px] font-semibold text-[#64748B] whitespace-nowrap">
                               {t.directPhoneFriction}
                             </span>
                           </div>
 
-                          <span className="text-[9px] sm:text-[10px] font-bold text-amber-700 text-right truncate max-w-[55%]">
+                          <span className="text-[8.5px] sm:text-[10px] font-bold text-amber-700 text-right truncate max-w-[55%]">
                             {t.directPhoneFrictionValue}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between gap-3 rounded-xl bg-[#F8FAFC] border border-[#E4EBF0] px-2.5 sm:px-3 py-1.5 sm:py-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded-lg bg-[#EFF9FD] border border-[#D7EDF6] flex items-center justify-center shrink-0">
-                              <Target className="w-3.5 h-3.5 text-[#0284C7]" />
+                        <div className="flex items-center justify-between gap-2 rounded-xl bg-[#F8FAFC] border border-[#E4EBF0] px-2.5 py-1.5">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="w-5 h-5 rounded-lg bg-[#EFF9FD] border border-[#D7EDF6] flex items-center justify-center shrink-0">
+                              <Target className="w-3 h-3 text-[#0284C7]" />
                             </div>
-                            <span className="text-[10px] sm:text-[11px] font-semibold text-[#64748B] whitespace-nowrap">
+                            <span className="text-[9.5px] sm:text-[11px] font-semibold text-[#64748B] whitespace-nowrap">
                               {t.ads}
                             </span>
                           </div>
 
-                          <span className="text-[9px] sm:text-[10px] font-bold text-[#0284C7] text-right truncate max-w-[55%]">
+                          <span className="text-[8.5px] sm:text-[10px] font-bold text-[#0284C7] text-right truncate max-w-[55%]">
                             {t.adsValue}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between gap-3 rounded-xl bg-rose-50 border border-rose-200 px-2.5 sm:px-3 py-1.5 sm:py-2 shadow-sm">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded-lg bg-white border border-rose-100 flex items-center justify-center shrink-0">
-                              <span className="w-2 h-2 rounded-full bg-rose-500 dot-pulse" />
+                        <div className="flex items-center justify-between gap-2 rounded-xl bg-rose-50 border border-rose-200 px-2.5 py-1.5 shadow-2xs">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="w-5 h-5 rounded-lg bg-white border border-rose-100 flex items-center justify-center shrink-0">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dot-pulse" />
                             </div>
-                            <span className="text-[10px] sm:text-[11px] font-semibold text-rose-700 whitespace-nowrap">
+                            <span className="text-[9.5px] sm:text-[11px] font-semibold text-rose-700 whitespace-nowrap">
                               {t.commercialLeak}
                             </span>
                           </div>
 
-                          <span className="text-[10px] sm:text-[11px] font-black tracking-wide text-rose-600">
+                          <span className="text-[9px] sm:text-[11px] font-black tracking-wide text-rose-600">
                             {t.commercialLeakValue}
                           </span>
                         </div>
                       </div>
 
                       {/* PITCH CTA */}
-                      <div className="audit-card-depth-strong relative mt-2.5 rounded-xl border border-[#BFDEEC] bg-[#F3FAFD] overflow-hidden">
+                      <div className="audit-card-depth-strong relative mt-2 sm:mt-2.5 rounded-xl border border-[#BFDEEC] bg-[#F3FAFD] overflow-hidden">
                         <div className="absolute inset-y-0 w-[32%] bg-gradient-to-r from-transparent via-white/80 to-transparent -translate-x-full animate-[shimmer_3.5s_linear_infinite] pointer-events-none" />
 
-                        <div className="relative flex items-center justify-between gap-3 px-2.5 sm:px-3 py-2">
+                        <div className="relative flex items-center justify-between gap-2 px-2.5 py-1.5 sm:py-2">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-7 h-7 rounded-lg bg-white border border-[#CBEAF7] flex items-center justify-center shrink-0 shadow-sm">
-                              <MessageCircle className="w-3.5 h-3.5 text-[#0284C7]" />
+                            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-[#CBEAF7] flex items-center justify-center shrink-0 shadow-xs">
+                              <MessageCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#0284C7]" />
                             </div>
 
                             <div className="min-w-0 text-left">
-                              <div className="text-[9px] sm:text-[10px] font-extrabold text-[#0F2744] truncate">
+                              <div className="text-[8.5px] sm:text-[10px] font-extrabold text-[#0F2744] truncate">
                                 {t.pitch}
                               </div>
-                              <div className="text-[7px] sm:text-[8px] text-[#7C8B99] mt-0.5 truncate">
+                              <div className="text-[6.5px] sm:text-[8px] text-[#7C8B99] truncate">
                                 {t.pitchLocked}
                               </div>
                             </div>
                           </div>
 
-                          <div className="w-7 h-7 rounded-lg bg-white border border-[#DDEAF1] flex items-center justify-center shrink-0 shadow-sm">
-                            <Lock className="w-3 h-3 text-[#0284C7]" />
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-[#DDEAF1] flex items-center justify-center shrink-0 shadow-xs">
+                            <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#0284C7]" />
                           </div>
                         </div>
                       </div>
 
                       {/* STATUS */}
-                      <div className="audit-card-depth flex items-center justify-center gap-1.5 mt-2">
+                      <div className="audit-card-depth flex items-center justify-center gap-1.5 mt-1.5 sm:mt-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dot-pulse" />
-                        <span className="text-[7px] sm:text-[8px] uppercase tracking-[0.13em] text-[#94A3B8] font-bold">
+                        <span className="text-[6.5px] sm:text-[8px] uppercase tracking-[0.13em] text-[#94A3B8] font-bold">
                           {t.previewStatus}
                         </span>
                       </div>
@@ -1224,11 +1163,11 @@ export default function AppleNordicGlacierPureLanding() {
               </div>
             </div>
 
-            {/* H1 */}
-            <div className="w-full space-y-0.5 mb-1.5">
+            {/* H1 ЗАГОЛОВОК */}
+            <div className="w-full space-y-0 mb-1 sm:mb-1.5">
               <div className="overflow-hidden py-0.5">
                 <span
-                  className={`block text-[28px] sm:text-[42px] lg:text-[48px] font-black tracking-[-0.035em] leading-[1.05] text-[#1D1D1F] will-change-transform ${
+                  className={`block text-[22px] sm:text-[38px] lg:text-[46px] font-black tracking-[-0.035em] leading-[1.1] sm:leading-[1.05] text-[#1D1D1F] will-change-transform ${
                     revealStep >= 3 ? 'anim-line-1' : 'opacity-0'
                   }`}
                 >
@@ -1238,7 +1177,7 @@ export default function AppleNordicGlacierPureLanding() {
 
               <div className="overflow-hidden py-0.5">
                 <span
-                  className={`block text-[28px] sm:text-[42px] lg:text-[48px] font-black tracking-[-0.035em] leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC] will-change-transform ${
+                  className={`block text-[22px] sm:text-[38px] lg:text-[46px] font-black tracking-[-0.035em] leading-[1.1] sm:leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC] will-change-transform ${
                     revealStep >= 4 ? 'anim-line-2' : 'opacity-0'
                   }`}
                 >
@@ -1249,22 +1188,22 @@ export default function AppleNordicGlacierPureLanding() {
 
             {/* MICRO COPY */}
             <p
-              className={`text-[10px] sm:text-xs text-[#6E6E73] mb-2.5 sm:mb-3 transition-all duration-700 px-3 ${
-                revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+              className={`text-[9.5px] sm:text-xs text-[#6E6E73] mb-2 sm:mb-3 transition-all duration-700 px-2 ${
+                revealStep >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
               }`}
             >
               {t.heroMicro}
             </p>
 
-            {/* INPUT С ЗАЩИТОЙ ОТ АВТО-МАСШТАБИРОВАНИЯ */}
+            {/* INPUT ФОРМА (КОМПАКТНАЯ В ОДНУ СТРОКУ НА СМАРТФОНЕ) */}
             <form
               onSubmit={handleStartScan}
-              className={`w-full max-w-[540px] relative will-change-transform ${
+              className={`w-full max-w-[360px] sm:max-w-[540px] relative will-change-transform ${
                 revealStep >= 5 ? 'anim-bar' : 'opacity-0'
               }`}
             >
               <div
-                className={`absolute -inset-2 rounded-3xl bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC] blur-xl transition-all duration-700 pointer-events-none ${
+                className={`absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC] blur-lg transition-all duration-700 pointer-events-none ${
                   hasUrl
                     ? 'opacity-60 scale-[1.02]'
                     : isInputFocused
@@ -1275,11 +1214,11 @@ export default function AppleNordicGlacierPureLanding() {
 
               <div className="animated-input-border relative z-10 p-[1px] rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
                 <div
-                  className={`relative z-[1] flex flex-col sm:flex-row items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 backdrop-blur-xl transition-all duration-500 ${
+                  className={`relative z-[1] flex flex-row items-center gap-1 p-1 sm:p-1.5 rounded-2xl bg-white/95 backdrop-blur-xl transition-all duration-500 ${
                     hasUrl ? 'shadow-[0_0_0_2px_#0284C7]' : ''
                   }`}
                 >
-                  <div className="flex-1 w-full flex items-center gap-3 px-3.5 h-11 sm:h-12">
+                  <div className="flex-1 min-w-0 flex items-center gap-2 px-2.5 h-10 sm:h-12">
                     <div className="relative flex items-center justify-center shrink-0">
                       <div
                         className={`absolute inset-0 rounded-full bg-[#0284C7] blur-md transition-all duration-500 ${
@@ -1287,7 +1226,7 @@ export default function AppleNordicGlacierPureLanding() {
                         }`}
                       />
                       <Globe
-                        className={`relative z-10 w-5 h-5 transition-all duration-500 ${
+                        className={`relative z-10 w-4 h-4 sm:w-5 sm:h-5 transition-all duration-500 ${
                           hasUrl
                             ? 'text-[#0284C7] drop-shadow-[0_0_12px_rgba(2,132,199,0.95)] scale-110 rotate-12'
                             : 'text-[#86868B]'
@@ -1295,7 +1234,6 @@ export default function AppleNordicGlacierPureLanding() {
                       />
                     </div>
 
-                    {/* Поле ввода: text-[16px] на мобильных исключает авто-зум в iOS Safari */}
                     <input
                       type="text"
                       required
@@ -1308,16 +1246,16 @@ export default function AppleNordicGlacierPureLanding() {
                       onFocus={() => setIsInputFocused(true)}
                       onBlur={() => setIsInputFocused(false)}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="w-full min-w-0 bg-transparent text-[16px] sm:text-[15px] text-[#1D1D1F] placeholder-[#86868B] focus:outline-none font-medium"
+                      className="w-full min-w-0 bg-transparent text-[16px] sm:text-[15px] text-[#1D1D1F] placeholder-[#86868B] placeholder:text-xs sm:placeholder:text-[14px] focus:outline-none font-medium"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full sm:w-auto h-11 sm:h-11 px-5 sm:px-6 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-semibold text-[14px] flex items-center justify-center gap-2 transition duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+                    className="h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-semibold text-xs sm:text-[14px] flex items-center justify-center gap-1.5 transition duration-200 shadow-xs hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0"
                   >
                     <span>{t.btn}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -1327,33 +1265,33 @@ export default function AppleNordicGlacierPureLanding() {
 
         {/* ================= SCANNING ================= */}
         {stage !== 'idle' && (
-          <div className="w-full max-w-4xl px-1 sm:px-3 py-5 sm:py-7 space-y-6 text-left animate-fade-in">
-            <div className="flex items-start justify-between gap-5 pb-1">
+          <div className="w-full max-w-4xl px-1 sm:px-3 py-3 sm:py-7 space-y-5 text-left animate-fade-in">
+            <div className="flex items-start justify-between gap-4 pb-1">
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-[#0284C7] font-bold mb-1.5">
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-[#0284C7] font-bold mb-1">
                   {t.scanningBadge}
                 </div>
 
-                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0F2744]">
+                <h3 className="text-lg sm:text-2xl font-bold tracking-tight text-[#0F2744]">
                   {t.scanningTitle}
                 </h3>
 
-                <p className="text-xs sm:text-sm text-[#64748B] font-medium truncate mt-1.5 font-mono max-w-[min(72vw,680px)]">
+                <p className="text-xs sm:text-sm text-[#64748B] font-medium truncate mt-1 font-mono max-w-[min(72vw,680px)]">
                   {url}
                 </p>
-                <p className="max-w-2xl mt-2 text-[11px] sm:text-xs leading-relaxed text-[#64748B]">
+                <p className="max-w-2xl mt-1.5 text-[11px] sm:text-xs leading-relaxed text-[#64748B]">
                   {t.demoScanNotice}
                 </p>
               </div>
 
               <div className="shrink-0 text-right leading-none">
                 <div className="flex items-baseline justify-end gap-0.5 tabular-nums">
-                  <span className="text-4xl sm:text-5xl font-black tracking-[-0.05em] text-[#0284C7]">
+                  <span className="text-3xl sm:text-5xl font-black tracking-[-0.05em] text-[#0284C7]">
                     {progress}
                   </span>
-                  <span className="text-sm sm:text-base font-bold text-[#7DD3FC]">%</span>
+                  <span className="text-xs sm:text-base font-bold text-[#7DD3FC]">%</span>
                 </div>
-                <span className="block mt-2 text-[9px] sm:text-[10px] uppercase tracking-[0.16em] font-semibold text-[#94A3B8]">
+                <span className="block mt-1.5 text-[8.5px] sm:text-[10px] uppercase tracking-[0.16em] font-semibold text-[#94A3B8]">
                   {progress >= 100 ? t.scanProgressCompleted : t.scanProgressRunning}
                 </span>
               </div>
@@ -1368,10 +1306,10 @@ export default function AppleNordicGlacierPureLanding() {
 
             <div className="pt-1">
               <div className="flex items-center justify-between gap-3 mb-1.5">
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.14em] font-bold text-[#64748B]">
+                <span className="text-[9.5px] sm:text-[11px] uppercase tracking-[0.14em] font-bold text-[#64748B]">
                   {t.scanChecksLabel}
                 </span>
-                <span className="text-[10px] sm:text-[11px] font-semibold tabular-nums text-[#0284C7]">
+                <span className="text-[9.5px] sm:text-[11px] font-semibold tabular-nums text-[#0284C7]">
                   {Math.min(Math.floor(progress / 20), scanChecklist.length)} / {scanChecklist.length}
                 </span>
               </div>
@@ -1385,7 +1323,7 @@ export default function AppleNordicGlacierPureLanding() {
                   return (
                     <div
                       key={idx}
-                      className={`py-3.5 sm:py-4 transition-opacity duration-500 ${
+                      className={`py-3 sm:py-4 transition-opacity duration-500 ${
                         isPassed ? 'opacity-100' : isCurrent ? 'opacity-100' : 'opacity-40'
                       }`}
                     >
@@ -1408,23 +1346,23 @@ export default function AppleNordicGlacierPureLanding() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                            <span className={`text-[13px] sm:text-sm font-semibold ${isPassed || isCurrent ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}>
+                            <span className={`text-[12px] sm:text-sm font-semibold ${isPassed || isCurrent ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}>
                               {item.title}
                             </span>
 
                             {isPassed ? (
-                              <span className="text-[9px] uppercase tracking-[0.12em] font-bold text-[#94A3B8]">
+                              <span className="text-[8.5px] sm:text-[9px] uppercase tracking-[0.12em] font-bold text-[#94A3B8]">
                                 {t.scanVerified}
                               </span>
                             ) : isCurrent ? (
-                              <span className="text-[9px] uppercase tracking-[0.12em] font-bold text-[#0284C7] animate-pulse">
+                              <span className="text-[8.5px] sm:text-[9px] uppercase tracking-[0.12em] font-bold text-[#0284C7] animate-pulse">
                                 {t.scanScanning}
                               </span>
                             ) : null}
                           </div>
 
                           {isPassed && (
-                            <p className={`mt-1.5 text-[11px] sm:text-xs leading-relaxed font-medium animate-fade-in ${
+                            <p className={`mt-1 text-[11px] sm:text-xs leading-relaxed font-medium animate-fade-in ${
                               item.type === 'error' ? 'text-rose-700' : item.type === 'warn' ? 'text-amber-800' : 'text-[#64748B]'
                             }`}>
                               {item.discovered}
@@ -1442,37 +1380,37 @@ export default function AppleNordicGlacierPureLanding() {
 
         {/* ================= REPORT ================= */}
         {stage === 'report' && (
-          <div className="w-full max-w-4xl space-y-5 sm:space-y-6 text-left animate-fade-in">
-            <div className="p-5 sm:p-7 rounded-3xl bg-white/95 border border-rose-200 shadow-lg backdrop-blur-xl">
+          <div className="w-full max-w-4xl space-y-4 sm:space-y-6 text-left animate-fade-in">
+            <div className="p-4 sm:p-7 rounded-3xl bg-white/95 border border-rose-200 shadow-lg backdrop-blur-xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-black/[0.05] pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
-                    <ShieldAlert className="w-6 h-6" />
+                  <div className="p-2 sm:p-2.5 rounded-2xl bg-rose-50 text-rose-600 shrink-0">
+                    <ShieldAlert className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
 
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">
                       {t.reportLabel}
                     </span>
-                    <h2 className="text-lg sm:text-xl font-bold text-[#1D1D1F]">
+                    <h2 className="text-base sm:text-xl font-bold text-[#1D1D1F]">
                       {t.reportTitle}
                     </h2>
-                    <p className="mt-1 text-xs sm:text-sm text-[#0284C7] font-mono break-all">
+                    <p className="mt-0.5 text-xs sm:text-sm text-[#0284C7] font-mono break-all">
                       {url}
                     </p>
                   </div>
                 </div>
 
-                <div className="px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold">
+                <div className="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-[11px] sm:text-xs font-semibold">
                   {t.reportMissedRevenue}
                 </div>
               </div>
 
-              <p className="mt-4 rounded-xl border border-[#CBEAF7] bg-[#EFF9FD] px-4 py-3 text-[11px] sm:text-xs leading-relaxed text-[#0F2744]">
+              <p className="mt-3 sm:mt-4 rounded-xl border border-[#CBEAF7] bg-[#EFF9FD] px-3.5 py-2.5 text-[11px] sm:text-xs leading-relaxed text-[#0F2744]">
                 {t.demoReportNotice}
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-4 sm:mt-5">
                 <div className="p-4 rounded-2xl bg-[#F5F5F7] border border-black/[0.04]">
                   <div className="flex items-center justify-between text-xs text-rose-600 font-bold mb-1.5">
                     <span>{t.reportCard1Cat}</span>
@@ -1527,14 +1465,14 @@ export default function AppleNordicGlacierPureLanding() {
             </div>
 
             {/* PURCHASE */}
-            <div className="p-5 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xl">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-center">
-                <div className="md:col-span-3 space-y-3">
+            <div className="p-4 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xl">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-5 sm:gap-6 items-center">
+                <div className="md:col-span-3 space-y-2 sm:space-y-3">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0284C7]/10 text-[#0284C7] text-xs font-semibold">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>{t.reportPurchaseBadge}</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-[#1D1D1F] tracking-tight">
+                  <h3 className="text-lg sm:text-2xl font-bold text-[#1D1D1F] tracking-tight">
                     {t.reportPurchaseTitle}
                   </h3>
                   <p className="text-xs sm:text-sm text-[#6E6E73] leading-relaxed">
@@ -1542,13 +1480,13 @@ export default function AppleNordicGlacierPureLanding() {
                   </p>
                 </div>
 
-                <div className="md:col-span-2 p-5 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] text-center space-y-3">
+                <div className="md:col-span-2 p-4 sm:p-5 rounded-2xl bg-[#F5F5F7] border border-black/[0.04] text-center space-y-3">
                   <div>
-                    <div className="flex items-center justify-center gap-2 mb-1.5">
-                      <span className="text-3xl sm:text-4xl font-black text-[#1D1D1F]">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <span className="text-2xl sm:text-4xl font-black text-[#1D1D1F]">
                         €19
                       </span>
-                      <span className="px-2 py-1 rounded-full bg-[#0284C7]/10 border border-[#0284C7]/15 text-[9px] font-extrabold tracking-[0.12em] text-[#0284C7]">
+                      <span className="px-2 py-0.5 rounded-full bg-[#0284C7]/10 border border-[#0284C7]/15 text-[8.5px] font-extrabold tracking-[0.12em] text-[#0284C7]">
                         DEMO
                       </span>
                     </div>
@@ -1556,7 +1494,7 @@ export default function AppleNordicGlacierPureLanding() {
                     <span className="text-xs text-[#0284C7] font-semibold block">
                       {t.demoPriceBadge}
                     </span>
-                    <p className="mt-1.5 text-[11px] leading-relaxed text-[#64748B]">
+                    <p className="mt-1 text-[10.5px] sm:text-[11px] leading-relaxed text-[#64748B]">
                       {t.demoPriceNote}
                     </p>
                   </div>
@@ -1565,7 +1503,7 @@ export default function AppleNordicGlacierPureLanding() {
                     type="button"
                     onClick={handleStripeCheckout}
                     disabled={isRedirecting}
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-bold text-sm flex items-center justify-center gap-2 transition duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                    className="w-full py-3 px-4 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                   >
                     {isRedirecting ? (
                       <>
@@ -1574,7 +1512,7 @@ export default function AppleNordicGlacierPureLanding() {
                       </>
                     ) : (
                       <>
-                        <Zap className="w-5 h-5 fill-current" />
+                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                         <span>{t.demoPriceButton}</span>
                       </>
                     )}
@@ -1586,27 +1524,26 @@ export default function AppleNordicGlacierPureLanding() {
         )}
       </main>
 
-      {/* ================= 6. FOOTER ================= */}
+      {/* ================= 6. FOOTER (КОМПАКТНЫЙ В РЕЖИМЕ IDLE НА МОБИЛЬНЫХ) ================= */}
       <footer
         suppressHydrationWarning
-        className={`relative z-20 min-h-12 sm:min-h-14 shrink-0 border-t border-black/[0.05] bg-white/70 backdrop-blur-xl px-4 sm:px-8 py-3 flex items-center ${
-          revealStep >= 6 ? 'anim-footer' : 'opacity-0'
-        }`}
+        className={`relative z-20 shrink-0 border-t border-black/[0.05] bg-white/70 backdrop-blur-xl px-3 sm:px-8 ${
+          stage === 'idle' ? 'py-1.5 sm:py-3' : 'py-3'
+        } flex items-center ${revealStep >= 6 ? 'opacity-100' : 'opacity-0'}`}
       >
         <div
           suppressHydrationWarning
-          className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between text-[10px] sm:text-[11px] text-[#64748B] gap-3 text-center lg:text-left"
+          className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between text-[8.5px] sm:text-[11px] text-[#64748B] gap-1 sm:gap-3 text-center lg:text-left"
         >
-          <div suppressHydrationWarning translate="no" className="notranslate">
-            <p suppressHydrationWarning className="font-medium text-[#1D1D1F]">
-              {t.footer}
-            </p>
-            <p suppressHydrationWarning className="text-[9px] text-[#86868B] mt-0.5 max-w-xl">
+          <div>
+            <p className="font-medium text-[#1D1D1F]">{t.footer}</p>
+            {/* На смартфонах в режиме idle длинный дисклеймер скрыт, чтобы не удлинять экран */}
+            <p className="text-[8px] sm:text-[9px] text-[#86868B] mt-0.5 max-w-xl hidden sm:block">
               {t.footerDisclaimer}
             </p>
           </div>
 
-          <nav aria-label={t.footerLegalNav} className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[#64748B]">
+          <nav aria-label={t.footerLegalNav} className="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3.5 gap-y-0.5 sm:gap-y-1.5 text-[#64748B]">
             <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
             <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
             <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
