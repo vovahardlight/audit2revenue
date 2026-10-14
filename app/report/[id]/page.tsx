@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useLayoutEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
   CheckCircle2, 
-  Star, 
   Download, 
   ArrowUpRight, 
   Sparkles, 
@@ -13,53 +14,83 @@ import {
   Loader2, 
   Building2, 
   PhoneCall, 
-  AlertOctagon, 
   Coins, 
-  Cpu, 
-  ListChecks,
-  ShieldCheck,
-  XCircle,
-  AlertTriangle,
-  Code2,
+  ListChecks, 
+  ShieldCheck, 
+  ShieldAlert, 
+  XCircle, 
+  AlertTriangle, 
+  Code2, 
+  ChevronDown, 
+  Printer, 
+  SlidersHorizontal,
+  Target,
 } from 'lucide-react';
 
 type Lang = 'ru' | 'es' | 'en';
 
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
 function BusinessIntelligenceReport() {
   const searchParams = useSearchParams();
   const targetUrl = searchParams.get('url') || 'https://clinica-mabelle.es';
-  const urlLang = searchParams.get('lang') as Lang | null;
   const domain = targetUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-  const [lang, setLang] = useState<Lang>(urlLang && ['ru', 'es', 'en'].includes(urlLang) ? urlLang : 'ru');
+  const [lang, setLang] = useState<Lang>('ru');
+  const [activePillar, setActivePillar] = useState<'all' | '01' | '02' | '03'>('all');
   const [activeFilter, setActiveFilter] = useState<'all' | 'issues' | 'healthy'>('all');
 
-  // Состояния для тапа на мобильных устройствах
-  const [openDevPlanId, setOpenDevPlanId] = useState<number | null>(null);
-  const [openLeakId, setOpenLeakId] = useState<number | null>(null);
+  // УПРАВЛЕНИЕ ВИДИМОСТЬЮ МАТРИЦЫ (СКРЫТА ПО УМОЛЧАНИЮ)
+  const [isMatrixOpen, setIsMatrixOpen] = useState(false);
+
+  // КАДАНС ПОЯВЛЕНИЯ ЭЛЕМЕНТОВ
+  const [revealStep, setRevealStep] = useState(0);
+  const reportContainerRef = useRef<HTMLDivElement>(null);
+
+  // Аккордеоны для карточек
   const [openParamId, setOpenParamId] = useState<string | null>(null);
+  const [openLeakId, setOpenLeakId] = useState<number | null>(1);
+  const [openDevPlanId, setOpenDevPlanId] = useState<number | null>(null);
 
-  const toggleDevPlan = (id: number) => {
-    setOpenDevPlanId(prev => (prev === id ? null : id));
+  // Интерактивная симуляция устранения проблем
+  const [resolvedIssues, setResolvedIssues] = useState<string[]>([]);
+
+  // Синхронное безопасное чтение языка до первого рендера (0 ошибок гидратации)
+  useIsomorphicLayoutEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlLang = urlParams.get('lang') as Lang | null;
+      if (urlLang && ['ru', 'es', 'en'].includes(urlLang)) {
+        setLang(urlLang);
+        return;
+      }
+
+      const saved = localStorage.getItem('a2r_lang') as Lang;
+      if (saved && ['ru', 'es', 'en'].includes(saved)) {
+        setLang(saved);
+        return;
+      }
+
+      const match = document.cookie.match(/(?:^|; )a2r_lang=([^;]*)/);
+      if (match && ['ru', 'es', 'en'].includes(match[1])) {
+        setLang(match[1] as Lang);
+        return;
+      }
+
+      const navLang = navigator.language?.slice(0, 2);
+      if (navLang === 'es' || navLang === 'en') {
+        setLang(navLang as Lang);
+      }
+    } catch {}
+  }, []);
+
+  const toggleResolvedIssue = (id: string) => {
+    setResolvedIssues((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
   };
 
-  const toggleLeak = (id: number) => {
-    setOpenLeakId(prev => (prev === id ? null : id));
-  };
-
-  const toggleParam = (id: string) => {
-    setOpenParamId(prev => (prev === id ? null : id));
-  };
-
-  // 1. Считываем сохранённый язык при первой загрузке
-  useEffect(() => {
-    const saved = (searchParams.get('lang') as Lang) || (localStorage.getItem('a2r_lang') as Lang);
-    if (saved && ['ru', 'es', 'en'].includes(saved)) {
-      setLang(saved);
-    }
-  }, [searchParams]);
-
-  // 2. Функция смены языка с сохранением
   const handleLangChange = (newLang: Lang) => {
     setLang(newLang);
     localStorage.setItem('a2r_lang', newLang);
@@ -79,28 +110,21 @@ function BusinessIntelligenceReport() {
     rating: 4.8,
     reviewsCount: 384,
     monthlyAdSpendEst: '€1,800 – €3,200',
-    overallHealthScore: 46,
+    baseHealthScore: 46,
   };
 
-  // =========================================================
-  // АНИМАЦИЯ ПОКАЗАТЕЛЕЙ И ДАШБОРДА (EASE-OUT COUNTER)
-  // =========================================================
+  const simulatedHealthScore = useMemo(() => {
+    const bonus = resolvedIssues.length * 12;
+    return Math.min(100, businessData.baseHealthScore + bonus);
+  }, [resolvedIssues.length, businessData.baseHealthScore]);
+
+  // Анимация кругового индикатора
   const [isGaugeAnimated, setIsGaugeAnimated] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
-  const [animatedCrit, setAnimatedCrit] = useState(0);
-  const [animatedWarn, setAnimatedWarn] = useState(0);
-  const [animatedHealthy, setAnimatedHealthy] = useState(0);
-
-  const criticalCount = 4;
-  const warningCount = 2;
-  const healthyCount = 8;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsGaugeAnimated(true);
-    }, 150);
-
-    const duration = 1400;
+    const timer = setTimeout(() => setIsGaugeAnimated(true), 150);
+    const duration = 1200;
     const startTime = performance.now();
 
     const animate = (currentTime: number) => {
@@ -108,10 +132,7 @@ function BusinessIntelligenceReport() {
       const progress = Math.min(elapsed / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
 
-      setAnimatedScore(Math.round(ease * businessData.overallHealthScore));
-      setAnimatedCrit(Math.round(ease * criticalCount));
-      setAnimatedWarn(Math.round(ease * warningCount));
-      setAnimatedHealthy(Math.round(ease * healthyCount));
+      setAnimatedScore(Math.round(ease * simulatedHealthScore));
 
       if (progress < 1) {
         requestAnimationFrame(animate);
@@ -123,497 +144,635 @@ function BusinessIntelligenceReport() {
       clearTimeout(timer);
       cancelAnimationFrame(animId);
     };
-  }, [businessData.overallHealthScore]);
+  }, [simulatedHealthScore]);
 
   const circumference = 163.36;
-  const targetOffset = circumference - (circumference * businessData.overallHealthScore) / 100;
+  const targetOffset = circumference - (circumference * simulatedHealthScore) / 100;
+
+  // Мгновенный запуск пошаговой анимации при входе
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setRevealStep(6);
+      return;
+    }
+
+    setRevealStep(1);
+    const cadence = 110;
+    const timeouts = [2, 3, 4, 5, 6].map((step, index) =>
+      window.setTimeout(() => setRevealStep(step), cadence * (index + 1))
+    );
+
+    return () => timeouts.forEach(window.clearTimeout);
+  }, []);
+
+  // GSAP SCROLL REVEAL
+  useLayoutEffect(() => {
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      document.documentElement.classList.contains('a2r-js-fallback')
+    )
+      return;
+
+    const scope = reportContainerRef.current;
+    if (!scope) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const pendingReveal = new Set<Element>();
+    const revealOnEnter = (targets: Element | NodeListOf<Element>) => {
+      const elements = targets instanceof Element ? [targets] : Array.from(targets);
+      elements.forEach((el) => pendingReveal.add(el));
+    };
+
+    revealOnEnter(scope.querySelectorAll('.reveal-on-scroll'));
+
+    pendingReveal.forEach((el) => {
+      gsap.set(el, { autoAlpha: 0, y: 24, filter: 'blur(6px)' });
+    });
+
+    let frame = 0;
+    const checkVisibleItems = () => {
+      frame = 0;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      pendingReveal.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top > viewportHeight * 1.05 || rect.bottom < 0) return;
+
+        pendingReveal.delete(el);
+        const index = Array.from(el.parentElement?.children ?? []).indexOf(el);
+        gsap.fromTo(
+          el,
+          { autoAlpha: 0, y: 24, filter: 'blur(6px)' },
+          {
+            autoAlpha: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            duration: 0.72,
+            delay: Math.max(0, index) * 0.08,
+            ease: 'power3.out',
+            overwrite: 'auto',
+            clearProps: 'opacity,visibility,transform,filter',
+          }
+        );
+      });
+    };
+
+    const scheduleCheck = () => {
+      if (!frame) frame = window.requestAnimationFrame(checkVisibleItems);
+    };
+
+    window.addEventListener('scroll', scheduleCheck, { passive: true });
+    window.addEventListener('resize', scheduleCheck, { passive: true });
+    scheduleCheck();
+
+    return () => {
+      window.removeEventListener('scroll', scheduleCheck);
+      window.removeEventListener('resize', scheduleCheck);
+      if (frame) window.cancelAnimationFrame(frame);
+      pendingReveal.forEach((el) => {
+        gsap.set(el, { clearProps: 'opacity,visibility,transform,filter' });
+      });
+    };
+  }, []);
 
   const t = {
     ru: {
-      devBadge:
-        'ТЕХНИЧЕСКИЙ ПРОТОТИП · Некоммерческая демонстрация интерфейса (Без экономической деятельности · Смоделированные данные · Платежи отключены)',
-      auditReadyBadge: 'ДЕМО · СИМУЛЯЦИЯ',
+      devBadge: 'ПРОТОТИП · Некоммерческая демонстрация (Тестовый режим · Данные смоделированы)',
+      auditReadyBadge: 'DEMO · ОТЧЕТ СФОРМИРОВАН',
       exportPdf: 'Экспорт PDF',
+      printDoc: 'Печать',
+      backToHome: 'На главную',
 
-      // Главная карточка
-      salesReadinessBadge: 'Интеллектуальный отчет готовности к продажам (Демо-режим)',
-      dashboardTitle: `Дашборд эффективности: ${businessData.domain}`,
-      dashboardSubtitle: 'Моделирование аудита по нормам Испании (LSSI-CE / AEPD) и воронке мобильного трафика для тестирования UI',
-      retentionIndex: 'Индекс удержания',
-      revenueLossWarning: 'Критические потери выручки',
-      retentionNote: '100% = идеальная конверсия',
+      dashboardTitle: `Аудит конверсии: ${businessData.domain}`,
+      dashboardSubtitle: 'Инспекция по стандартам Испании (LSSI-CE, AEPD) и точкам потери мобильного трафика',
+      readinessBadge: 'AI REVENUE AUDIT',
+      retentionIndex: 'Индекс готовности к продажам',
+      revenueLossWarning: 'Критическая потеря клиентов',
+      retentionNote: '100% = идеальная воронка',
+      impactDetailsTitle: 'Оценка финансовых утечек',
 
-      // Светофор
-      criticalTitle: 'Критические поломки',
-      criticalSub: 'Точки потери клиентов',
-      warningTitle: 'Зоны внимания',
+      criticalTitle: 'Критические сбои',
+      criticalSub: 'Точки слива клиентов',
+      warningTitle: 'Зоны риска',
       warningSub: 'Снижают отдачу рекламы',
       healthyTitle: 'Исправные узлы',
-      healthySub: 'Работают штатно',
+      healthySub: 'Работают стабильно',
 
-      // Радар потерь
-      radarAdSpendTag: 'Слив платной рекламы',
+      radarAdSpendTag: 'Слив бюджета рекламы',
       radarAdSpendVal: '~€1,200 – €1,600',
       radarAdSpendPerMonth: '/мес',
-      radarAdSpendDesc: 'Потеря до 40% кликов из Meta Ads из-за отсутствия прямого чата в WhatsApp.',
+      radarAdSpendDesc: 'Потеря до 40% переходов из Meta Ads из-за отсутствия прямого чата WhatsApp.',
 
-      radarFineTag: 'Риск штрафов AEPD',
+      radarFineTag: 'Риск проверок AEPD',
       radarFineVal: 'До €30,000',
-      radarFineDesc: 'Нарушение ст. 10 LSSI-CE: тестовая заглушка темы вместо фискального NIF/CIF.',
+      radarFineDesc: 'Нарушение ст. 10 LSSI-CE: заглушка разработчика в футере вместо фискального CIF/NIF.',
 
-      radarCallTag: 'Недозвон и сбой записи',
-      radarCallVal: '~14-18 клиентов',
+      radarCallTag: 'Недозвон пациентов',
+      radarCallVal: '~14–18 записей',
       radarCallPerMonth: '/мес',
-      radarCallDesc: 'Жалобы в Google картах на неотвеченные звонки и отсутствие онлайн-брони.',
+      radarCallDesc: 'Жалобы в Google картах на пропущенные звонки в часы пик и отсутствие быстрой записи.',
 
-      // Матрица параметров
-      matrixTitle: 'Инспекция параметров сайта',
-      matrixSubtitle: 'Нажмите на карточку, чтобы открыть подробную диагностику',
-      filterAll: 'Все',
-      filterIssues: 'Только сбои',
+      simulateButton: 'Смоделировать решение',
+      simulatedDone: 'Решение смоделировано',
+      pointsBonus: '+12 баллов',
+
+      pillarsNavTitle: '3 коммерческие опоры аудита',
+      matrixTeaser: '14 проверенных узлов сайта · Нажмите, чтобы открыть подробную матрицу диагностики',
+      matrixExpandBtn: 'Открыть матрицу (14 проверок)',
+      matrixCollapseBtn: 'Свернуть матрицу',
+
+      pillarAll: 'Все проверки',
+      pillar01: '01 Техника & Закон',
+      pillar02: '02 WhatsApp & Связь',
+      pillar03: '03 Реклама & Карты',
+
+      filterAll: 'Все узлы',
+      filterIssues: 'Только проблемы',
       filterHealthy: 'Исправные',
-      diagnosisTitle: 'Диагностика:',
-      detailsHint: 'Детали ▾',
-      closeHint: '✕ Скрыть',
+      diagnosisTitle: 'Технический диагноз:',
+      fixActionTitle: 'Рекомендуемое решение:',
 
-      // Детализация 4 утечек
-      leaksTitle: '4 ключевые точки потери клиентов',
-      leaksSubtitle: 'Главные ошибки, влияющие на прибыль клиники (нажмите для доказательств)',
-      proofsTitle: 'Детали проверки:',
+      leaksTitle: '4 ключевые точки потери выручки',
+      leaksSubtitle: 'Узкие места, снижающие количество первичных записей в клинику',
 
-      leak1Title: '1. Слив платного трафика без WhatsApp',
+      leak1Title: '1. Слив платного трафика без WhatsApp (wa.me)',
       leak1Badge: '-40% лидов',
       leak1Punch: '78% мобильных кликов из рекламы закрывают сайт без звонка',
-      leak1Desc: `В рекламу Meta Ads инвестируется около ${businessData.monthlyAdSpendEst}, но на сайте нет прямой кнопки мессенджера. Пользователи уходят без обращения.`,
+      leak1Desc: `В рекламу Meta Ads инвестируется около ${businessData.monthlyAdSpendEst}, но на сайте нет прямой кнопки мессенджера. Пациенты не хотят заполнять формы на смартфонах и уходят.`,
 
-      leak2Title: '2. Отсутствие NIF/CIF (Закон LSSI-CE)',
+      leak2Title: '2. Отсутствие обязательного NIF/CIF (Ley LSSI-CE)',
       leak2Badge: 'Штраф до €30,000',
       leak2Punch: 'В разделе Aviso Legal оставлена тестовая заглушка темы разработчика',
-      leak2Desc: 'Статья 10 LSSI-CE обязывает публиковать реальный фискальный CIF компании. Нарушение наказывается регулятором AEPD штрафом до 30.000 €.',
+      leak2Desc: 'Статья 10 закона LSSI-CE обязывает публиковать реальный фискальный NIF/CIF компании. Испанский регулятор AEPD штрафует коммерческие сайты без реквизитов.',
 
-      leak3Title: '3. Потеря звонков в картах Google',
+      leak3Title: '3. Потеря звонков и клиентов в Google Maps',
       leak3Badge: '~16 записей/мес',
-      leak3Punch: 'Повторяющиеся жалобы пациентов на недозвон в вечерние часы пик',
+      leak3Punch: 'Повторяющиеся жалобы пациентов на неотвеченные звонки по вечерам',
       leak3Quote: '«No cogen el teléfono nunca por las tardes, tuve que ir en persona para cambiar la cita...»',
-      leak3Desc: 'При анализе 384 отзывов обнаружено 14 негативных упоминаний о сбросе звонков в часы пик.',
+      leak3Desc: 'При анализе 384 отзывов в картах обнаружено 14 негативных упоминаний о сбросе звонков в вечерние пиковые часы.',
 
-      leak4Title: '4. Каталог без онлайн-записи',
+      leak4Title: '4. Каталог процедур без мгновенной записи (Cita Previa)',
       leak4Badge: 'Отказ без брони',
       leak4Punch: 'Прайс-лист содержит 46 услуг, но нет кнопки бронирования в 1 клик',
-      leak4Desc: 'Пользователи смотрят прайс-лист, но без мгновенного виджета бронирования уходят в поисковик к конкурентам.',
+      leak4Desc: 'Пользователи просматривают прайс, но без кнопки моментальной онлайн-записи уходят искать другие клиники в Google.',
 
-      // Чек-лист разработчика
-      devPlanTitle: 'План устранения для вашего разработчика',
-      devPlan1Title: '1. Прямой чат в WhatsApp',
-      devPlan1Desc: 'Добавить плавающий виджет WhatsApp для мобильного трафика из рекламы.',
-      devPlan2Title: '2. Публикация NIF/CIF в Aviso Legal',
-      devPlan2Desc: 'Опубликовать реальный NIF компании по ст. 10 закона LSSI-CE.',
-      devPlan3Title: '3. Автоматизация нерабочих часов',
-      devPlan3Desc: 'Внедрить AI-ассистента для приема заявок, когда администратор занят.',
-      devPlan4Title: '4. Кнопка бронирования в каталоге',
-      devPlan4Desc: 'Добавить кнопку брони под каждой из 46 позиций прайс-листа.',
+      devPlanTitle: 'План исправления для вашего веб-мастера',
+      devPlanSubtitle: 'Пошаговый технический регламент для программиста или веб-студии',
+      devPlan1Title: '1. Подключение плавающего WhatsApp (wa.me)',
+      devPlan1Desc: 'Разместить кнопку быстрого чата с автозаполнением темы обращения в правом нижнем углу мобильной версии.',
+      devPlan2Title: '2. Публикация фискальных данных NIF/CIF',
+      devPlan2Desc: 'Заменить текст заглушки в подвале и на странице Aviso Legal на реальный CIF/NIF юридического лица.',
+      devPlan3Title: '3. Маршрутизация звонков и автоответчик',
+      devPlan3Desc: 'Настроить переадресацию пропущенных звонков на дежурный WhatsApp с автоответом в нерабочие часы.',
+      devPlan4Title: '4. Кнопки быстрой записи под каждым блоком услуг',
+      devPlan4Desc: 'Интегрировать виджет Cita Previa в каждый из 46 пунктов прайс-листа клиники.',
 
-      // Upsell
-      upsellBadge: 'ДЕМО · Пример коммерческого предложения',
-      upsellTitle: 'Устранить все ошибки и внедрить WhatsApp AI-ассистента',
-      upsellDesc: 'Интерфейсная демонстрация готового внедрения: устранение багов, приведение к нормам AEPD и подключение AI-ассистента (симуляция оформления заявки).',
+      upsellBadge: 'ДЕМО · РЕШЕНИЕ ПОД КЛЮЧ',
+      upsellTitle: 'Устранить все ошибки и внедрить WhatsApp-воронку',
+      upsellDesc: 'Комплексное внедрение: юридическое оформление LSSI-CE, оптимизация скорости, кнопка WhatsApp и автоматизация обработки пропущенных звонков (демонстрационная симуляция).',
       upsellPrice: '€900 (Демо)',
       upsellInstallment: 'или 2 платежа по €450',
-      upsellGuarantee: 'Пример гарантии: возврат денег, если система не принесет новые записи за 14 дней.',
-      upsellWaBtn: 'Обсудить в WhatsApp (Тест)',
-      upsellCallBtn: '15-мин звонок',
+      upsellGuarantee: 'Гарантия окупаемости: возврат средств, если внедрение не увеличит число обращений за 14 дней.',
+      upsellWaBtn: 'Обсудить внедрение в WhatsApp',
+      upsellCallBtn: 'Забронировать 15-мин звонок',
 
-      // Нижний бар
-      bottomBarTitle: 'Демонстрационный режим • Коммерческий приём платежей отключен',
-      bottomBarSub: 'Срок: 5 рабочих дней • Стоимость: €900 (Иллюстративный пример) • Прототип интерфейса',
-      bottomBarBtn: 'Написать в WhatsApp (Тест) ➔',
+      bottomBarTitle: 'Демо-режим • Коммерческий приём платежей отключен',
+      bottomBarSub: 'Срок внедрения: 5 рабочих дней • Стоимость: €900 (Иллюстративный пример)',
+      bottomBarBtn: 'Написать в WhatsApp ➔',
 
-      waMessage: `Здравствуйте! Я ознакомился с демонстрационным отчетом аудита по сайту ${targetUrl}. Хочу обсудить функционал прототипа.`,
+      waMessage: `Здравствуйте! Я изучил аудит по сайту ${targetUrl}. Хочу обсудить устранение найденных ошибок и внедрение WhatsApp-воронки.`,
     },
 
     es: {
-      devBadge:
-        'PROTOTIPO TÉCNICO · Entorno de pruebas no comercial (Sin actividad económica · Datos ficticios/simulados · Pasarela de pago desactivada)',
-      auditReadyBadge: 'DEMO · SIMULACIÓN',
+      devBadge: 'PROTOTIPO · Demostración técnica no comercial (Sin actividad mercantil · Datos simulados)',
+      auditReadyBadge: 'DEMO · INFORME GENERADO',
       exportPdf: 'Exportar PDF',
+      printDoc: 'Imprimir',
+      backToHome: 'Volver al inicio',
 
-      // Главная карточка
-      salesReadinessBadge: 'Informe inteligente de preparación comercial (Modo Demostración)',
-      dashboardTitle: `Panel de rendimiento: ${businessData.domain}`,
-      dashboardSubtitle: 'Simulación técnica según normativa española (LSSI-CE / AEPD) exclusivamente para evaluación de interfaz',
-      retentionIndex: 'Índice de retención',
-      revenueLossWarning: 'Fuga crítica de ingresos',
-      retentionNote: '100% = conversión óptima',
+      dashboardTitle: `Auditoría de conversión: ${businessData.domain}`,
+      dashboardSubtitle: 'Inspección según normativa española (LSSI-CE, AEPD) y puntos de fuga de tráfico móvil',
+      readinessBadge: 'AI REVENUE AUDIT',
+      retentionIndex: 'Índice de preparación comercial',
+      revenueLossWarning: 'Fuga crítica de pacientes',
+      retentionNote: '100% = embudo óptimo',
+      impactDetailsTitle: 'Estimación de impacto económico',
 
-      // Светофор
       criticalTitle: 'Fallos críticos',
       criticalSub: 'Fugas de clientes',
-      warningTitle: 'Puntos de atención',
-      warningSub: 'Reducen el ROI publicitario',
-      healthyTitle: 'Módulos correctos',
-      healthySub: 'Funcionan con normalidad',
+      warningTitle: 'Puntos de riesgo',
+      warningSub: 'Reducen el ROI de anuncios',
+      healthyTitle: 'Nodos correctos',
+      healthySub: 'Operan con normalidad',
 
-      // Радар потерь
-      radarAdSpendTag: 'Fuga en publicidad pagada',
-      radarAdSpendVal: '~€1.200 – €1.600',
+      radarAdSpendTag: 'Presupuesto publicitario quemado',
+      radarAdSpendVal: '~1.200 € – 1.600 €',
       radarAdSpendPerMonth: '/mes',
-      radarAdSpendDesc: 'Pérdida de hasta el 40% de clics en Meta Ads por falta de canal directo en WhatsApp.',
+      radarAdSpendDesc: 'Pérdida de hasta un 40% de clics en Meta Ads por falta de botón directo a WhatsApp.',
 
       radarFineTag: 'Riesgo de sanciones AEPD',
       radarFineVal: 'Hasta 30.000 €',
-      radarFineDesc: 'Infracción del art. 10 LSSI-CE: plantilla de prueba en lugar de NIF/CIF fiscal.',
+      radarFineDesc: 'Infracción art. 10 LSSI-CE: plantilla de prueba en el pie en lugar del CIF/NIF fiscal.',
 
-      radarCallTag: 'Llamadas perdidas y citas',
-      radarCallVal: '~14-18 pacientes',
+      radarCallTag: 'Llamadas perdidas sin cita',
+      radarCallVal: '~14–18 citas',
       radarCallPerMonth: '/mes',
-      radarCallDesc: 'Reseñas en Google Maps con quejas por llamadas sin respuesta y falta de reserva online.',
+      radarCallDesc: 'Quejas reiteradas en Google Maps por llamadas sin respuesta por las tardes.',
 
-      // Матрица параметров
-      matrixTitle: 'Inspección de parámetros web',
-      matrixSubtitle: 'Toca en cualquier elemento para ver los detalles del diagnóstico',
-      filterAll: 'Todos',
+      simulateButton: 'Simular solución',
+      simulatedDone: 'Solución simulada',
+      pointsBonus: '+12 puntos',
+
+      pillarsNavTitle: '3 pilares comerciales de la auditoría',
+      matrixTeaser: '14 nodos técnicos inspeccionados · Toca para abrir la matriz detallada de diagnóstico',
+      matrixExpandBtn: 'Ver matriz completa (14 pruebas)',
+      matrixCollapseBtn: 'Ocultar matriz',
+
+      pillarAll: 'Todas las pruebas',
+      pillar01: '01 Técnico & Legal',
+      pillar02: '02 WhatsApp & Citas',
+      pillar03: '03 Anuncios & Maps',
+
+      filterAll: 'Todos los nodos',
       filterIssues: 'Solo incidencias',
       filterHealthy: 'Correctos',
-      diagnosisTitle: 'Diagnóstico:',
-      detailsHint: 'Detalles ▾',
-      closeHint: '✕ Cerrar',
+      diagnosisTitle: 'Diagnóstico técnico:',
+      fixActionTitle: 'Acción correctora recomendada:',
 
-      // Детализация 4 утечек
-      leaksTitle: '4 puntos clave de fuga de pacientes',
-      leaksSubtitle: 'Los fallos con mayor impacto en ingresos (toca para ver evidencias)',
-      proofsTitle: 'Detalle de inspección:',
+      leaksTitle: '4 puntos clave de fuga de ingresos',
+      leaksSubtitle: 'Cuellos de botella que reducen las reservas directas de la clínica',
 
-      leak1Title: '1. Fuga de tráfico de pago sin WhatsApp',
+      leak1Title: '1. Fuga de tráfico publicitario sin WhatsApp (wa.me)',
       leak1Badge: '-40% de leads',
       leak1Punch: 'El 78% del tráfico móvil desde anuncios abandona la web sin llamar',
-      leak1Desc: `Se invierten en Meta Ads unos ${businessData.monthlyAdSpendEst}, pero no hay botón de WhatsApp directo. Los usuarios se van sin contactar.`,
+      leak1Desc: `Se invierten en Meta Ads unos ${businessData.monthlyAdSpendEst}, pero no hay canal directo en WhatsApp. Los pacientes no rellenan formularios largos en móvil y se marchan.`,
 
-      leak2Title: '2. Falta de NIF/CIF (Ley LSSI-CE)',
+      leak2Title: '2. Ausencia de NIF/CIF fiscal obligatorio (Ley LSSI-CE)',
       leak2Badge: 'Multa hasta 30.000 €',
-      leak2Punch: 'En el Aviso Legal figura una plantilla de prueba dejada por el programador',
-      leak2Desc: 'El art. 10 LSSI-CE exige publicar el NIF/CIF fiscal visible. Las sanciones de la AEPD alcanzan los 30.000 € en webs comerciales.',
+      leak2Punch: 'El Aviso Legal conserva el texto de prueba del desarrollador',
+      leak2Desc: 'El artículo 10 de la ley LSSI-CE exige publicar el NIF/CIF fiscal visible de la empresa. La AEPD sanciona las webs comerciales que omiten su identificación fiscal.',
 
-      leak3Title: '3. Pérdida de llamadas en Google Maps',
+      leak3Title: '3. Pérdida de llamadas y pacientes en Google Maps',
       leak3Badge: '~16 citas/mes',
-      leak3Punch: 'Quejas reiteradas de pacientes por falta de atención telefónica por las tardes',
+      leak3Punch: 'Quejas reiteradas de pacientes por llamadas sin atender en horario vespertino',
       leak3Quote: '«No cogen el teléfono nunca por las tardes, tuve que ir en persona para cambiar la cita...»',
-      leak3Desc: 'Se detectaron 14 reseñas negativas en horas punta vespertinas por llamadas no contestadas.',
+      leak3Desc: 'El análisis de 384 reseñas revela 14 quejas por llamadas perdidas y falta de respuesta telefónica en horas punta.',
 
-      leak4Title: '4. Catálogo sin reserva online',
+      leak4Title: '4. Catálogo de tratamientos sin reserva directa (Cita Previa)',
       leak4Badge: 'Fuga sin reserva',
-      leak4Punch: 'Tarifas con 46 servicios publicadas sin botón de cita directa en 1 clic',
-      leak4Desc: 'Los pacientes consultan precios pero se marchan a buscar otra clínica al no poder reservar al instante.',
+      leak4Punch: 'Tarifas con 46 servicios publicadas sin botón de reserva en 1 clic',
+      leak4Desc: 'Los pacientes consultan precios pero se marchan a buscar otra clínica con reserva instantánea.',
 
-      // Чек-лист разработчика
-      devPlanTitle: 'Plan de corrección para tu programador',
-      devPlan1Title: '1. Chat directo por WhatsApp',
-      devPlan1Desc: 'Añadir widget flotante de WhatsApp para el tráfico móvil de campañas publicitarias.',
-      devPlan2Title: '2. Publicación de NIF/CIF en Aviso Legal',
-      devPlan2Desc: 'Publicar el NIF/CIF fiscal real según el art. 10 de la ley LSSI-CE.',
-      devPlan3Title: '3. Automatización fuera de horario',
-      devPlan3Desc: 'Integrar asistente IA para atender y agendar citas cuando la recepción esté ocupada.',
-      devPlan4Title: '4. Botón de reserva en catálogo',
-      devPlan4Desc: 'Añadir botón de reserva directa bajo cada una de las 46 tarifas del catálogo.',
+      devPlanTitle: 'Plan de acción para tu programador',
+      devPlanSubtitle: 'Directrices técnicas paso a paso para tu desarrollador o agencia web',
+      devPlan1Title: '1. Integración de botón flotante de WhatsApp (wa.me)',
+      devPlan1Desc: 'Implementar botón flotante directo en la esquina inferior derecha móvil con mensaje inicial preconfigurado.',
+      devPlan2Title: '2. Publicación de datos fiscales NIF/CIF en Aviso Legal',
+      devPlan2Desc: 'Sustituir el texto plantilla del pie y de la página legal por el NIF/CIF fiscal real de la sociedad.',
+      devPlan3Title: '3. Desvío de llamadas no atendidas y automatización',
+      devPlan3Desc: 'Configurar respuesta automática a llamadas perdidas hacia WhatsApp comercial fuera de horario.',
+      devPlan4Title: '4. Botones de reserva bajo cada categoría de tarifas',
+      devPlan4Desc: 'Integrar botón de cita previa bajo cada uno de los 46 tratamientos del catálogo.',
 
-      // Upsell
-      upsellBadge: 'DEMO · Oferta ilustrativa de ejemplo',
-      upsellTitle: 'Solucionar todos los fallos e integrar asistente IA en WhatsApp',
-      upsellDesc: 'Demostración de interfaz de contratación técnica: no constituye oferta vinculante comercial en esta versión de pruebas.',
+      upsellBadge: 'DEMO · SOLUCIÓN INTEGRAL LLAVE EN MANO',
+      upsellTitle: 'Corregir todos los fallos e implementar embudo de WhatsApp',
+      upsellDesc: 'Implantación completa: adaptación legal LSSI-CE, optimización móvil, botón directo de WhatsApp y captura de llamadas perdidas (modo demostración técnica).',
       upsellPrice: '900 € (Demo)',
       upsellInstallment: 'o 2 pagos de 450 €',
-      upsellGuarantee: 'Garantía simulada: devolución íntegra si el sistema no genera nuevas citas en 14 días.',
+      upsellGuarantee: 'Garantía simulada: Devolución del 100% si no genera nuevas reservas en los primeros 14 días.',
       upsellWaBtn: 'Hablar por WhatsApp (Prueba)',
-      upsellCallBtn: 'Llamada de 15 min',
+      upsellCallBtn: 'Reservar llamada de 15 min',
 
-      // Нижний бар
-      bottomBarTitle: 'Entorno de demostración técnica • Sin actividad económica mercantil',
-      bottomBarSub: 'Plazo: 5 días laborables • Precio: 900 € (Ilustrativo) • Sin captación de clientes',
-      bottomBarBtn: 'Contactar por WhatsApp (Prueba) ➔',
+      bottomBarTitle: 'Modo demostración técnica • Pagos desactivados en este prototipo',
+      bottomBarSub: 'Plazo: 5 días laborables • Precio: 900 € (Ilustrativo de prueba)',
+      bottomBarBtn: 'Contactar por WhatsApp ➔',
 
-      waMessage: `¡Hola! He revisado el informe de demostración de ${targetUrl}. Me gustaría consultar sobre el prototipo técnico.`,
+      waMessage: `¡Hola! He revisado el informe de auditoría de ${targetUrl}. Quiero consultar sobre la resolución de errores y la integración del embudo de WhatsApp.`,
     },
 
     en: {
-      devBadge:
-        'TECHNICAL PROTOTYPE · Non-commercial testing sandbox (No economic activity · Simulated/mock data · Payments disabled)',
-      auditReadyBadge: 'DEMO · SIMULATION',
+      devBadge: 'PROTOTYPE · Non-commercial technical demo (Payments disabled · Mock data)',
+      auditReadyBadge: 'DEMO · AUDIT GENERATED',
       exportPdf: 'Export PDF',
+      printDoc: 'Print',
+      backToHome: 'Back to Home',
 
-      // Главная карточка
-      salesReadinessBadge: 'AI Sales-Readiness Intelligence Report (Demo Mode)',
-      dashboardTitle: `Performance Dashboard: ${businessData.domain}`,
-      dashboardSubtitle: 'Technical simulation based on Spanish compliance (LSSI-CE / AEPD) for UI development purposes',
-      retentionIndex: 'Retention Index',
-      revenueLossWarning: 'Critical Revenue Leak',
-      retentionNote: '100% = optimal conversion',
+      dashboardTitle: `Conversion Audit: ${businessData.domain}`,
+      dashboardSubtitle: 'Inspected under Spanish regulations (LSSI-CE, AEPD) and mobile traffic conversion bottlenecks',
+      readinessBadge: 'AI REVENUE AUDIT',
+      retentionIndex: 'Sales-Readiness Index',
+      revenueLossWarning: 'Critical Patient Drop-off',
+      retentionNote: '100% = optimal funnel',
+      impactDetailsTitle: 'Estimated Financial Leakage',
 
-      // Светофор
-      criticalTitle: 'Critical Issues',
-      criticalSub: 'Customer Drop-off Points',
-      warningTitle: 'Warning Areas',
-      warningSub: 'Reduces Ad Performance',
+      criticalTitle: 'Critical Breaches',
+      criticalSub: 'Customer drop-off points',
+      warningTitle: 'Risk Areas',
+      warningSub: 'Reduces advertising ROI',
       healthyTitle: 'Healthy Nodes',
-      healthySub: 'Working as Expected',
+      healthySub: 'Operating smoothly',
 
-      // Радар потерь
-      radarAdSpendTag: 'Paid Ads Budget Leak',
+      radarAdSpendTag: 'Wasted Ad Spend',
       radarAdSpendVal: '~€1,200 – €1,600',
       radarAdSpendPerMonth: '/mo',
-      radarAdSpendDesc: 'Losing up to 40% of Meta Ads clicks due to the lack of direct WhatsApp chat.',
+      radarAdSpendDesc: 'Losing up to 40% of Meta Ads clicks due to lack of direct WhatsApp chat.',
 
-      radarFineTag: 'AEPD Penalty Risk',
+      radarFineTag: 'AEPD Regulatory Fines',
       radarFineVal: 'Up to €30,000',
-      radarFineDesc: 'Infringement of Art. 10 LSSI-CE: placeholder text instead of legal tax NIF/CIF.',
+      radarFineDesc: 'Art. 10 LSSI-CE breach: theme placeholder text in the footer instead of tax NIF/CIF.',
 
-      radarCallTag: 'Missed Calls & Booking Drop-off',
-      radarCallVal: '~14-18 clients',
+      radarCallTag: 'Unanswered Calls Drop-off',
+      radarCallVal: '~14–18 bookings',
       radarCallPerMonth: '/mo',
-      radarCallDesc: 'Google Maps reviews complaining about unanswered calls and missing online booking.',
+      radarCallDesc: 'Google Maps reviews reporting unanswered calls in the evening with zero online booking.',
 
-      // Матрица параметров
-      matrixTitle: 'Website Parameters Inspection',
-      matrixSubtitle: 'Tap on any item to inspect technical diagnostic findings',
-      filterAll: 'All',
-      filterIssues: 'Issues only',
-      filterHealthy: 'Healthy',
-      diagnosisTitle: 'Diagnosis:',
-      detailsHint: 'Details ▾',
-      closeHint: '✕ Close',
+      simulateButton: 'Simulate fix',
+      simulatedDone: 'Fix simulated',
+      pointsBonus: '+12 points',
 
-      // Детализация 4 утечек
-      leaksTitle: '4 Core Revenue Leak Points',
-      leaksSubtitle: 'High-impact bottlenecks draining clinical bookings (tap to inspect proof)',
-      proofsTitle: 'Forensic details:',
+      pillarsNavTitle: '3 Core Commercial Audit Pillars',
+      matrixTeaser: '14 technical nodes inspected · Click to open full forensic diagnosis matrix',
+      matrixExpandBtn: 'Expand full matrix (14 checks)',
+      matrixCollapseBtn: 'Collapse matrix',
 
-      leak1Title: '1. Paid Traffic Waste without WhatsApp',
+      pillarAll: 'All Checks',
+      pillar01: '01 Tech & Legal',
+      pillar02: '02 WhatsApp & Leads',
+      pillar03: '03 Ads & Google Maps',
+
+      filterAll: 'All Nodes',
+      filterIssues: 'Issues Only',
+      filterHealthy: 'Healthy Nodes',
+      diagnosisTitle: 'Technical Diagnosis:',
+      fixActionTitle: 'Recommended Fix:',
+
+      leaksTitle: '4 Core Revenue Bottlenecks',
+      leaksSubtitle: 'High-impact drop-offs draining potential appointments from your clinic',
+
+      leak1Title: '1. Paid Traffic Waste without WhatsApp (wa.me)',
       leak1Badge: '-40% leads',
-      leak1Punch: '78% of mobile ad clicks bounce immediately without calling',
-      leak1Desc: `Approx. ${businessData.monthlyAdSpendEst} is invested in Meta Ads, but there is no direct WhatsApp button. Visitors bounce with zero interaction.`,
+      leak1Punch: '78% of mobile clicks from paid ads bounce without calling',
+      leak1Desc: `Approx. ${businessData.monthlyAdSpendEst} is invested in Meta Ads, but there is no direct WhatsApp link. Mobile visitors bounce rather than fill out lengthy forms.`,
 
-      leak2Title: '2. Missing NIF/CIF (LSSI-CE Law)',
+      leak2Title: '2. Missing Mandatory Tax CIF/NIF (Ley LSSI-CE)',
       leak2Badge: 'Fines up to €30,000',
-      leak2Punch: 'The Legal Notice footer contains developer template placeholder text',
-      leak2Desc: 'Art. 10 LSSI-CE requires a visible corporate CIF tax ID. AEPD non-compliance fines reach up to €30,000 for commercial websites.',
+      leak2Punch: 'The Legal Notice page still holds developer placeholder text',
+      leak2Desc: 'Article 10 of LSSI-CE mandates publishing visible company NIF/CIF tax details. Spanish regulator AEPD imposes heavy fines on commercial websites lacking tax identity.',
 
-      leak3Title: '3. Lost Calls in Google Maps',
+      leak3Title: '3. Lost Phone Calls & Patients in Google Maps',
       leak3Badge: '~16 bookings/mo',
       leak3Punch: 'Repeated patient complaints about unanswered phone calls in the evening',
       leak3Quote: '«No cogen el teléfono nunca por las tardes, tuve que ir en persona para cambiar la cita...»',
-      leak3Desc: 'Analysis of 384 reviews revealed 14 complaints regarding unanswered calls during peak evening hours.',
+      leak3Desc: 'Analysis of 384 reviews revealed 14 complaints regarding dropped calls during peak evening hours.',
 
-      leak4Title: '4. Catalog without 1-Click Booking',
+      leak4Title: '4. Service Catalog without Instant Booking (Cita Previa)',
       leak4Badge: 'Drop-off without Booking',
       leak4Punch: '46 medical treatments displayed with pricing, but no 1-click booking button',
-      leak4Desc: 'Visitors review prices but leave to search competitor clinics because instant online booking is unavailable.',
+      leak4Desc: 'Patients review pricing but leave to search competitor clinics with instant online scheduling.',
 
-      // Чек-лист разработчика
       devPlanTitle: 'Action Plan for Your Web Developer',
-      devPlan1Title: '1. Direct WhatsApp Chat',
-      devPlan1Desc: 'Add a floating WhatsApp widget for paid mobile ad campaign traffic.',
-      devPlan2Title: '2. NIF/CIF in Legal Notice',
-      devPlan2Desc: 'Publish real company tax NIF/CIF according to Art. 10 of LSSI-CE.',
-      devPlan3Title: '3. After-hours Automation',
-      devPlan3Desc: 'Deploy an AI assistant to capture bookings when front-desk staff is busy.',
-      devPlan4Title: '4. Booking Button in Catalog',
-      devPlan4Desc: 'Add instant booking buttons under all 46 price list services.',
+      devPlanSubtitle: 'Step-by-step technical blueprint for your developer or digital agency',
+      devPlan1Title: '1. Connect Floating WhatsApp Button (wa.me)',
+      devPlan1Desc: 'Add a floating WhatsApp quick-chat button to the bottom-right of mobile screens with a pre-filled enquiry template.',
+      devPlan2Title: '2. Publish NIF/CIF Tax Data in Legal Notice',
+      devPlan2Desc: 'Replace developer template placeholder text in footer and Aviso Legal with verified legal entity tax details.',
+      devPlan3Title: '3. Missed-call Routing & After-hours Automation',
+      devPlan3Desc: 'Configure missed-call auto-replies directing high-intent callers to business WhatsApp after reception hours.',
+      devPlan4Title: '4. Instant Booking Buttons under Treatment Categories',
+      devPlan4Desc: 'Add a 1-click appointment booking link directly under each of the 46 catalog services.',
 
-      // Upsell
-      upsellBadge: 'DEMO · Illustrative Offer Sample',
-      upsellTitle: 'Fix All Issues & Deploy WhatsApp AI Assistant',
-      upsellDesc: 'Technical interface preview: payments and client onboarding are disabled on this demo.',
+      upsellBadge: 'DEMO · TURNKEY SOLUTION',
+      upsellTitle: 'Resolve All Bottlenecks & Deploy WhatsApp Funnel',
+      upsellDesc: 'Turnkey rollout: LSSI-CE legal compliance, mobile performance tuning, direct WhatsApp booking widget, and missed-call capture (UI demo preview).',
       upsellPrice: '€900 (Demo)',
       upsellInstallment: 'or 2 payments of €450',
-      upsellGuarantee: 'Illustrative guarantee: Full refund if the system does not generate new bookings within 14 days.',
+      upsellGuarantee: 'Simulated Guarantee: 100% money-back if the system does not generate new bookings within 14 days.',
       upsellWaBtn: 'Discuss on WhatsApp (Test)',
-      upsellCallBtn: '15-min Call',
+      upsellCallBtn: 'Book 15-min Call',
 
-      // Нижний бар
-      bottomBarTitle: 'Technical Prototype Sandbox • No Commercial Activity',
-      bottomBarSub: 'Timeline: 5 business days • Price: €900 (Example only) • Payments Disabled',
-      bottomBarBtn: 'Chat on WhatsApp (Test) ➔',
+      bottomBarTitle: 'Technical Demo Mode • Payments Disabled in this Sandbox',
+      bottomBarSub: 'Turnaround: 5 business days • Illustrative price: €900',
+      bottomBarBtn: 'Contact via WhatsApp ➔',
 
-      waMessage: `Hello! I reviewed the technical demo audit report for ${targetUrl}. I would like to inquire about the UI prototype.`,
+      waMessage: `Hello! I reviewed the technical audit for ${targetUrl}. I would like to inquire about resolving the bottlenecks and integrating the WhatsApp funnel.`,
     },
   }[lang];
 
+  // 14 проверочных узлов по 3 коммерческим опорам
   const allParameters = useMemo(() => [
     {
-      id: 'meta-pixel',
-      category: lang === 'ru' ? 'Маркетинг' : lang === 'es' ? 'Marketing' : 'Marketing',
-      title: 'Meta Ads Pixel (Instagram / Facebook)',
-      status: 'ok' as const,
-      metric: lang === 'ru' ? 'Активен' : lang === 'es' ? 'Activo' : 'Active',
-      desc: lang === 'ru' 
-        ? 'Пиксель установлен корректно, рекламный трафик фиксируется.' 
-        : lang === 'es' 
-          ? 'Pixel instalado correctamente, el tráfico publicitario se registra.' 
-          : 'Pixel installed properly, ad traffic is being tracked.',
-    },
-    {
-      id: 'google-ads',
-      category: lang === 'ru' ? 'Маркетинг' : lang === 'es' ? 'Marketing' : 'Marketing',
-      title: 'Google Ads Remarketing Tag',
-      status: 'ok' as const,
-      metric: lang === 'ru' ? 'Активен' : lang === 'es' ? 'Activo' : 'Active',
-      desc: lang === 'ru' 
-        ? 'Тег отслеживания конверсий в поисковой сети Google работает штатно.' 
-        : lang === 'es' 
-          ? 'La etiqueta de conversión de Google Ads funciona con normalidad.' 
-          : 'Google Ads conversion tracking tag is operating normally.',
-    },
-    {
-      id: 'whatsapp-funnel',
-      category: lang === 'ru' ? 'Маркетинг' : lang === 'es' ? 'Marketing' : 'Marketing',
-      title: lang === 'ru' ? 'Прямая воронка записи в WhatsApp' : lang === 'es' ? 'Embudo directo de citas en WhatsApp' : 'Direct WhatsApp Booking Funnel',
-      status: 'critical' as const,
-      metric: lang === 'ru' ? 'Слив до 40% лидов' : lang === 'es' ? 'Fuga de hasta 40% de leads' : 'Losing up to 40% of leads',
-      desc: lang === 'ru'
-        ? 'На сайте нет быстрой связи в мессенджере. 78% мобильных кликов из рекламы закрывают страницу без обращения.'
-        : lang === 'es'
-          ? 'La web no ofrece contacto directo por mensajería. El 78% de visitas móviles desde anuncios rebotan sin contactar.'
-          : 'No instant messaging connection on the site. 78% of mobile ad clicks bounce without getting in touch.',
-    },
-    {
-      id: 'form-friction',
-      category: lang === 'ru' ? 'Маркетинг' : lang === 'es' ? 'Marketing' : 'Marketing',
-      title: lang === 'ru' ? 'Конверсионная форма заявки' : lang === 'es' ? 'Formulario de contacto y reservas' : 'Lead Capture Form Friction',
-      status: 'warning' as const,
-      metric: lang === 'ru' ? 'Отказ ~24%' : lang === 'es' ? 'Abandono ~24%' : '~24% Drop-off',
-      desc: lang === 'ru'
-        ? 'Форма содержит 5 обязательных полей ввода. На смартфонах это вызывает отвал четверти пользователей.'
-        : lang === 'es'
-          ? 'El formulario contiene 5 campos obligatorios. En móviles provoca el abandono de una cuarta parte de los usuarios.'
-          : 'Form requires 5 mandatory fields. On mobile devices this causes a 24% user drop-off.',
-    },
-    {
-      id: 'ssl-security',
-      category: lang === 'ru' ? 'Закон & Безопасность' : lang === 'es' ? 'Legal & Seguridad' : 'Legal & Security',
-      title: 'SSL / TLS 1.3',
-      status: 'ok' as const,
-      metric: lang === 'ru' ? 'Защищено' : lang === 'es' ? 'Protegido' : 'Secure',
-      desc: lang === 'ru'
-        ? 'Соединение зашифровано, домен работает по безопасному протоколу HTTPS.'
-        : lang === 'es'
-          ? 'Conexión cifrada, el dominio opera bajo protocolo seguro HTTPS.'
-          : 'Encrypted connection, domain operates under secure HTTPS protocol.',
-    },
-    {
-      id: 'owner-id',
-      category: lang === 'ru' ? 'Закон & Безопасность' : lang === 'es' ? 'Legal & Seguridad' : 'Legal & Security',
-      title: lang === 'ru' ? 'Идентификация ответственного лица (ЛПР)' : lang === 'es' ? 'Identificación del responsable (DMC)' : 'Decision Maker Identification',
-      status: 'ok' as const,
-      metric: lang === 'ru' ? 'Установлено' : lang === 'es' ? 'Verificado' : 'Verified',
-      desc: lang === 'ru'
-        ? `Владелец идентифицирован: ${businessData.titular} (Руководитель / Владелец).`
-        : lang === 'es'
-          ? `Titular identificado: ${businessData.titular} (Directora / Propietaria).`
-          : `Owner identified: ${businessData.titular} (Director / Owner).`,
-    },
-    {
       id: 'lssi-cif',
-      category: lang === 'ru' ? 'Закон & Безопасность' : lang === 'es' ? 'Legal & Seguridad' : 'Legal & Security',
-      title: lang === 'ru' ? 'Публикация NIF/CIF по ст. 10 Ley LSSI-CE' : lang === 'es' ? 'Publicación de NIF/CIF según art. 10 Ley LSSI-CE' : 'NIF/CIF Publication under Art. 10 Ley LSSI-CE',
+      pillar: '01' as const,
+      category: lang === 'ru' ? '01 Закон & LSSI-CE' : lang === 'es' ? '01 Legal & LSSI-CE' : '01 Legal & LSSI-CE',
+      title: lang === 'ru' ? 'Публикация NIF/CIF (ст. 10 Ley LSSI-CE)' : lang === 'es' ? 'Publicación NIF/CIF (art. 10 Ley LSSI-CE)' : 'NIF/CIF Publication (Art. 10 LSSI-CE)',
       status: 'critical' as const,
       metric: lang === 'ru' ? 'Штраф до €30,000' : lang === 'es' ? 'Multa hasta 30.000 €' : 'Fines up to €30,000',
       desc: lang === 'ru'
-        ? 'В футере Aviso Legal оставлена тестовая заглушка темы без фискального номера компании. Нарушение норм AEPD.'
+        ? 'В футере Aviso Legal оставлена тестовая заглушка темы без фискального CIF/NIF. Прямое нарушение требований AEPD.'
         : lang === 'es'
-          ? 'En el Aviso Legal figura una plantilla de prueba sin el CIF/NIF de la empresa. Infracción sancionable por la AEPD.'
-          : 'The Legal Notice footer contains template placeholder text without company tax ID. Liable to AEPD sanctions.',
+          ? 'En el Aviso Legal figura una plantilla sin el CIF/NIF de la empresa. Infracción directamente sancionable por la AEPD.'
+          : 'Legal notice footer holds developer placeholder text without tax NIF/CIF. Direct violation of AEPD requirements.',
+      action: lang === 'ru' ? 'Прописать официальный CIF компании в Aviso Legal и футере.' : lang === 'es' ? 'Añadir el CIF legal de la sociedad en pie y Aviso Legal.' : 'Add official corporate tax CIF into footer and Legal Notice.',
+    },
+    {
+      id: 'ssl-security',
+      pillar: '01' as const,
+      category: lang === 'ru' ? '01 Техника & Безопасность' : lang === 'es' ? '01 Técnico & Seguridad' : '01 Tech & Security',
+      title: 'SSL / TLS 1.3 Encryption',
+      status: 'ok' as const,
+      metric: lang === 'ru' ? 'Защищено (TLS 1.3)' : lang === 'es' ? 'Protegido (TLS 1.3)' : 'Secure (TLS 1.3)',
+      desc: lang === 'ru'
+        ? 'Соединение зашифровано современным сертификатом, HTTPS активен на всех страницах.'
+        : lang === 'es'
+          ? 'Conexión cifrada con certificado moderno, HTTPS activo en todo el dominio.'
+          : 'Modern encrypted connection, strict HTTPS active across all pages.',
+      action: lang === 'ru' ? 'Поддерживать автообновление SSL.' : lang === 'es' ? 'Mantener renovación automática de SSL.' : 'Keep SSL auto-renewal active.',
     },
     {
       id: 'cookie-banner',
-      category: lang === 'ru' ? 'Закон & Безопасность' : lang === 'es' ? 'Legal & Seguridad' : 'Legal & Security',
-      title: lang === 'ru' ? 'Политика согласий Cookies (RGPD)' : lang === 'es' ? 'Banner y política de cookies (RGPD)' : 'Cookie Consent Banner (GDPR)',
+      pillar: '01' as const,
+      category: lang === 'ru' ? '01 Закон & RGPD' : lang === 'es' ? '01 Legal & RGPD' : '01 Legal & GDPR',
+      title: lang === 'ru' ? 'Политика согласия Cookies (Guía AEPD)' : lang === 'es' ? 'Gestor de Cookies (Guía AEPD)' : 'Cookie Consent Banner (AEPD Guide)',
       status: 'warning' as const,
       metric: lang === 'ru' ? 'Неполный отказ' : lang === 'es' ? 'Rechazo incompleto' : 'Incomplete Opt-out',
       desc: lang === 'ru'
-        ? 'Баннер не предоставляет равнозначной кнопки «Отклонить все cookies» в один клик.'
+        ? 'Баннер не содержит равнозначной кнопки «Отклонить все» на первом уровне, что противоречит директивам AEPD.'
         : lang === 'es'
-          ? 'El banner no ofrece un botón visible de "Rechazar todas" al mismo nivel que "Aceptar".'
-          : 'Banner does not offer an equivalent 1-click "Reject all cookies" button.',
-    },
-    {
-      id: 'google-rating',
-      category: lang === 'ru' ? 'Репутация & Карты' : lang === 'es' ? 'Reputación & Mapas' : 'Reputation & Maps',
-      title: lang === 'ru' ? 'Социальный капитал в Google Maps' : lang === 'es' ? 'Reputación social en Google Maps' : 'Google Maps Social Capital',
-      status: 'ok' as const,
-      metric: lang === 'ru' ? '4.8★ (384 отзыва)' : lang === 'es' ? '4.8★ (384 reseñas)' : '4.8★ (384 reviews)',
-      desc: lang === 'ru'
-        ? 'Высокая лояльность и искренние благодарности врачам за качество процедур.'
-        : lang === 'es'
-          ? 'Gran fidelidad y agradecimientos continuos a los doctores por la calidad asistencial.'
-          : 'High customer loyalty and genuine appreciation for the quality of medical procedures.',
-    },
-    {
-      id: 'phone-bottleneck',
-      category: lang === 'ru' ? 'Репутация & Карты' : lang === 'es' ? 'Reputación & Mapas' : 'Reputation & Maps',
-      title: lang === 'ru' ? 'Дозвон клиентов и обработка звонков' : lang === 'es' ? 'Atención y recepción de llamadas' : 'Customer Call Reception Bottleneck',
-      status: 'critical' as const,
-      metric: lang === 'ru' ? 'Потеря ~16 записей/мес' : lang === 'es' ? 'Pérdida de ~16 citas/mes' : '~16 lost appointments/mo',
-      desc: lang === 'ru'
-        ? 'В отзывах зафиксированы повторяющиеся жалобы: «No cogen el teléfono nunca por las tardes». Потеря клиентов на этапе звонка.'
-        : lang === 'es'
-          ? 'Reseñas recurrentes: «No cogen el teléfono nunca por las tardes». Pérdida directa de pacientes en horas punta.'
-          : 'Repeated customer complaints: "No cogen el teléfono nunca por las tardes". High drop-off during peak hours.',
-    },
-    {
-      id: 'booking-widget',
-      category: lang === 'ru' ? 'Репутация & Карты' : lang === 'es' ? 'Reputación & Mapas' : 'Reputation & Maps',
-      title: lang === 'ru' ? 'Модуль мгновенной онлайн-записи' : lang === 'es' ? 'Módulo de reserva y cita online' : 'Instant Online Booking Widget',
-      status: 'critical' as const,
-      metric: lang === 'ru' ? 'Отсутствует' : lang === 'es' ? 'Ausente' : 'Missing',
-      desc: lang === 'ru'
-        ? 'Прайс содержит 46 услуг, но нет кнопки бронирования (Booksy/Fresha/Koibox). Клиенты уходят без действия.'
-        : lang === 'es'
-          ? 'La web muestra 46 tratamientos con precios, pero sin botón de reserva (Booksy/Fresha/Koibox).'
-          : 'Catalog lists 46 treatments with pricing, but no 1-click booking button (Booksy/Fresha/Koibox).',
-    },
-    {
-      id: 'cms-stack',
-      category: lang === 'ru' ? 'Технологии' : lang === 'es' ? 'Tecnología' : 'Technology',
-      title: lang === 'ru' ? 'Платформа и цифровая инфраструктура' : lang === 'es' ? 'Plataforma e infraestructura digital' : 'Platform & Digital Stack',
-      status: 'ok' as const,
-      metric: 'WordPress 6.4',
-      desc: lang === 'ru'
-        ? 'Сайт построен на современной связке WordPress + Elementor Pro.'
-        : lang === 'es'
-          ? 'La web está desarrollada con WordPress + Elementor Pro.'
-          : 'Website is built on WordPress + Elementor Pro.',
+          ? 'El banner carece de botón visible de "Rechazar todo" en primera capa, contraviniendo la guía de la AEPD.'
+          : 'Cookie banner lacks a direct "Reject all" button on the first layer, breaching AEPD guidelines.',
+      action: lang === 'ru' ? 'Добавить кнопку отказа от cookies первого уровня.' : lang === 'es' ? 'Añadir botón de rechazo en la primera capa del banner.' : 'Add equal 1-click reject button on the first layer.',
     },
     {
       id: 'ttfb-speed',
-      category: lang === 'ru' ? 'Технологии' : lang === 'es' ? 'Tecnología' : 'Technology',
-      title: lang === 'ru' ? 'Скорость отклика сервера (TTFB)' : lang === 'es' ? 'Velocidad de respuesta del servidor (TTFB)' : 'Server Response Time (TTFB)',
+      pillar: '01' as const,
+      category: lang === 'ru' ? '01 Мобильная скорость' : lang === 'es' ? '01 Velocidad móvil' : '01 Mobile Speed',
+      title: lang === 'ru' ? 'Отклик сервера (TTFB & Core Web Vitals)' : lang === 'es' ? 'Respuesta del servidor (TTFB)' : 'Server Response (TTFB & Web Vitals)',
       status: 'ok' as const,
-      metric: lang === 'ru' ? '160ms (Отлично)' : lang === 'es' ? '160 ms (Excelente)' : '160ms (Excellent)',
+      metric: '160ms (Отлично)',
       desc: lang === 'ru'
-        ? 'Сервер в Испании отвечает быстро, база данных оптимизирована.'
+        ? 'Сервер в Испании отвечает за 160 мс, кэширование Elementor настроено корректно.'
         : lang === 'es'
-          ? 'Servidor en España con respuesta rápida y base de datos optimizada.'
-          : 'Spanish hosting server responds quickly with optimized database.',
+          ? 'El servidor responde en 160 ms con caché de Elementor bien configurada.'
+          : 'Server in Spain responds in 160ms, Elementor caching configured properly.',
+      action: lang === 'ru' ? 'Оптимизировать сжатие WebP для новых фото.' : lang === 'es' ? 'Mantener compresión WebP en nuevas imágenes.' : 'Maintain WebP compression on new media.',
     },
     {
       id: 'mixed-content',
-      category: lang === 'ru' ? 'Технологии' : lang === 'es' ? 'Tecnología' : 'Technology',
-      title: lang === 'ru' ? 'Смешанный контент HTTP/HTTPS' : lang === 'es' ? 'Contenido mixto HTTP/HTTPS' : 'Mixed Content HTTP/HTTPS',
+      pillar: '01' as const,
+      category: lang === 'ru' ? '01 Техника & Безопасность' : lang === 'es' ? '01 Técnico & Seguridad' : '01 Tech & Security',
+      title: 'Смешанный контент HTTP/HTTPS',
       status: 'critical' as const,
-      metric: lang === 'ru' ? 'Отказ на iOS ~22%' : lang === 'es' ? 'Rebote en iOS ~22%' : '~22% iOS Bounce Rate',
+      metric: lang === 'ru' ? 'Предупреждение в Safari' : lang === 'es' ? 'Aviso "No seguro" en iOS' : 'Warning in Safari iOS',
       desc: lang === 'ru'
-        ? 'Часть скриптов и изображений загружается по http://, вызывая предупреждение «Подключение не защищено» в Safari.'
+        ? '3 изображения галереи подгружаются по http://, вызывая значок «Небезопасно» на iPhone.'
         : lang === 'es'
-          ? 'Algunas imágenes y scripts cargan por http://, provocando alertas de "No seguro" en Safari e iOS.'
-          : 'Assets loading over http:// trigger "Not Secure" warnings in Safari on iOS.',
+          ? '3 imágenes de la galería cargan por http://, mostrando advertencia en Safari móvil.'
+          : '3 gallery assets load via http://, triggering "Not secure" badges on mobile Safari.',
+      action: lang === 'ru' ? 'Заменить ссылки http:// в базе данных через Search & Replace.' : lang === 'es' ? 'Ejecutar Search & Replace para forzar URLs relativas https://.' : 'Run database Search & Replace to enforce https:// URLs.',
+    },
+    {
+      id: 'whatsapp-funnel',
+      pillar: '02' as const,
+      category: lang === 'ru' ? '02 WhatsApp & Конверсия' : lang === 'es' ? '02 WhatsApp & Conversión' : '02 WhatsApp & Leads',
+      title: lang === 'ru' ? 'Прямой контакт WhatsApp в 1 клик' : lang === 'es' ? 'Contacto directo por WhatsApp (1 clic)' : 'Direct 1-Click WhatsApp Booking',
+      status: 'critical' as const,
+      metric: lang === 'ru' ? 'Слив до 40% лидов' : lang === 'es' ? 'Fuga de hasta 40% de leads' : 'Losing up to 40% leads',
+      desc: lang === 'ru'
+        ? 'На смартфонах нет кнопки быстрого чата. 78% переходов с мобильной рекламы уходят без звонка.'
+        : lang === 'es'
+          ? 'Sin botón flotante de WhatsApp. El 78% del tráfico móvil desde anuncios se va sin llamar.'
+          : 'No floating WhatsApp chat button. 78% of mobile ad visitors bounce without dialling.',
+      action: lang === 'ru' ? 'Разместить плавающий виджет wa.me с шаблоном записи.' : lang === 'es' ? 'Integrar widget wa.me con mensaje inicial predeterminado.' : 'Deploy floating wa.me widget with appointment template.',
+    },
+    {
+      id: 'phone-bottleneck',
+      pillar: '02' as const,
+      category: lang === 'ru' ? '02 Дозвон & Клиенты' : lang === 'es' ? '02 Atención de llamadas' : '02 Call Reception',
+      title: lang === 'ru' ? 'Обработка пропущенных звонков' : lang === 'es' ? 'Atención telefónica en hora punta' : 'Missed Call Bottleneck',
+      status: 'critical' as const,
+      metric: lang === 'ru' ? 'Потеря ~16 записей/мес' : lang === 'es' ? 'Pérdida de ~16 citas/mes' : '~16 lost clients/mo',
+      desc: lang === 'ru'
+        ? 'В отзывах найдены жалобы на сброс звонков по вечерам. Нет автопереадресации на WhatsApp.'
+        : lang === 'es'
+          ? 'Reseñas negativas por llamadas no contestadas por las tardes. Sin desvío automático a WhatsApp.'
+          : 'Repeated reviews complaining of unanswered calls in the evening. No WhatsApp auto-routing.',
+      action: lang === 'ru' ? 'Настроить авто-сообщение в WhatsApp при пропущенном звонке.' : lang === 'es' ? 'Activar desvío con mensaje instantáneo de WhatsApp en llamadas perdidas.' : 'Set up instant WhatsApp follow-up for unanswered calls.',
+    },
+    {
+      id: 'booking-widget',
+      pillar: '02' as const,
+      category: lang === 'ru' ? '02 Онлайн-запись' : lang === 'es' ? '02 Reserva y cita online' : '02 Instant Booking',
+      title: lang === 'ru' ? 'Кнопка Cita Previa в каталоге услуг' : lang === 'es' ? 'Botón de Cita Previa en catálogo' : 'Cita Previa Button in Catalog',
+      status: 'critical' as const,
+      metric: lang === 'ru' ? 'Отсутствует в прайсе' : lang === 'es' ? 'Ausente en tarifas' : 'Missing in Pricing',
+      desc: lang === 'ru'
+        ? 'В каталоге 46 услуг с ценами, но нет кнопки прямой записи в 1 клик.'
+        : lang === 'es'
+          ? 'El catálogo muestra 46 tratamientos con precios, pero sin botón de cita directa.'
+          : 'Catalog lists 46 priced treatments but lacks an instant booking link.',
+      action: lang === 'ru' ? 'Добавить кнопку бронирования к каждой процедуре.' : lang === 'es' ? 'Añadir enlace directo de cita previa bajo cada tarifa.' : 'Add 1-click booking link under each treatment row.',
+    },
+    {
+      id: 'form-friction',
+      pillar: '02' as const,
+      category: lang === 'ru' ? '02 Формы обратной связи' : lang === 'es' ? '02 Formularios de contacto' : '02 Lead Form Friction',
+      title: lang === 'ru' ? 'Количество полей в форме заявки' : lang === 'es' ? 'Longitud del formulario móvil' : 'Mobile Form Field Friction',
+      status: 'warning' as const,
+      metric: lang === 'ru' ? '5 полей (отказ ~24%)' : lang === 'es' ? '5 campos (abandono ~24%)' : '5 fields (~24% drop-off)',
+      desc: lang === 'ru'
+        ? 'Форма требует имя, фамилию, email, телефон и комментарий. Четверть пользователей бросают ввод.'
+        : lang === 'es'
+          ? 'El formulario exige 5 campos obligatorios. Un 24% de usuarios móvil lo abandona sin enviar.'
+          : 'Form requires 5 mandatory fields, causing roughly 24% of mobile users to abandon.',
+      action: lang === 'ru' ? 'Сократить форму до 2 полей (Имя + Телефон) или заменить на WhatsApp.' : lang === 'es' ? 'Reducir a 2 campos (Nombre y Teléfono) o sustituir por WhatsApp.' : 'Simplify to 2 fields (Name + Phone) or switch to WhatsApp.',
+    },
+    {
+      id: 'meta-pixel',
+      pillar: '03' as const,
+      category: lang === 'ru' ? '03 Meta Ads (Instagram)' : lang === 'es' ? '03 Meta Ads (Instagram)' : '03 Meta Ads (Instagram)',
+      title: 'Meta Ads Pixel & CAPI Event',
+      status: 'ok' as const,
+      metric: lang === 'ru' ? 'Активен (ID: 4819***)' : lang === 'es' ? 'Activo (ID: 4819***)' : 'Active (ID: 4819***)',
+      desc: lang === 'ru'
+        ? 'Пиксель отслеживает просмотры страниц и переходы, реклама в Instagram фиксируется.'
+        : lang === 'es'
+          ? 'El píxel registra visitas a páginas correctamente para campañas de Instagram.'
+          : 'Pixel tracks page views and campaign clicks properly for Instagram ads.',
+      action: lang === 'ru' ? 'Добавить отслеживание клика по кнопке WhatsApp.' : lang === 'es' ? 'Configurar evento de conversión для кликов в WhatsApp.' : 'Set up custom conversion event on WhatsApp clicks.',
+    },
+    {
+      id: 'google-ads',
+      pillar: '03' as const,
+      category: lang === 'ru' ? '03 Google Ads & Трафик' : lang === 'es' ? '03 Google Ads' : '03 Google Ads',
+      title: 'Google Ads Remarketing Tag',
+      status: 'ok' as const,
+      metric: lang === 'ru' ? 'Активен (AW-***)' : lang === 'es' ? 'Activo (AW-***)' : 'Active (AW-***)',
+      desc: lang === 'ru'
+        ? 'Тег ремаркетинга Google активен, собирает аудитории для поисковой рекламы.'
+        : lang === 'es'
+          ? 'La etiqueta de Google Ads funciona y recopila listas de remarketing.'
+          : 'Google remarketing tag is active and gathering remarketing audiences.',
+      action: lang === 'ru' ? 'Проверить фиксацию конверсий звонков.' : lang === 'es' ? 'Verificar medición de conversiones de llamada.' : 'Verify click-to-call conversion tracking.',
+    },
+    {
+      id: 'google-rating',
+      pillar: '03' as const,
+      category: lang === 'ru' ? '03 Google Maps & Отзывы' : lang === 'es' ? '03 Google Maps & Reseñas' : '03 Google Maps & Reviews',
+      title: lang === 'ru' ? 'Репутационный капитал в Google Maps' : lang === 'es' ? 'Reputación en Google Maps' : 'Google Maps Social Proof',
+      status: 'ok' as const,
+      metric: '4.8★ (384 отзыва)',
+      desc: lang === 'ru'
+        ? 'Отличный рейтинг и признательность пациентов за качество процедур.'
+        : lang === 'es'
+          ? 'Excelente valoración y fidelidad de pacientes por la calidad asistencial.'
+          : 'Outstanding rating and patient appreciation for medical quality.',
+      action: lang === 'ru' ? 'Отрабатывать негативные отзывы о недозвоне.' : lang === 'es' ? 'Responder a las quejas por llamadas perdidas.' : 'Actively reply to complaints regarding missed calls.',
+    },
+    {
+      id: 'schema-local',
+      pillar: '03' as const,
+      category: lang === 'ru' ? '03 Локальное SEO' : lang === 'es' ? '03 SEO Local' : '03 Local SEO',
+      title: 'Schema.org MedicalBusiness Microdata',
+      status: 'warning' as const,
+      metric: lang === 'ru' ? 'Не настроена' : lang === 'es' ? 'Sin microdatos' : 'Missing Schema',
+      desc: lang === 'ru'
+        ? 'В коде отсутствует разметка MedicalBusiness. Поисковик хуже ранжирует клинику по локальным запросам в Мадриде.'
+        : lang === 'es'
+          ? 'Faltan microdatos estructurados de MedicalBusiness para destacar en búsquedas locales de Madrid.'
+          : 'Missing MedicalBusiness structured schema data, weakening Google local search ranking in Madrid.',
+      action: lang === 'ru' ? 'Внедрить JSON-LD разметку с адресом, часами и врачами.' : lang === 'es' ? 'Insertar bloque JSON-LD con dirección, horario и especialidades.' : 'Add JSON-LD MedicalBusiness structured data.',
+    },
+    {
+      id: 'owner-id',
+      pillar: '03' as const,
+      category: lang === 'ru' ? '03 Доверие & Экспертиза' : lang === 'es' ? '03 Confianza & E-E-A-T' : '03 Trust & E-E-A-T',
+      title: lang === 'ru' ? 'Идентификация главного врача (ЛПР)' : lang === 'es' ? 'Identificación médica titular' : 'Medical Director Identity',
+      status: 'ok' as const,
+      metric: lang === 'ru' ? 'Подтверждено' : lang === 'es' ? 'Verificado' : 'Verified',
+      desc: lang === 'ru'
+        ? `Главный врач указан: ${businessData.titular} (Коллегиальный номер в наличии).`
+        : lang === 'es'
+          ? `Titular médica confirmada: ${businessData.titular} (Nº de colegiada visible).`
+          : `Medical director confirmed: ${businessData.titular} (License number visible).`,
+      action: lang === 'ru' ? 'Поддерживать актуальность дипломов и лицензий.' : lang === 'es' ? 'Mantener titulaciones visibles.' : 'Keep certifications up to date.',
     },
   ], [lang, businessData.titular]);
 
   const filteredParameters = useMemo(() => {
-    return allParameters.filter(p => {
-      if (activeFilter === 'issues') return p.status === 'critical' || p.status === 'warning';
-      if (activeFilter === 'healthy') return p.status === 'ok';
-      return true;
+    return allParameters.filter((p) => {
+      const matchPillar = activePillar === 'all' || p.pillar === activePillar;
+      const matchStatus =
+        activeFilter === 'all' ||
+        (activeFilter === 'issues' && (p.status === 'critical' || p.status === 'warning')) ||
+        (activeFilter === 'healthy' && p.status === 'ok');
+
+      return matchPillar && matchStatus;
     });
-  }, [allParameters, activeFilter]);
+  }, [allParameters, activePillar, activeFilter]);
+
+  const criticalCount = useMemo(() => allParameters.filter((p) => p.status === 'critical').length, [allParameters]);
+  const warningCount = useMemo(() => allParameters.filter((p) => p.status === 'warning').length, [allParameters]);
+  const healthyCount = useMemo(() => allParameters.filter((p) => p.status === 'ok').length, [allParameters]);
 
   const devPlanItems = [
     { id: 1, title: t.devPlan1Title, desc: t.devPlan1Desc },
@@ -622,103 +781,100 @@ function BusinessIntelligenceReport() {
     { id: 4, title: t.devPlan4Title, desc: t.devPlan4Desc },
   ];
 
-  const phoneWhatsApp = '34600123456'; 
+  const phoneWhatsApp = '34600123456';
   const whatsappUrl = `https://wa.me/${phoneWhatsApp}?text=${encodeURIComponent(t.waMessage)}`;
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] pb-32 selection:bg-[#0284C7]/20 selection:text-[#0284C7] font-sans antialiased">
-      
-      {/* СТИЛИ АНИМАЦИИ ДАШБОРДА */}
+    <div
+      ref={reportContainerRef}
+      suppressHydrationWarning
+      className="min-h-screen bg-[#F0F9FF] text-[#0F2744] pb-28 selection:bg-[#0284C7]/20 selection:text-[#0F2744] font-sans antialiased relative"
+    >
+      {/* ================= СТИЛИ АНИМАЦИИ (HEADER DROP, CARD REVEAL, TEXT UNMASK) ================= */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            @keyframes card-entrance {
-              0% {
-                opacity: 0;
-                transform: translateY(22px) scale(0.985);
-                filter: blur(8px);
-              }
-              100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                filter: blur(0);
-              }
-            }
+        @keyframes header-drop {
+          0% { opacity: 0; transform: translateY(-18px); filter: blur(7px); }
+          78% { opacity: 1; transform: translateY(1px); filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .anim-header {
+          animation: header-drop 1.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
 
-            @keyframes radar-sweep {
-              0% {
-                transform: translateX(-100%);
-              }
-              100% {
-                transform: translateX(250%);
-              }
-            }
+        @keyframes card-reveal {
+          0% { opacity: 0; transform: translateY(32px) scale(0.96) rotateX(3deg); filter: blur(9px); }
+          74% { opacity: 1; transform: translateY(-3px) scale(1.006) rotateX(0); filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+        .anim-card {
+          animation: card-reveal 1.15s cubic-bezier(0.2, 0.78, 0.28, 1) both;
+        }
 
-            @keyframes popout-reveal {
-              0% {
-                opacity: 0;
-                transform: translateY(-4px);
-              }
-              100% {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
+        @keyframes text-line-unmask {
+          0% { transform: translateY(120%); opacity: 0; filter: blur(4px); }
+          100% { transform: translateY(0); opacity: 1; filter: blur(0); }
+        }
+        .anim-line-1 {
+          animation: text-line-unmask 1.05s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .anim-line-2 {
+          animation: text-line-unmask 1.05s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+        }
 
-            .anim-card-entrance {
-              animation: card-entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
+        .hero-pending {
+          opacity: 0 !important;
+          transform: translateY(20px) !important;
+          visibility: hidden !important;
+        }
 
-            .anim-stagger-1 {
-              animation: card-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
-            }
-
-            .anim-stagger-2 {
-              animation: card-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.22s backwards;
-            }
-
-            .anim-stagger-3 {
-              animation: card-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.34s backwards;
-            }
-
-            .radar-beam {
-              animation: radar-sweep 4s ease-in-out infinite;
-            }
-
-            .anim-popout {
-              animation: popout-reveal 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
-          `,
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `,
         }}
       />
 
-      {/* ================= ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА ================= */}
-      <div className="relative z-40 bg-[#0F2744] text-white px-3 py-1.5 text-center text-[10px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-2">
+      {/* ================= 1. ЗАЩИТНАЯ ПЛАШКА РАЗРАБОТЧИКА ================= */}
+      <div
+        className={`relative z-40 bg-[#0F2744] text-white px-3 py-1.5 text-center text-[10px] sm:text-[11px] font-medium border-b border-[#0284C7]/20 flex items-center justify-center gap-2 ${
+          revealStep >= 1 ? 'anim-header' : 'hero-pending'
+        }`}
+      >
         <Code2 className="w-3.5 h-3.5 text-[#7DD3FC] shrink-0" />
         <span className="tracking-wide text-slate-200">{t.devBadge}</span>
       </div>
 
-      {/* ================= ШАПКА ================= */}
-      <header className="border-b border-black/[0.05] bg-white/80 backdrop-blur-xl sticky top-0 z-30 px-6 sm:px-8 h-16 flex items-center">
-        <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <Link href={`/?lang=${lang}`} className="flex items-center gap-3 no-underline min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-xs shadow-sm shadow-[#0284C7]/20 shrink-0">
-                A2R
+      {/* ================= 2. ШАПКА В СТИЛЕ ЛЕНДИНГА ================= */}
+      <header
+        className={`border-b border-black/[0.05] bg-white/80 backdrop-blur-xl sticky top-0 z-30 px-4 sm:px-8 h-14 sm:h-16 flex items-center ${
+          revealStep >= 1 ? 'anim-header' : 'hero-pending'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto w-full flex items-center justify-between gap-4">
+          <Link href={`/?lang=${lang}`} className="flex items-center gap-2.5 min-w-0 group no-underline">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0F2744] via-[#0284C7] to-[#7DD3FC] flex items-center justify-center font-bold text-white text-xs shadow-sm shadow-[#0284C7]/30 shrink-0">
+              A2R
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold tracking-tight text-[#0F2744] text-[13px] sm:text-sm">
+                  Audit<span className="text-[#0284C7]">2</span>Revenue
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-[#0284C7]/10 text-[#0284C7] text-[9.5px] font-extrabold uppercase tracking-wider hidden sm:inline">
+                  {t.auditReadyBadge}
+                </span>
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-[#1D1D1F] text-sm truncate">{businessData.brandName}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-black border border-amber-300 tracking-wide shrink-0">
-                    {t.auditReadyBadge}
-                  </span>
-                </div>
-                <span className="block text-[11px] text-[#6E6E73] font-mono truncate">{businessData.domain}</span>
-              </div>
-            </Link>
-          </div>
+              <span className="block text-[10.5px] text-[#64748B] font-mono truncate">{domain}</span>
+            </div>
+          </Link>
 
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="flex items-center p-0.5 rounded-full bg-black/[0.04] border border-black/[0.05]">
               {(['es', 'en', 'ru'] as Lang[]).map((item) => (
                 <button
@@ -728,7 +884,7 @@ function BusinessIntelligenceReport() {
                   className={`px-2.5 sm:px-3 py-1 rounded-full transition-all uppercase tracking-wider text-[10px] sm:text-[11px] ${
                     lang === item
                       ? 'bg-white text-[#0284C7] shadow-sm font-bold'
-                      : 'text-[#6E6E73] hover:text-[#1D1D1F]'
+                      : 'text-[#6E6E73] hover:text-[#0F2744]'
                   }`}
                 >
                   {item}
@@ -739,69 +895,74 @@ function BusinessIntelligenceReport() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white hover:bg-[#F5F5F7] border border-black/[0.08] text-xs font-semibold text-[#1D1D1F] flex items-center gap-2 shadow-sm transition"
+              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-[#0F2744] flex items-center gap-1.5 shadow-xs transition"
             >
-              <Download className="w-3.5 h-3.5 text-[#0284C7]" />
-              <span className="hidden sm:inline">{t.exportPdf}</span>
+              <Printer className="w-3.5 h-3.5 text-[#0284C7]" />
+              <span className="hidden sm:inline">{t.printDoc}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* ================= ДАШБОРД ================= */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-8">
+      {/* ================= 3. ОСНОВНОЙ КОНТЕНТ ОТЧЕТА ================= */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-7 py-6 sm:py-10 space-y-7">
         
-        {/* ================= ГЛАВНАЯ КАРТОЧКА ЗДОРОВЬЯ ================= */}
-        <div className="p-5 sm:p-8 rounded-3xl bg-white border border-black/[0.06] shadow-[0_12px_42px_rgba(15,39,68,0.06)] space-y-6 relative overflow-hidden anim-card-entrance">
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="radar-beam absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-[#0284C7]/[0.04] to-transparent -skew-x-12" />
-          </div>
+        {/* ================= ГЛАВНЫЙ ДАШБОРД ================= */}
+        <section
+          className={`p-5 sm:p-8 rounded-3xl bg-white border border-[#D5E1E9] shadow-[0_16px_50px_rgba(15,39,68,0.08)] space-y-6 relative overflow-hidden ${
+            revealStep >= 2 ? 'anim-card' : 'hero-pending'
+          }`}
+        >
+          <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#EFFAFF] to-transparent pointer-events-none" />
 
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black/[0.05] pb-6 relative z-10">
+          {/* Верхняя строка с заголовком и круговым индикатором */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6 relative z-10">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] text-xs font-semibold shadow-xs">
-                <ShieldCheck className="w-3.5 h-3.5 animate-pulse" />
-                <span>{t.salesReadinessBadge}</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E0F2FE] text-[#0284C7] text-xs font-bold shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
+                <span>{t.readinessBadge}</span>
               </div>
-              <h1 className="text-xl sm:text-3xl font-black text-[#1D1D1F] tracking-tight leading-snug">
-                {t.dashboardTitle}
+              <h1 className="text-xl sm:text-3xl font-extrabold text-[#0F2744] tracking-tight leading-tight overflow-hidden">
+                <span className={`inline-block ${revealStep >= 2 ? 'anim-line-1' : 'hero-pending'}`}>
+                  {t.dashboardTitle}
+                </span>
               </h1>
-              <p className="text-xs text-[#6E6E73] leading-relaxed">
+              <p className={`text-xs sm:text-sm text-[#64748B] max-w-2xl leading-relaxed ${revealStep >= 2 ? 'anim-line-2' : 'hero-pending'}`}>
                 {t.dashboardSubtitle}
               </p>
             </div>
 
-            {/* ИНТЕРАКТИВНЫЙ КРУГОВОЙ ИНДИКАТОР ЗДОРОВЬЯ */}
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-b from-[#FBFBFD] to-[#F5F5F7] border border-black/[0.05] shrink-0 shadow-xs hover:border-[#DC2626]/20 transition-all duration-300">
-              <div className="relative w-18 h-18 sm:w-20 sm:h-20 flex items-center justify-center">
-                <svg className="w-18 h-18 sm:w-20 sm:h-20 transform -rotate-90">
-                  <circle 
-                    cx="36" 
-                    cy="36" 
-                    r="26" 
-                    stroke="#E2E8F0" 
-                    strokeWidth="5.5" 
-                    fill="transparent" 
+            {/* Круговой индикатор */}
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] shrink-0 shadow-xs">
+              <div className="relative w-20 h-20 flex items-center justify-center">
+                <svg className="w-20 h-20 transform -rotate-90">
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="26"
+                    stroke="#E2E8F0"
+                    strokeWidth="6"
+                    fill="transparent"
                   />
-                  <circle 
-                    cx="36" 
-                    cy="36" 
-                    r="26" 
-                    stroke="#DC2626" 
-                    strokeWidth="5.5" 
-                    fill="transparent" 
-                    strokeDasharray={circumference} 
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="26"
+                    stroke={simulatedHealthScore > 75 ? '#059669' : simulatedHealthScore > 55 ? '#D97706' : '#DC2626'}
+                    strokeWidth="6"
+                    fill="transparent"
+                    strokeDasharray={circumference}
                     strokeDashoffset={isGaugeAnimated ? targetOffset : circumference}
-                    strokeLinecap="round" 
+                    strokeLinecap="round"
                     style={{
-                      transition: 'stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                      filter: 'drop-shadow(0 0 6px rgba(220, 38, 38, 0.35))',
+                      transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.6s ease',
                     }}
                   />
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-                  <span suppressHydrationWarning className="text-lg sm:text-xl font-black text-[#1D1D1F] tracking-tight tabular-nums">
+                  <span className="text-xl font-black text-[#0F2744] tabular-nums">
                     {animatedScore}%
                   </span>
                 </div>
@@ -809,20 +970,25 @@ function BusinessIntelligenceReport() {
 
               <div>
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                  <span className="text-xs font-bold text-[#1D1D1F]">{t.retentionIndex}</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-bold text-[#0F2744]">{t.retentionIndex}</span>
                 </div>
                 <span className="text-[11px] text-rose-600 font-bold block">{t.revenueLossWarning}</span>
-                <span className="text-[10px] text-[#6E6E73]">{t.retentionNote}</span>
+                <span className="text-[10px] text-[#64748B]">{t.retentionNote}</span>
+                {resolvedIssues.length > 0 && (
+                  <span className="text-[10.5px] text-emerald-600 font-extrabold mt-0.5 block">
+                    ✓ +{resolvedIssues.length * 12}% {t.simulatedDone}
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
-          {/* СВЕТОФОРНАЯ СВОДКА */}
+          {/* Светофорная панель инцидентов */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 relative z-10">
-            <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/90 flex items-center justify-between shadow-xs hover:scale-[1.02] transition-transform duration-200 anim-stagger-1">
+            <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-8 h-8 rounded-xl bg-white border border-rose-200 flex items-center justify-center shrink-0">
                   <XCircle className="w-4 h-4 text-rose-600" />
                 </div>
                 <div>
@@ -830,14 +996,14 @@ function BusinessIntelligenceReport() {
                   <span className="text-[11px] text-rose-700 font-medium">{t.criticalSub}</span>
                 </div>
               </div>
-              <span suppressHydrationWarning className="text-2xl font-black text-rose-600 tabular-nums">
-                {animatedCrit}
+              <span className="text-2xl font-black text-rose-600 tabular-nums">
+                {Math.max(0, criticalCount - resolvedIssues.length)}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/90 flex items-center justify-between shadow-xs hover:scale-[1.02] transition-transform duration-200 anim-stagger-2">
+            <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-8 h-8 rounded-xl bg-white border border-amber-200 flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-4 h-4 text-amber-600" />
                 </div>
                 <div>
@@ -845,14 +1011,14 @@ function BusinessIntelligenceReport() {
                   <span className="text-[11px] text-amber-700 font-medium">{t.warningSub}</span>
                 </div>
               </div>
-              <span suppressHydrationWarning className="text-2xl font-black text-amber-600 tabular-nums">
-                {animatedWarn}
+              <span className="text-2xl font-black text-amber-600 tabular-nums">
+                {warningCount}
               </span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 flex items-center justify-between shadow-xs hover:scale-[1.02] transition-transform duration-200 anim-stagger-3">
+            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-8 h-8 rounded-xl bg-white border border-emerald-200 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 </div>
                 <div>
@@ -860,487 +1026,583 @@ function BusinessIntelligenceReport() {
                   <span className="text-[11px] text-emerald-700 font-medium">{t.healthySub}</span>
                 </div>
               </div>
-              <span suppressHydrationWarning className="text-2xl font-black text-emerald-600 tabular-nums">
-                {animatedHealthy}
+              <span className="text-2xl font-black text-emerald-600 tabular-nums">
+                {healthyCount + resolvedIssues.length}
               </span>
             </div>
           </div>
 
-          {/* РАДАР ПОТЕРЬ */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 relative z-10">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#F0F9FF] to-white border border-[#BAE6FD]/80 shadow-xs hover:shadow-md transition-shadow duration-300 anim-stagger-1">
-              <span className="text-xs font-semibold text-[#0284C7] flex items-center gap-1.5">
-                <Coins className="w-4 h-4 animate-bounce" /> {t.radarAdSpendTag}
-              </span>
-              <div className="text-2xl font-black text-[#1D1D1F] mt-1.5 tracking-tight">
-                {t.radarAdSpendVal} <span className="text-xs font-normal text-[#6E6E73]">{t.radarAdSpendPerMonth}</span>
-              </div>
-              <p className="text-[11px] text-[#6E6E73] mt-1 leading-relaxed">
-                {t.radarAdSpendDesc}
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FEF2F2] to-white border border-rose-200 shadow-xs hover:shadow-md transition-shadow duration-300 anim-stagger-2">
-              <span className="text-xs font-semibold text-rose-600 flex items-center gap-1.5">
-                <AlertOctagon className="w-4 h-4 animate-pulse" /> {t.radarFineTag}
-              </span>
-              <div className="text-2xl font-black text-rose-700 mt-1.5 tracking-tight">
-                {t.radarFineVal}
-              </div>
-              <p className="text-[11px] text-[#6E6E73] mt-1 leading-relaxed">
-                {t.radarFineDesc}
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-white border border-amber-200 shadow-xs hover:shadow-md transition-shadow duration-300 anim-stagger-3">
-              <span className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
-                <PhoneCall className="w-4 h-4" /> {t.radarCallTag}
-              </span>
-              <div className="text-2xl font-black text-[#1D1D1F] mt-1.5 tracking-tight">
-                {t.radarCallVal} <span className="text-xs font-normal text-[#6E6E73]">{t.radarCallPerMonth}</span>
-              </div>
-              <p className="text-[11px] text-[#6E6E73] mt-1 leading-relaxed">
-                {t.radarCallDesc}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ================= 1. МАТРИЦА ПАРАМЕТРОВ САЙТА ================= */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
-            <div>
-              <h2 className="text-xl font-bold text-[#1D1D1F] tracking-tight">
-                {t.matrixTitle}
-              </h2>
-              <p className="text-xs text-[#6E6E73]">
-                {t.matrixSubtitle}
-              </p>
-            </div>
-
-            <div className="flex items-center p-1 rounded-xl bg-black/[0.04] border border-black/[0.05] text-xs font-medium self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => setActiveFilter('all')}
-                className={`px-3 py-1.5 rounded-lg transition ${activeFilter === 'all' ? 'bg-white text-[#0284C7] shadow-sm font-bold' : 'text-[#6E6E73] hover:text-[#1D1D1F]'}`}
-              >
-                {t.filterAll} ({allParameters.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFilter('issues')}
-                className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${activeFilter === 'issues' ? 'bg-white text-rose-600 shadow-sm font-bold' : 'text-[#6E6E73] hover:text-[#1D1D1F]'}`}
-              >
-                <span>{t.filterIssues} ({criticalCount + warningCount})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveFilter('healthy')}
-                className={`px-3 py-1.5 rounded-lg transition ${activeFilter === 'healthy' ? 'bg-white text-emerald-600 shadow-sm font-bold' : 'text-[#6E6E73] hover:text-[#1D1D1F]'}`}
-              >
-                {t.filterHealthy} ({healthyCount})
-              </button>
-            </div>
-          </div>
-
-          {/* СЕТКА ПАРАМЕТРОВ: ЗАГОЛОВКИ НЕ ОБРЕЗАЮТСЯ НА МОБИЛЬНЫХ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {filteredParameters.map((param) => {
-              const isCrit = param.status === 'critical';
-              const isWarn = param.status === 'warning';
-              const isOpen = openParamId === param.id;
-
-              return (
-                <div key={param.id} className="relative min-h-[84px] sm:h-[76px]">
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => toggleParam(param.id)}
-                    className={`group sm:absolute inset-x-0 top-0 rounded-2xl border transition-all duration-200 bg-white cursor-pointer select-none focus:outline-none ${
-                      isOpen
-                        ? 'z-40 border-[#0284C7] shadow-[0_16px_36px_rgba(15,39,68,0.18)]'
-                        : isCrit 
-                          ? 'z-10 border-rose-200/90 shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(225,29,72,0.18)] hover:border-rose-400' 
-                          : isWarn 
-                            ? 'z-10 border-amber-200/90 shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(217,119,6,0.18)] hover:border-amber-400' 
-                            : 'z-10 border-black/[0.06] shadow-2xs hover:z-40 hover:shadow-[0_16px_36px_rgba(15,39,68,0.14)] hover:border-[#0284C7]/40'
-                    }`}
-                  >
-                    <div className="p-4 sm:p-4.5">
-                      {/* Верхняя микро-строка на мобильных: категория и бейдж метрики */}
-                      <div className="flex items-center justify-between gap-2 mb-1.5 sm:hidden">
-                        <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider font-mono">
-                          {param.category}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-black tracking-tight ${
-                          isCrit 
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                            : isWarn 
-                              ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        }`}>
-                          {param.metric}
-                        </span>
-                      </div>
-
-                      {/* Основная строка: заголовок получает 100% ширины на мобильном */}
-                      <div className="flex items-start sm:items-center justify-between gap-3">
-                        <div className="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
-                          <div className="mt-0.5 sm:mt-0 shrink-0">
-                            {isCrit && <XCircle className="w-4.5 h-4.5 text-rose-600" />}
-                            {isWarn && <AlertTriangle className="w-4.5 h-4.5 text-amber-600" />}
-                            {!isCrit && !isWarn && <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <span className="text-[10px] font-semibold text-[#86868B] uppercase tracking-wider font-mono hidden sm:block">
-                              {param.category}
-                            </span>
-                            {/* БЕЗ TRUNCATE: весь заголовок полностью виден */}
-                            <h4 className="text-xs sm:text-sm font-bold text-[#1D1D1F] leading-snug sm:truncate group-hover:text-[#0284C7] transition-colors">
-                              {param.title}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {/* На десктопе бейдж метрики справа */}
-                        <div className="hidden sm:flex items-center gap-2 shrink-0">
-                          <span className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-tight shadow-2xs ${
-                            isCrit 
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200' 
-                              : isWarn 
-                                ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          }`}>
-                            {param.metric}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Выплывающий параграф с деталями при открытии */}
-                    <div className={`px-4 pb-4 sm:px-4.5 sm:pb-4.5 pt-0 anim-popout ${
-                      isOpen ? 'block' : 'hidden sm:group-hover:block'
-                    }`}>
-                      <div className="pt-2.5 border-t border-black/[0.06] text-xs leading-relaxed text-[#454B54] bg-[#FBFBFD] p-3 rounded-xl border border-black/[0.03]">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] block mb-1">
-                          {t.diagnosisTitle}
-                        </span>
-                        <p>{param.desc}</p>
-                      </div>
-                    </div>
-                  </div>
+          {/* Радар финансовых потерь */}
+          <div className="pt-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64748B] block mb-3">
+              {t.impactDetailsTitle}
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#EFF9FD] to-white border border-[#BAE6FD] shadow-xs">
+                <span className="text-xs font-bold text-[#0284C7] flex items-center gap-1.5">
+                  <Coins className="w-4 h-4 text-[#0284C7]" /> {t.radarAdSpendTag}
+                </span>
+                <div className="text-xl sm:text-2xl font-black text-[#0F2744] mt-1.5 tracking-tight">
+                  {t.radarAdSpendVal} <span className="text-xs font-normal text-[#64748B]">{t.radarAdSpendPerMonth}</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <p className="text-[11.5px] text-[#64748B] mt-1 leading-relaxed">
+                  {t.radarAdSpendDesc}
+                </p>
+              </div>
 
-        {/* ================= 2. 4 КЛЮЧЕВЫЕ ТОЧКИ ПОТЕРИ (ЗАГОЛОВОК НЕ СЪЕДАЕТСЯ КНОПКАМИ) ================= */}
-        <div className="space-y-4 pt-2">
-          <div className="px-1">
-            <h2 className="text-xl font-bold text-[#1D1D1F] tracking-tight">
-              {t.leaksTitle}
-            </h2>
-            <p className="text-xs text-[#6E6E73]">
-              {t.leaksSubtitle}
-            </p>
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FEF2F2] to-white border border-rose-200 shadow-xs">
+                <span className="text-xs font-bold text-rose-600 flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 text-rose-600" /> {t.radarFineTag}
+                </span>
+                <div className="text-xl sm:text-2xl font-black text-rose-700 mt-1.5 tracking-tight">
+                  {t.radarFineVal}
+                </div>
+                <p className="text-[11.5px] text-[#64748B] mt-1 leading-relaxed">
+                  {t.radarFineDesc}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#FFFBEB] to-white border border-amber-200 shadow-xs">
+                <span className="text-xs font-bold text-amber-700 flex items-center gap-1.5">
+                  <PhoneCall className="w-4 h-4 text-amber-700" /> {t.radarCallTag}
+                </span>
+                <div className="text-xl sm:text-2xl font-black text-[#0F2744] mt-1.5 tracking-tight">
+                  {t.radarCallVal} <span className="text-xs font-normal text-[#64748B]">{t.radarCallPerMonth}</span>
+                </div>
+                <p className="text-[11.5px] text-[#64748B] mt-1 leading-relaxed">
+                  {t.radarCallDesc}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 4 КЛЮЧЕВЫЕ ТОЧКИ ПОТЕРИ ================= */}
+        <section className="space-y-4 reveal-on-scroll" aria-labelledby="leaks-section-title">
+          <div className="flex items-center justify-between gap-4 px-1">
+            <div>
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0284C7]/10 text-[#0284C7] text-[10.5px] font-bold uppercase tracking-wider mb-1">
+                <ShieldAlert className="w-3 h-3" />
+                <span>Forensic findings</span>
+              </div>
+              <h2 id="leaks-section-title" className="text-lg sm:text-2xl font-extrabold text-[#0F2744] tracking-tight">
+                {t.leaksTitle}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#64748B]">
+                {t.leaksSubtitle}
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-            
-            {/* 1. WhatsApp Leak */}
-            <div className="relative min-h-[126px] sm:h-[124px]">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => toggleLeak(1)}
-                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
-                  openLeakId === 1
-                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
-                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
-                }`}
-              >
-                {/* Верхняя строка метаданных: иконка слева, бейдж и кнопка справа */}
-                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
-                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Утечка 1: WhatsApp */}
+            <article
+              onClick={() => setOpenLeakId((prev) => (prev === 1 ? null : 1))}
+              className={`rounded-3xl bg-white border p-5 sm:p-6 transition-all duration-200 cursor-pointer shadow-xs ${
+                openLeakId === 1
+                  ? 'border-[#0284C7] ring-1 ring-[#0284C7] shadow-[0_12px_32px_rgba(2,132,199,0.12)]'
+                  : 'border-[#E2E8F0] hover:border-[#0284C7]/50'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
                     <Coins className="w-4 h-4" />
                   </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
-                      {t.leak1Badge}
-                    </span>
-                    <span className="text-[11px] text-rose-600 font-bold">
-                      {openLeakId === 1 ? t.closeHint : t.detailsHint}
-                    </span>
-                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-extrabold border border-rose-200">
+                    {t.leak1Badge}
+                  </span>
                 </div>
-
-                {/* Название полностью на 100% ширины, без truncate */}
-                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
-                  {t.leak1Title}
-                </h3>
-
-                {/* Главный панчлайн */}
-                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
-                  {t.leak1Punch}
-                </div>
-
-                {/* Детали при открытии */}
-                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
-                  openLeakId === 1 ? 'block' : 'hidden sm:group-hover:block'
-                }`}>
-                  <p className="text-xs text-[#52525B] leading-relaxed">
-                    {t.leak1Desc}
-                  </p>
-                  <div className="text-[11px] text-[#71717A] bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
-                    <strong className="text-[#1D1D1F] block mb-0.5">{t.proofsTitle}</strong>
-                    Кнопка прямой записи в WhatsApp отсутствует в мобильной версии. Конверсия рекламных переходов снижена на 40%.
-                  </div>
-                </div>
+                <ChevronDown className={`w-4 h-4 text-[#64748B] transition-transform ${openLeakId === 1 ? 'rotate-180' : ''}`} />
               </div>
-            </div>
 
-            {/* 2. NIF / CIF Leak */}
-            <div className="relative min-h-[126px] sm:h-[124px]">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => toggleLeak(2)}
-                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
-                  openLeakId === 2
-                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
-                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
-                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
+              <h3 className="font-bold text-base text-[#0F2744] leading-snug">{t.leak1Title}</h3>
+              <p className="text-xs sm:text-[13px] font-extrabold text-rose-700 mt-1 leading-snug">{t.leak1Punch}</p>
+
+              {openLeakId === 1 && (
+                <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2.5">
+                  <p className="text-xs text-[#596B7A] leading-relaxed">{t.leak1Desc}</p>
+                  <div className="p-3 rounded-2xl bg-[#EFF9FD] border border-[#BAE6FD] flex items-center justify-between gap-3">
+                    <span className="text-xs text-[#0F2744] font-medium">WhatsApp direct funnel</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleResolvedIssue('whatsapp-funnel');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs ${
+                        resolvedIssues.includes('whatsapp-funnel')
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-[#0284C7] hover:bg-[#0F2744] text-white'
+                      }`}
+                    >
+                      {resolvedIssues.includes('whatsapp-funnel') ? `✓ ${t.simulatedDone}` : `+ ${t.simulateButton}`}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </article>
+
+            {/* Утечка 2: LSSI-CE CIF */}
+            <article
+              onClick={() => setOpenLeakId((prev) => (prev === 2 ? null : 2))}
+              className={`rounded-3xl bg-white border p-5 sm:p-6 transition-all duration-200 cursor-pointer shadow-xs ${
+                openLeakId === 2
+                  ? 'border-[#0284C7] ring-1 ring-[#0284C7] shadow-[0_12px_32px_rgba(2,132,199,0.12)]'
+                  : 'border-[#E2E8F0] hover:border-[#0284C7]/50'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
                     <Building2 className="w-4 h-4" />
                   </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
-                      {t.leak2Badge}
-                    </span>
-                    <span className="text-[11px] text-rose-600 font-bold">
-                      {openLeakId === 2 ? t.closeHint : t.detailsHint}
-                    </span>
-                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-extrabold border border-rose-200">
+                    {t.leak2Badge}
+                  </span>
                 </div>
+                <ChevronDown className={`w-4 h-4 text-[#64748B] transition-transform ${openLeakId === 2 ? 'rotate-180' : ''}`} />
+              </div>
 
-                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
-                  {t.leak2Title}
-                </h3>
+              <h3 className="font-bold text-base text-[#0F2744] leading-snug">{t.leak2Title}</h3>
+              <p className="text-xs sm:text-[13px] font-extrabold text-rose-700 mt-1 leading-snug">{t.leak2Punch}</p>
 
-                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
-                  {t.leak2Punch}
-                </div>
-
-                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
-                  openLeakId === 2 ? 'block' : 'hidden sm:group-hover:block'
-                }`}>
-                  <code className="text-[11px] font-mono bg-[#F5F5F7] p-2 rounded-lg border border-rose-200 block text-rose-700 font-bold truncate">
+              {openLeakId === 2 && (
+                <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2.5">
+                  <code className="text-xs font-mono bg-slate-100 p-2 rounded-xl text-rose-700 block border border-slate-200 truncate">
                     {businessData.cifPlaceholder}
                   </code>
-                  <p className="text-xs text-[#52525B] leading-relaxed">
-                    {t.leak2Desc}
-                  </p>
+                  <p className="text-xs text-[#596B7A] leading-relaxed">{t.leak2Desc}</p>
+                  <div className="p-3 rounded-2xl bg-[#EFF9FD] border border-[#BAE6FD] flex items-center justify-between gap-3">
+                    <span className="text-xs text-[#0F2744] font-medium">LSSI-CE compliance patch</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleResolvedIssue('lssi-cif');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs ${
+                        resolvedIssues.includes('lssi-cif')
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-[#0284C7] hover:bg-[#0F2744] text-white'
+                      }`}
+                    >
+                      {resolvedIssues.includes('lssi-cif') ? `✓ ${t.simulatedDone}` : `+ ${t.simulateButton}`}
+                    </button>
+                  </div>
                 </div>
+              )}
+            </article>
+
+            {/* Утечка 3: Недозвон */}
+            <article
+              onClick={() => setOpenLeakId((prev) => (prev === 3 ? null : 3))}
+              className={`rounded-3xl bg-white border p-5 sm:p-6 transition-all duration-200 cursor-pointer shadow-xs ${
+                openLeakId === 3
+                  ? 'border-[#0284C7] ring-1 ring-[#0284C7] shadow-[0_12px_32px_rgba(2,132,199,0.12)]'
+                  : 'border-[#E2E8F0] hover:border-[#0284C7]/50'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                    <PhoneCall className="w-4 h-4" />
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-extrabold border border-amber-200">
+                    {t.leak3Badge}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-[#64748B] transition-transform ${openLeakId === 3 ? 'rotate-180' : ''}`} />
               </div>
-            </div>
 
-            {/* 3. Lost Calls */}
-            <div className="relative min-h-[126px] sm:h-[124px]">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => toggleLeak(3)}
-                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
-                  openLeakId === 3
-                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
-                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
-                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                    <Star className="w-4 h-4" />
-                  </div>
+              <h3 className="font-bold text-base text-[#0F2744] leading-snug">{t.leak3Title}</h3>
+              <p className="text-xs sm:text-[13px] font-extrabold text-amber-800 mt-1 leading-snug">{t.leak3Punch}</p>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
-                      {t.leak3Badge}
-                    </span>
-                    <span className="text-[11px] text-rose-600 font-bold">
-                      {openLeakId === 3 ? t.closeHint : t.detailsHint}
-                    </span>
-                  </div>
-                </div>
-
-                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
-                  {t.leak3Title}
-                </h3>
-
-                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
-                  {t.leak3Punch}
-                </div>
-
-                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
-                  openLeakId === 3 ? 'block' : 'hidden sm:group-hover:block'
-                }`}>
-                  <blockquote className="p-2.5 rounded-xl bg-[#F5F5F7] text-xs text-[#3F3F46] font-medium italic border-l-2 border-rose-400">
+              {openLeakId === 3 && (
+                <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2.5">
+                  <blockquote className="p-3 rounded-xl bg-slate-50 text-xs italic text-[#0F2744] border-l-2 border-amber-500">
                     {t.leak3Quote}
                   </blockquote>
-                  <p className="text-xs text-[#52525B] leading-relaxed">
-                    {t.leak3Desc}
-                  </p>
+                  <p className="text-xs text-[#596B7A] leading-relaxed">{t.leak3Desc}</p>
                 </div>
+              )}
+            </article>
+
+            {/* Утечка 4: Каталог без Cita Previa */}
+            <article
+              onClick={() => setOpenLeakId((prev) => (prev === 4 ? null : 4))}
+              className={`rounded-3xl bg-white border p-5 sm:p-6 transition-all duration-200 cursor-pointer shadow-xs ${
+                openLeakId === 4
+                  ? 'border-[#0284C7] ring-1 ring-[#0284C7] shadow-[0_12px_32px_rgba(2,132,199,0.12)]'
+                  : 'border-[#E2E8F0] hover:border-[#0284C7]/50'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-extrabold border border-rose-200">
+                    {t.leak4Badge}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-[#64748B] transition-transform ${openLeakId === 4 ? 'rotate-180' : ''}`} />
               </div>
-            </div>
 
-            {/* 4. Booking Widget */}
-            <div className="relative min-h-[126px] sm:h-[124px]">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => toggleLeak(4)}
-                className={`group sm:absolute inset-x-0 top-0 rounded-3xl bg-white border p-4.5 sm:p-5.5 transition-all duration-200 cursor-pointer select-none focus:outline-none ${
-                  openLeakId === 4
-                    ? 'z-40 border-rose-400 shadow-[0_20px_48px_rgba(225,29,72,0.18)]'
-                    : 'z-10 border-rose-200 shadow-xs hover:z-40 hover:shadow-[0_20px_48px_rgba(225,29,72,0.14)] hover:border-rose-400'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] pb-2.5 mb-2.5">
-                  <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600 shrink-0">
-                    <Cpu className="w-4 h-4" />
-                  </div>
+              <h3 className="font-bold text-base text-[#0F2744] leading-snug">{t.leak4Title}</h3>
+              <p className="text-xs sm:text-[13px] font-extrabold text-rose-700 mt-1 leading-snug">{t.leak4Punch}</p>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-black border border-rose-200">
-                      {t.leak4Badge}
-                    </span>
-                    <span className="text-[11px] text-rose-600 font-bold">
-                      {openLeakId === 4 ? t.closeHint : t.detailsHint}
-                    </span>
+              {openLeakId === 4 && (
+                <div className="mt-3.5 pt-3 border-t border-slate-100 space-y-2.5">
+                  <p className="text-xs text-[#596B7A] leading-relaxed">{t.leak4Desc}</p>
+                  <div className="p-3 rounded-2xl bg-[#EFF9FD] border border-[#BAE6FD] flex items-center justify-between gap-3">
+                    <span className="text-xs text-[#0F2744] font-medium">Online booking integration</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleResolvedIssue('booking-widget');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs ${
+                        resolvedIssues.includes('booking-widget')
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-[#0284C7] hover:bg-[#0F2744] text-white'
+                      }`}
+                    >
+                      {resolvedIssues.includes('booking-widget') ? `✓ ${t.simulatedDone}` : `+ ${t.simulateButton}`}
+                    </button>
                   </div>
                 </div>
-
-                <h3 className="font-bold text-sm text-[#1D1D1F] leading-snug">
-                  {t.leak4Title}
-                </h3>
-
-                <div className="pt-1.5 text-xs sm:text-[13px] font-black text-rose-950 leading-snug">
-                  {t.leak4Punch}
-                </div>
-
-                <div className={`pt-3 border-t border-black/[0.05] mt-3 anim-popout space-y-2 ${
-                  openLeakId === 4 ? 'block' : 'hidden sm:group-hover:block'
-                }`}>
-                  <p className="text-xs text-[#52525B] leading-relaxed">
-                    {t.leak4Desc}
-                  </p>
-                  <div className="text-[11px] text-[#71717A] bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03]">
-                    <strong className="text-[#1D1D1F] block mb-0.5">{t.proofsTitle}</strong>
-                    Без мгновенной онлайн-записи 62% пациентов уходят к конкурентам с рейтингом в Google картах.
-                  </div>
-                </div>
-              </div>
-            </div>
-
+              )}
+            </article>
           </div>
-        </div>
+        </section>
 
-        {/* ================= 3. ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА (ДВУХУРОВНЕВАЯ СТРУКТУРА) ================= */}
-        <div className="p-5 sm:p-7 rounded-3xl bg-white border border-black/[0.06] shadow-xs space-y-4">
-          <div className="flex items-center gap-2 border-b border-black/[0.05] pb-3">
-            <ListChecks className="w-4 h-4 text-[#0284C7]" />
-            <h3 className="text-base font-bold text-[#1D1D1F]">
-              {t.devPlanTitle}
-            </h3>
+        {/* ================= 5. ДЕТАЛЬНАЯ МАТРИЦА 14 ПАРАМЕТРОВ (СКРЫТА ПО УМОЛЧАНИЮ В ТИЗЕР-КАРТОЧКЕ) ================= */}
+        <section className="reveal-on-scroll" aria-labelledby="parameters-matrix-title">
+          <div className={`rounded-3xl bg-white border transition-all duration-300 shadow-xs p-5 sm:p-7 ${
+            isMatrixOpen ? 'border-[#0284C7]/50 shadow-md' : 'border-[#D5E1E9] hover:border-[#0284C7]/40'
+          }`}>
+            {/* ИНТЕРАКТИВНЫЙ ХЕДЕР ТИЗЕРА ДЛЯ РАСКРЫТИЯ МАТРИЦЫ */}
+            <div
+              role="button"
+              tabIndex={0}
+              aria-expanded={isMatrixOpen}
+              onClick={() => setIsMatrixOpen((prev) => !prev)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsMatrixOpen((prev) => !prev);
+                }
+              }}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer select-none"
+            >
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0284C7]/10 text-[#0284C7] text-[10.5px] font-bold uppercase tracking-wider mb-1.5">
+                  <SlidersHorizontal className="w-3 h-3" />
+                  <span>Deep analysis matrix</span>
+                </div>
+                <h2 id="parameters-matrix-title" className="text-lg sm:text-2xl font-extrabold text-[#0F2744] tracking-tight">
+                  {t.pillarsNavTitle}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
+                  {t.matrixTeaser}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+                <span className="text-xs font-bold text-[#0284C7] bg-[#EFF9FD] border border-[#BAE6FD] px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-2xs hover:bg-[#0284C7] hover:text-white">
+                  <span>{isMatrixOpen ? t.matrixCollapseBtn : t.matrixExpandBtn}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMatrixOpen ? 'rotate-180' : ''}`} />
+                </span>
+              </div>
+            </div>
+
+            {/* РАЗВОРАЧИВАЕМАЯ ЧАСТЬ МАТРИЦЫ (ФИЛЬТРЫ, ТАБЫ И 14 КАРТОЧЕК) */}
+            {isMatrixOpen && (
+              <div className="mt-6 pt-6 border-t border-slate-100 space-y-5 animate-fadeIn">
+                {/* Панель фильтров статуса */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">
+                    Фильтр по состоянию узлов:
+                  </span>
+
+                  <div className="flex items-center p-1 rounded-2xl bg-black/[0.04] border border-black/[0.05] text-xs font-bold self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveFilter('all');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl transition ${
+                        activeFilter === 'all' ? 'bg-white text-[#0284C7] shadow-xs' : 'text-[#64748B]'
+                      }`}
+                    >
+                      {t.filterAll} ({allParameters.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveFilter('issues');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl transition ${
+                        activeFilter === 'issues' ? 'bg-white text-rose-600 shadow-xs' : 'text-[#64748B]'
+                      }`}
+                    >
+                      {t.filterIssues} ({criticalCount + warningCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveFilter('healthy');
+                      }}
+                      className={`px-3 py-1.5 rounded-xl transition ${
+                        activeFilter === 'healthy' ? 'bg-white text-emerald-600 shadow-xs' : 'text-[#64748B]'
+                      }`}
+                    >
+                      {t.filterHealthy} ({healthyCount})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Таб-переключатель 3 опор */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePillar('all');
+                    }}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border ${
+                      activePillar === 'all'
+                        ? 'bg-[#0F2744] text-white border-[#0F2744] shadow-xs'
+                        : 'bg-white text-[#64748B] border-[#E2E8F0] hover:text-[#0F2744]'
+                    }`}
+                  >
+                    {t.pillarAll}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePillar('01');
+                    }}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
+                      activePillar === '01'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7] shadow-xs'
+                        : 'bg-white text-[#64748B] border-[#E2E8F0] hover:text-[#0F2744]'
+                    }`}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{t.pillar01}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePillar('02');
+                    }}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
+                      activePillar === '02'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7] shadow-xs'
+                        : 'bg-white text-[#64748B] border-[#E2E8F0] hover:text-[#0F2744]'
+                    }`}
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" />
+                    <span>{t.pillar02}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActivePillar('03');
+                    }}
+                    className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${
+                      activePillar === '03'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7] shadow-xs'
+                        : 'bg-white text-[#64748B] border-[#E2E8F0] hover:text-[#0F2744]'
+                    }`}
+                  >
+                    <Target className="w-3.5 h-3.5" />
+                    <span>{t.pillar03}</span>
+                  </button>
+                </div>
+
+                {/* Сетка параметров */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+                  {filteredParameters.map((param) => {
+                    const isCrit = param.status === 'critical';
+                    const isWarn = param.status === 'warning';
+                    const isSimulated = resolvedIssues.includes(param.id);
+                    const isOpen = openParamId === param.id;
+
+                    return (
+                      <div
+                        key={param.id}
+                        onClick={() => setOpenParamId((prev) => (prev === param.id ? null : param.id))}
+                        className={`rounded-2xl border bg-white p-4 transition-all duration-200 cursor-pointer shadow-xs ${
+                          isOpen
+                            ? 'border-[#0284C7] ring-1 ring-[#0284C7] shadow-md'
+                            : isSimulated
+                              ? 'border-emerald-300 bg-emerald-50/20'
+                              : isCrit
+                                ? 'border-rose-200 hover:border-rose-400'
+                                : isWarn
+                                  ? 'border-amber-200 hover:border-amber-400'
+                                  : 'border-[#E2E8F0] hover:border-[#0284C7]/50'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                            <div className="mt-0.5 shrink-0">
+                              {isSimulated ? (
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              ) : isCrit ? (
+                                <XCircle className="w-4 h-4 text-rose-600" />
+                              ) : isWarn ? (
+                                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                              ) : (
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              )}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block mb-0.5">
+                                {param.category}
+                              </span>
+                              <h4 className="text-xs sm:text-sm font-bold text-[#0F2744] leading-snug">
+                                {param.title}
+                              </h4>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span
+                              className={`px-2 py-0.5 rounded-lg text-[10.5px] font-extrabold tracking-tight ${
+                                isSimulated
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : isCrit
+                                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                    : isWarn
+                                      ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                      : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              }`}
+                            >
+                              {isSimulated ? t.simulatedDone : param.metric}
+                            </span>
+                            <ChevronDown className={`w-3.5 h-3.5 text-[#64748B] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                          </div>
+                        </div>
+
+                        {isOpen && (
+                          <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-[#596B7A] space-y-2">
+                            <div>
+                              <strong className="text-[10.5px] uppercase font-bold text-[#0284C7] block mb-0.5">
+                                {t.diagnosisTitle}
+                              </strong>
+                              <p className="leading-relaxed">{param.desc}</p>
+                            </div>
+
+                            <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                              <strong className="text-[10.5px] uppercase font-bold text-[#0F2744] block mb-0.5">
+                                {t.fixActionTitle}
+                              </strong>
+                              <p className="text-[11.5px] text-[#0F2744] leading-snug">{param.action}</p>
+                            </div>
+
+                            {(isCrit || isWarn) && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleResolvedIssue(param.id);
+                                }}
+                                className={`w-full py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                                  isSimulated
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-[#EFF9FD] hover:bg-[#0284C7] text-[#0284C7] hover:text-white border border-[#BAE6FD]'
+                                }`}
+                              >
+                                {isSimulated ? `✓ ${t.simulatedDone}` : `+ ${t.simulateButton} (${t.pointsBonus})`}
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ================= ЧЕК-ЛИСТ ДЛЯ РАЗРАБОТЧИКА ================= */}
+        <section className="p-5 sm:p-7 rounded-3xl bg-white border border-[#D5E1E9] shadow-xs space-y-4 reveal-on-scroll">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#EFF9FD] text-[#0284C7] flex items-center justify-center">
+              <ListChecks className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-base sm:text-lg text-[#0F2744]">{t.devPlanTitle}</h3>
+              <p className="text-xs text-[#64748B]">{t.devPlanSubtitle}</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            {devPlanItems.map((item) => {
-              const isOpen = openDevPlanId === item.id;
-              return (
-                <div key={item.id} className="relative min-h-[68px] sm:h-[64px]">
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => toggleDevPlan(item.id)}
-                    className={`group sm:absolute inset-x-0 top-0 transition-all duration-200 cursor-pointer rounded-2xl p-3.5 select-none focus:outline-none ${
-                      isOpen
-                        ? 'z-40 bg-white border border-[#0284C7]/40 shadow-[0_16px_36px_rgba(15,39,68,0.16)]'
-                        : 'z-10 bg-[#F5F5F7] hover:bg-white border border-transparent hover:border-[#0284C7]/30 hover:shadow-[0_14px_32px_rgba(15,39,68,0.12)] hover:z-40'
-                    }`}
-                  >
-                    {/* Верхняя строка: номер слева, кнопка справа */}
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="w-5 h-5 rounded-full bg-[#0284C7]/10 text-[#0284C7] font-bold text-[10px] flex items-center justify-center shrink-0">
-                        {item.id}
-                      </span>
-                      <span className={`text-[11px] font-semibold transition-all shrink-0 text-[#0284C7] ${
-                        isOpen ? 'opacity-100 font-bold' : 'opacity-80 sm:opacity-0 sm:group-hover:opacity-100'
-                      }`}>
-                        {isOpen ? t.closeHint : t.detailsHint}
-                      </span>
-                    </div>
-
-                    {/* Название задачи целиком на всю ширину, без truncate */}
-                    <strong className={`text-xs font-bold leading-snug block transition-colors ${
-                      isOpen ? 'text-[#0284C7]' : 'text-[#1D1D1F] group-hover:text-[#0284C7]'
-                    }`}>
-                      {item.title}
-                    </strong>
-
-                    {/* Выплывающая инструкция */}
-                    <div className={`pt-2 border-t border-black/[0.05] mt-2 text-[11px] text-[#52525B] leading-relaxed anim-popout bg-[#FBFBFD] p-2.5 rounded-xl border border-black/[0.03] ${
-                      isOpen ? 'block' : 'hidden sm:group-hover:block'
-                    }`}>
-                      {item.desc}
-                    </div>
-                  </div>
+            {devPlanItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setOpenDevPlanId((prev) => (prev === item.id ? null : item.id))}
+                className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7]/50 cursor-pointer transition-all"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <strong className="text-xs font-bold text-[#0F2744] block">{item.title}</strong>
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#64748B] transition-transform ${openDevPlanId === item.id ? 'rotate-180' : ''}`} />
                 </div>
-              );
-            })}
+                <p className="text-[11.5px] text-[#64748B] mt-1 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
 
-        {/* ================= HIGH-TICKET UPSELL €900 ПОД КЛЮЧ ================= */}
-        <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#0F2744] text-white shadow-xl space-y-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-[#7DD3FC]" />
+        {/* ================= БЛОК ГОТОВОГО ВНЕДРЕНИЯ ================= */}
+        <section className="p-6 sm:p-9 rounded-3xl bg-gradient-to-br from-[#0F2744] via-[#0284C7] to-[#0369A1] text-white shadow-xl space-y-6 relative overflow-hidden reveal-on-scroll">
+          <div className="space-y-2 relative z-10">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-[#7DD3FC] text-xs font-bold backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5" />
               <span>{t.upsellBadge}</span>
             </div>
-            <h2 className="text-xl sm:text-3xl font-black tracking-tight leading-snug">
+            <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug">
               {t.upsellTitle}
             </h2>
-            <p className="text-xs sm:text-sm text-white/80 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-200 max-w-xl leading-relaxed">
               {t.upsellDesc}
             </p>
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-5 border-t border-white/15">
+          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-5 border-t border-white/15 relative z-10">
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-black text-white">{t.upsellPrice}</span>
-                <span className="text-xs text-white/70">{t.upsellInstallment}</span>
+                <span className="text-xs text-slate-300">{t.upsellInstallment}</span>
               </div>
               <p className="text-xs text-[#7DD3FC] mt-0.5 font-medium">
                 {t.upsellGuarantee}
               </p>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-5 py-3 rounded-xl bg-white hover:bg-white/90 text-[#0284C7] font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md transition"
+                className="px-5 py-3 rounded-xl bg-white hover:bg-slate-100 text-[#0F2744] font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md transition"
               >
                 <span>{t.upsellWaBtn}</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <ArrowUpRight className="w-4 h-4 text-[#0284C7]" />
               </a>
 
               <a
@@ -1354,33 +1616,133 @@ function BusinessIntelligenceReport() {
               </a>
             </div>
           </div>
-        </div>
+        </section>
 
       </main>
 
-      {/* ================= ПЛАВАЮЩИЙ НИЖНИЙ БАР ================= */}
-      <aside className="fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-xl border-t border-black/[0.06] px-4 sm:px-6 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-xs sm:text-sm font-semibold text-[#1D1D1F] truncate">
-              {t.bottomBarTitle}
-            </p>
-            <p className="text-[11px] text-[#6E6E73] truncate">
-              {t.bottomBarSub}
-            </p>
+      {/* ================= 6. ПРИБОРНАЯ ПАНЕЛЬ-СПИДОМЕТР (FIXED BOTTOM HUD) ================= */}
+      <aside className="fixed bottom-0 inset-x-0 z-50 bg-[#0F2744]/95 backdrop-blur-2xl border-t border-[#0284C7]/30 px-3 sm:px-6 py-2.5 shadow-[0_-12px_40px_rgba(15,39,68,0.35)]">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-6">
+          
+          {/* АВТОМОБИЛЬНЫЙ СПИДОМЕТР (GAUGE COCKPIT) */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative w-12 h-10 sm:w-14 sm:h-11 shrink-0 flex items-center justify-center">
+              <svg className="w-full h-full overflow-visible" viewBox="0 0 100 65">
+                <path
+                  d="M 12 55 A 40 40 0 0 1 88 55"
+                  fill="none"
+                  stroke="#1E3A5F"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 12 55 A 40 40 0 0 1 35 24"
+                  fill="none"
+                  stroke="rgba(244, 63, 94, 0.4)"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M 12 55 A 40 40 0 0 1 88 55"
+                  fill="none"
+                  stroke={
+                    simulatedHealthScore >= 80 
+                      ? '#10B981' 
+                      : simulatedHealthScore >= 60 
+                        ? '#F59E0B' 
+                        : '#F43F5E'
+                  }
+                  strokeWidth="8"
+                  strokeDasharray="120"
+                  strokeDashoffset={120 - (120 * simulatedHealthScore) / 100}
+                  strokeLinecap="round"
+                  style={{
+                    transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease',
+                    filter: 'drop-shadow(0 0 6px currentColor)',
+                  }}
+                />
+                <line
+                  x1="50"
+                  y1="55"
+                  x2="50"
+                  y2="22"
+                  stroke="#FFFFFF"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  style={{
+                    transformOrigin: '50px 55px',
+                    transform: `rotate(${-90 + (180 * simulatedHealthScore) / 100}deg)`,
+                    transition: 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                />
+                <circle cx="50" cy="55" r="4" fill="#0284C7" />
+              </svg>
+
+              {resolvedIssues.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              )}
+            </div>
+
+            {/* Цифровое табло и статус */}
+            <div className="min-w-0">
+              <div className="flex items-baseline gap-1.5 leading-none">
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight tabular-nums">
+                  {simulatedHealthScore}%
+                </span>
+                <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-300 hidden sm:inline">
+                  {t.retentionIndex}
+                </span>
+
+                {resolvedIssues.length > 0 ? (
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-[10px] sm:text-xs font-black text-emerald-300 animate-pulse whitespace-nowrap">
+                    +{resolvedIssues.length * 12}% {t.simulatedDone}
+                  </span>
+                ) : (
+                  <span className="text-[10px] sm:text-xs font-bold text-rose-400 whitespace-nowrap">
+                    {t.revenueLossWarning}
+                  </span>
+                )}
+              </div>
+
+              {/* Финансовый эквивалент спасённой выручки */}
+              <div className="flex items-center gap-2 mt-0.5 text-[10px] sm:text-[11px] text-slate-300 truncate">
+                {resolvedIssues.length > 0 ? (
+                  <span className="text-emerald-300 font-semibold truncate">
+                    Смоделировано сохранение: <strong className="text-white">+€{resolvedIssues.length * 450}/мес</strong>
+                  </span>
+                ) : (
+                  <span className="text-slate-400 truncate">
+                    Нажмите «Смоделировать решение» на карточках выше
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 rounded-xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-semibold text-xs sm:text-sm shadow-sm transition whitespace-nowrap shrink-0"
-          >
-            <span>{t.bottomBarBtn}</span>
-          </a>
+          {/* Правая часть: кнопка сброса и кнопка действия */}
+          <div className="flex items-center gap-2 shrink-0">
+            {resolvedIssues.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setResolvedIssues([])}
+                className="px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-[11px] font-bold transition whitespace-nowrap border border-white/10 hidden sm:inline-flex"
+              >
+                Сбросить ({resolvedIssues.length})
+              </button>
+            )}
+
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0284C7] to-[#0ea5e9] hover:from-[#0369a1] hover:to-[#0284c7] text-white font-extrabold text-xs sm:text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap flex items-center gap-1.5"
+            >
+              <span>{t.bottomBarBtn}</span>
+            </a>
+          </div>
+
         </div>
       </aside>
-
     </div>
   );
 }
@@ -1389,9 +1751,9 @@ export default function AuditReportPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#FBFBFD] flex flex-col items-center justify-center gap-3 text-[#6E6E73]">
+        <div className="min-h-screen bg-[#F0F9FF] flex flex-col items-center justify-center gap-3 text-[#64748B]">
           <Loader2 className="w-8 h-8 animate-spin text-[#0284C7]" />
-          <p className="text-sm font-medium">Loading...</p>
+          <p className="text-sm font-medium">Loading report...</p>
         </div>
       }
     >

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, Suspense, type ReactNode } from 'react';
+import React, { useState, useEffect, useLayoutEffect, Suspense, type ReactNode } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { gsap } from 'gsap';
 
 export type Lang = 'ru' | 'es' | 'en';
 
@@ -12,7 +13,9 @@ export interface LegalDocumentProps {
 }
 
 function LegalDocumentContent({ titles, content }: LegalDocumentProps) {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const pageRef = React.useRef<HTMLElement>(null);
   const urlLang = searchParams.get('lang') as Lang | null;
   const initialLang: Lang = urlLang && ['ru', 'es', 'en'].includes(urlLang) ? urlLang : 'es';
 
@@ -27,6 +30,46 @@ function LegalDocumentContent({ titles, content }: LegalDocumentProps) {
       setLang(saved);
     }
   }, [searchParams]);
+
+  useLayoutEffect(() => {
+    const page = pageRef.current;
+    if (!page) return;
+
+    const media = gsap.matchMedia(page);
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const header = page.querySelector('header');
+      const title = page.querySelector('h1');
+      const notice = page.querySelector('.legal-notice');
+      const sections = page.querySelectorAll('.legal-content > section');
+      const footerNav = page.querySelector('.legal-page-nav');
+      const timeline = gsap.timeline({ defaults: { ease: 'power4.out' } });
+
+      if (pathname === '/aviso-legal') {
+        timeline
+          .fromTo(header, { y: -14, autoAlpha: 0, filter: 'blur(8px)' }, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.9 })
+          .fromTo(title, { clipPath: 'inset(0 0 100% 0)', y: 24, filter: 'blur(8px)' }, { clipPath: 'inset(0 0 0% 0)', y: 0, filter: 'blur(0px)', duration: 1.1 }, '-=0.38')
+          .fromTo(sections, { y: 28, autoAlpha: 0, filter: 'blur(6px)' }, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.85, stagger: 0.1 }, '-=0.42');
+      } else if (pathname === '/politica-de-privacidad') {
+        timeline
+          .fromTo(header, { x: -18, autoAlpha: 0, filter: 'blur(8px)' }, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.9 })
+          .fromTo(title, { x: -38, autoAlpha: 0, filter: 'blur(9px)' }, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 1 }, '-=0.38')
+          .fromTo(sections, { x: -24, autoAlpha: 0, filter: 'blur(6px)' }, { x: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.82, stagger: 0.12 }, '-=0.36');
+      } else if (pathname === '/politica-de-cookies') {
+        timeline
+          .fromTo(header, { scale: 0.985, autoAlpha: 0, filter: 'blur(8px)' }, { scale: 1, autoAlpha: 1, filter: 'blur(0px)', duration: 0.85 })
+          .fromTo(title, { scale: 0.9, y: 30, autoAlpha: 0, filter: 'blur(12px)' }, { scale: 1, y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 1, ease: 'back.out(1.2)' }, '-=0.34')
+          .fromTo([notice, ...Array.from(sections)], { y: 30, scale: 0.96, autoAlpha: 0, filter: 'blur(7px)' }, { y: 0, scale: 1, autoAlpha: 1, filter: 'blur(0px)', duration: 0.82, stagger: 0.1 }, '-=0.34');
+      } else {
+        timeline
+          .fromTo(header, { y: 20, autoAlpha: 0, filter: 'blur(7px)' }, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.9 })
+          .fromTo(title, { rotationX: 14, transformPerspective: 900, y: 28, autoAlpha: 0, filter: 'blur(10px)' }, { rotationX: 0, y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 1.05 }, '-=0.36')
+          .fromTo(sections, { rotationX: 4, transformPerspective: 1000, y: 22, autoAlpha: 0, filter: 'blur(6px)' }, { rotationX: 0, y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.88, stagger: 0.1 }, '-=0.4')
+          .fromTo(footerNav, { y: 18, autoAlpha: 0, filter: 'blur(5px)' }, { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.72 }, '-=0.2');
+      }
+    });
+
+    return () => media.revert();
+  }, [pathname]);
 
   // 3. ВОТ СЮДА (ВНУТРЬ КОМПОНЕНТА) ПЕРЕНЕСЕНА ФУНКЦИЯ handleLangChange:
   const handleLangChange = (newLang: Lang) => {
@@ -83,7 +126,7 @@ function LegalDocumentContent({ titles, content }: LegalDocumentProps) {
   }[lang];
 
   return (
-    <main className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] antialiased">
+    <main ref={pageRef} className="legal-page min-h-screen bg-[#FBFBFD] text-[#1D1D1F] antialiased">
       {/* ================= ШАПКА ================= */}
       <header className="border-b border-black/[0.06] bg-white/85 backdrop-blur-xl sticky top-0 z-20">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3 sm:px-8">
@@ -126,7 +169,7 @@ function LegalDocumentContent({ titles, content }: LegalDocumentProps) {
       </header>
 
       {/* ================= КОНТЕНТ ================= */}
-      <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-16">
+      <div className="legal-document-body mx-auto max-w-3xl px-5 py-10 sm:px-8 sm:py-16">
         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#0284C7]">
           Audit2Revenue.es
         </p>
@@ -136,7 +179,7 @@ function LegalDocumentContent({ titles, content }: LegalDocumentProps) {
         <p className="mb-6 text-xs text-[#86868B]">{t.lastUpdate}</p>
 
         {/* Дисклеймер прототипа */}
-        <aside className="mb-9 rounded-2xl border border-[#CBEAF7] bg-[#EFF9FD] p-4 sm:p-5">
+        <aside className="legal-notice mb-9 rounded-2xl border border-[#CBEAF7] bg-[#EFF9FD] p-4 sm:p-5">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#0284C7]">
             {t.protoBadge}
           </p>
@@ -153,7 +196,7 @@ function LegalDocumentContent({ titles, content }: LegalDocumentProps) {
         {/* Навигация футера с передачей текущего языка */}
         <nav
           aria-label={t.legalNavAria}
-          className="mt-14 flex flex-wrap gap-x-5 gap-y-2 border-t border-black/[0.08] pt-5 text-xs font-medium text-[#0284C7]"
+          className="legal-page-nav mt-14 flex flex-wrap gap-x-5 gap-y-2 border-t border-black/[0.08] pt-5 text-xs font-medium text-[#0284C7]"
         >
           <Link href={`/aviso-legal?lang=${lang}`}>{t.links.legalNotice}</Link>
           <Link href={`/politica-de-privacidad?lang=${lang}`}>{t.links.privacyPolicy}</Link>
