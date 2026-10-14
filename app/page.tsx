@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {
@@ -24,17 +23,10 @@ import {
   Loader2,
   AlertTriangle,
   XCircle,
-  Target,
   MessageCircle,
   Activity,
   TrendingDown,
   Code2,
-  Cpu,
-  Coins,
-  PhoneCall,
-  Scale,
-  SlidersHorizontal,
-  RotateCcw,
 } from 'lucide-react';
 
 type Lang = 'ru' | 'es' | 'en';
@@ -43,46 +35,24 @@ const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 // =========================================================================
-// ИНТЕРФЕЙС GUI НАСТРОЕК ЛОАДЕРА
+// ЭТАЛОННЫЕ ПАРАМЕТРЫ ЛОАДЕРА (Three.js)
 // =========================================================================
-interface LoaderSettings {
-  height: number;         // Высота/толщина лоадера в px (по умолчанию 42px ~ 1 см)
-  speed: number;          // Скорость течения FBM волн
-  noiseScale: number;     // Масштаб пространственной сетки шума
-  turbulence: number;     // Сила завихрений фронта волны
-  caustics: number;       // Интенсивность световых прожилок
-  crestIntensity: number; // Яркость неонового гребня на острие
-  manualProgress: boolean;// Ручное управление шкалой для теста
-  customProgress: number; // Пользовательский процент при ручном тесте
-}
-
-const defaultLoaderSettings: LoaderSettings = {
+const defaultLoaderSettings = {
   height: 25,
   speed: 0.55,
   noiseScale: 4.0,
   turbulence: 0.05,
   caustics: 0.6,
   crestIntensity: 1.8,
-  manualProgress: false,
-  customProgress: 50,
 };
 
 // =========================================================================
-// THREE.JS: ЛОАДЕР С ДИНАМИЧЕСКИМИ GUI-ПАРАМЕТРАМИ
+// THREE.JS: ЛОАДЕР СКАНЕРА
 // =========================================================================
-function ThreeScanVisualizer({
-  progress,
-  settings,
-}: {
-  progress: number;
-  settings: LoaderSettings;
-}) {
+function ThreeScanVisualizer({ progress }: { progress: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(progress);
-  const settingsRef = useRef(settings);
-
   progressRef.current = progress;
-  settingsRef.current = settings;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -90,7 +60,7 @@ function ThreeScanVisualizer({
 
     const scene = new THREE.Scene();
     const width = container.clientWidth;
-    const height = container.clientHeight || settings.height;
+    const height = container.clientHeight || defaultLoaderSettings.height;
     const aspect = width / height;
 
     const camera = new THREE.OrthographicCamera(-aspect, aspect, 1, -1, 0.1, 10);
@@ -111,10 +81,10 @@ function ThreeScanVisualizer({
       uniforms: {
         uProgress: { value: 0.01 },
         uTime: { value: 0 },
-        uTurbulence: { value: settings.turbulence },
-        uNoiseScale: { value: settings.noiseScale },
-        uCaustics: { value: settings.caustics },
-        uCrestIntensity: { value: settings.crestIntensity },
+        uTurbulence: { value: defaultLoaderSettings.turbulence },
+        uNoiseScale: { value: defaultLoaderSettings.noiseScale },
+        uCaustics: { value: defaultLoaderSettings.caustics },
+        uCrestIntensity: { value: defaultLoaderSettings.crestIntensity },
         uColorNavy: { value: new THREE.Color(0x0f2744) },
         uColorOcean: { value: new THREE.Color(0x0369a1) },
         uColorBlue: { value: new THREE.Color(0x0284c7) },
@@ -243,20 +213,17 @@ function ThreeScanVisualizer({
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const s = settingsRef.current;
-      const elapsedTime = clock.getElapsedTime() * s.speed;
+      const elapsedTime = clock.getElapsedTime() * defaultLoaderSettings.speed;
 
-      // Определение прогресса (автоматический или ручной через GUI)
-      const effectiveProgress = s.manualProgress ? s.customProgress : progressRef.current;
-      const targetP = Math.max(0.01, Math.min(1.0, effectiveProgress / 100));
+      const targetP = Math.max(0.01, Math.min(1.0, progressRef.current / 100));
       smoothP += (targetP - smoothP) * 0.09;
 
       fluidShaderMat.uniforms.uProgress.value = smoothP;
       fluidShaderMat.uniforms.uTime.value = elapsedTime;
-      fluidShaderMat.uniforms.uTurbulence.value = s.turbulence;
-      fluidShaderMat.uniforms.uNoiseScale.value = s.noiseScale;
-      fluidShaderMat.uniforms.uCaustics.value = s.caustics;
-      fluidShaderMat.uniforms.uCrestIntensity.value = s.crestIntensity;
+      fluidShaderMat.uniforms.uTurbulence.value = defaultLoaderSettings.turbulence;
+      fluidShaderMat.uniforms.uNoiseScale.value = defaultLoaderSettings.noiseScale;
+      fluidShaderMat.uniforms.uCaustics.value = defaultLoaderSettings.caustics;
+      fluidShaderMat.uniforms.uCrestIntensity.value = defaultLoaderSettings.crestIntensity;
 
       renderer.render(scene, camera);
     };
@@ -265,7 +232,7 @@ function ThreeScanVisualizer({
     const onResize = () => {
       if (!container) return;
       const w = container.clientWidth;
-      const h = container.clientHeight || settingsRef.current.height;
+      const h = container.clientHeight || defaultLoaderSettings.height;
       const newAspect = w / h;
       camera.left = -newAspect;
       camera.right = newAspect;
@@ -294,8 +261,8 @@ function ThreeScanVisualizer({
   return (
     <div
       ref={containerRef}
-      style={{ height: `${settings.height}px` }}
-      className="relative w-full overflow-hidden transition-[height] duration-200"
+      style={{ height: `${defaultLoaderSettings.height}px` }}
+      className="relative w-full overflow-hidden"
     />
   );
 }
@@ -339,10 +306,6 @@ export default function AppleNordicGlacierPureLanding() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // GUI НАСТРОЙКИ ЛОАДЕРА
-  const [loaderSettings, setLoaderSettings] = useState<LoaderSettings>(defaultLoaderSettings);
-  const [showGui, setShowGui] = useState(false);
-
   // Ссылка для плавного скролла к открывшемуся отчету
   const reportAnchorRef = useRef<HTMLDivElement>(null);
 
@@ -377,7 +340,6 @@ export default function AppleNordicGlacierPureLanding() {
       prev: 'Назад',
       next: 'Далее',
       placeholder: 'https://vash-salon-ili-klinika.es',
-      scanningTitle: 'Где ваш сайт теряет потенциальных клиентов?',
 
       previewLabel: 'AI AUDIT PREVIEW',
       previewStatus: 'DEMO · СИСТЕМА ГОТОВА К АНАЛИЗУ',
@@ -401,40 +363,14 @@ export default function AppleNordicGlacierPureLanding() {
       scorePoints: 'баллов',
       scoreOutOf: 'из 100',
 
-      directPhoneFriction: 'Телефон в картах Google',
-      directPhoneFrictionValue: 'Скрытый мобильный · Нет на сайте',
-
-      ads: 'Реклама',
-      adsValue: 'Meta + Google · обнаружено',
-
-      commercialLeak: 'Точка потери',
-      commercialLeakValue: 'НЕТ WHATSAPP',
-
       pitch: 'Сгенерировать WhatsApp-питч',
       pitchLocked: 'Доступ после анализа сайта',
 
       heroMicro:
         'Узнайте, что мешает посетителям оставить заявку: мобильная версия, контакты, реклама или доверие.',
 
-      // SCANNING COMMERCIAL TRIGGERS
-      scanningBadge: 'AUDIT2REVENUE · АУДИТ УПУЩЕННОЙ ВЫРУЧКИ',
-      scanProgressCompleted: 'РАСЧЁТ ПОТЕРЬ ГОТОВ (100%)',
-      scanProgressRunning: 'АНАЛИЗ КОММЕРЧЕСКОЙ ВОРОНКИ',
-      scanChecksLabel: 'Проверки системы',
       scanVerified: 'Проверено',
       scanScanning: 'Анализируем',
-
-      salesMetric1Title: 'Слив рекламного бюджета',
-      salesMetric1Desc: 'Клики из Meta/Google уходят без контакта из-за отсутствия прямого WhatsApp',
-      salesMetric1Val: '-40% лидов',
-
-      salesMetric2Title: 'Риски проверок в Испании',
-      salesMetric2Desc: 'Проверка реквизитов LSSI-CE и рисков штрафов AEPD за футер без NIF/CIF',
-      salesMetric2Val: 'До €30,000',
-
-      salesMetric3Title: 'Упущенные звонки и записи',
-      salesMetric3Desc: 'Потеря горячих пациентов в Google Maps в часы пик без быстрой Cita Previa',
-      salesMetric3Val: '~16 записей/мес',
 
       checklist: [
         {
@@ -473,19 +409,19 @@ export default function AppleNordicGlacierPureLanding() {
 
       reportCard1Cat: 'Штрафы в Испании',
       reportCard1Title: 'Риск проверки регулятором',
-      reportCard1Desc: 'Отсутствует обязательный NIF/CIF в футере...',
+      reportCard1Desc: 'Обнаружена зона, которую стоит подробнее проверить на соответствие требованиям в Испании.',
       reportCard1Foot: 'Штраф до €30,000',
       reportCard1Action: 'Сверить реквизиты компании в подвале сайта и юридических страницах.',
 
       reportCard2Cat: 'Слив рекламы',
       reportCard2Title: 'Потеря ~35% заявок',
-      reportCard2Desc: 'Клиенты уходят без быстрой связи в WhatsApp...',
+      reportCard2Desc: 'В мобильном пути клиента может быть барьер перед отправкой заявки.',
       reportCard2Foot: 'Рекламный бюджет',
       reportCard2Action: 'Проверить заметность WhatsApp на мобильном экране.',
 
       reportCard3Cat: 'Карты Google',
       reportCard3Title: 'Жалобы на недозвон',
-      reportCard3Desc: 'Потеря клиентов в часы пиковых обращений...',
+      reportCard3Desc: 'Есть признаки, что локальная видимость не полностью превращается в звонки и обращения.',
       reportCard3Foot: 'Подробности',
       reportCard3Action: 'Сверить телефон, часы работы и ссылку в карточке компании.',
 
@@ -526,7 +462,6 @@ export default function AppleNordicGlacierPureLanding() {
       prev: 'Anterior',
       next: 'Siguiente',
       placeholder: 'https://tu-clinica-o-salon.es',
-      scanningTitle: '¿Dónde pierde clientes potenciales tu web?',
 
       previewLabel: 'AI AUDIT PREVIEW',
       previewStatus: 'DEMO · SISTEMA LISTO PARA ANALIZAR',
@@ -550,39 +485,14 @@ export default function AppleNordicGlacierPureLanding() {
       scorePoints: 'puntos',
       scoreOutOf: 'de 100',
 
-      directPhoneFriction: 'Teléfono en Google Maps',
-      directPhoneFrictionValue: 'Móvil directo · Ausente en web',
-
-      ads: 'Publicidad',
-      adsValue: 'Meta + Google · detectado',
-
-      commercialLeak: 'Fuga comercial',
-      commercialLeakValue: 'SIN WHATSAPP',
-
       pitch: 'Generar pitch de WhatsApp',
       pitchLocked: 'Disponible después del análisis',
 
       heroMicro:
         'Descubre qué impide que los visitantes contacten: móvil, datos de contacto, publicidad o confianza.',
 
-      scanningBadge: 'AUDIT2REVENUE · AUDITORÍA DE FUGAS DE FACTURACIÓN',
-      scanProgressCompleted: 'CÁLCULO DE FUGAS COMPLETADO (100%)',
-      scanProgressRunning: 'ANALIZANDO EMBUDO COMERCIAL',
-      scanChecksLabel: 'Comprobaciones del sistema',
       scanVerified: 'Verificado',
       scanScanning: 'Analizando',
-
-      salesMetric1Title: 'Fuga en presupuesto de Ads',
-      salesMetric1Desc: 'Clics de Meta/Google se pierden sin contacto por falta de WhatsApp directo',
-      salesMetric1Val: '-40% leads',
-
-      salesMetric2Title: 'Riesgo de sanciones en España',
-      salesMetric2Desc: 'Revisión art. 10 LSSI-CE y multas de la AEPD de hasta 30.000 € por falta de CIF',
-      salesMetric2Val: 'Hasta 30.000 €',
-
-      salesMetric3Title: 'Llamadas y citas perdidas',
-      salesMetric3Desc: 'Pérdida de pacientes en Google Maps sin Cita Previa inmediata en horas punta',
-      salesMetric3Val: '~16 citas/mes',
 
       checklist: [
         {
@@ -620,19 +530,19 @@ export default function AppleNordicGlacierPureLanding() {
 
       reportCard1Cat: 'Sanciones en España',
       reportCard1Title: 'Riesgo de sanción regulatoria',
-      reportCard1Desc: 'Falta el NIF/CIF obligatorio en el pie de página...',
+      reportCard1Desc: 'Hay un aspecto que conviene revisar para comprobar el cumplimiento de los requisitos en España.',
       reportCard1Foot: 'Multa hasta 30.000 €',
       reportCard1Action: 'Revisar los datos de empresa en el pie y las páginas legales.',
 
       reportCard2Cat: 'Fuga publicitaria',
       reportCard2Title: 'Pérdida de ~35% de leads',
-      reportCard2Desc: 'Los usuarios se van sin contacto directo por WhatsApp...',
+      reportCard2Desc: 'El recorrido móvil del cliente puede tener una barrera antes de enviar una consulta.',
       reportCard2Foot: 'Presupuesto publicitario',
       reportCard2Action: 'Comprobar la visibilidad de WhatsApp en móvil.',
 
       reportCard3Cat: 'Google Maps',
       reportCard3Title: 'Quejas por llamadas perdidas',
-      reportCard3Desc: 'Pérdida de clientes en horas punta de atención...',
+      reportCard3Desc: 'Hay señales de que la visibilidad local no se convierte del todo en llamadas y consultas.',
       reportCard3Foot: 'Detalles',
       reportCard3Action: 'Revisar teléfono, horario y enlace en la ficha de empresa.',
 
@@ -673,7 +583,6 @@ export default function AppleNordicGlacierPureLanding() {
       prev: 'Previous',
       next: 'Next',
       placeholder: 'https://your-business.es',
-      scanningTitle: 'Where is your website losing high-intent customers?',
 
       previewLabel: 'AI AUDIT PREVIEW',
       previewStatus: 'DEMO · SYSTEM READY TO ANALYZE',
@@ -697,39 +606,14 @@ export default function AppleNordicGlacierPureLanding() {
       scorePoints: 'points',
       scoreOutOf: 'out of 100',
 
-      directPhoneFriction: 'Google Maps Phone',
-      directPhoneFrictionValue: 'Direct mobile · Not on website',
-
-      ads: 'Advertising',
-      adsValue: 'Meta + Google · detected',
-
-      commercialLeak: 'Commercial Leak',
-      commercialLeakValue: 'NO WHATSAPP',
-
       pitch: 'Generate WhatsApp Pitch',
       pitchLocked: 'Available after website analysis',
 
       heroMicro:
         'See what stops visitors from getting in touch: mobile experience, contact options, ads, or trust.',
 
-      scanningBadge: 'AUDIT2REVENUE · REVENUE LEAKAGE AUDIT',
-      scanProgressCompleted: 'LEAK CALCULATION COMPLETE (100%)',
-      scanProgressRunning: 'COMMERCIAL FUNNEL SCANNING',
-      scanChecksLabel: 'System checks',
       scanVerified: 'Checked',
       scanScanning: 'Scanning',
-
-      salesMetric1Title: 'Ad Spend Bleed',
-      salesMetric1Desc: 'Paid clicks bounce without converting due to missing instant WhatsApp chat',
-      salesMetric1Val: '-40% leads',
-
-      salesMetric2Title: 'Spanish Regulatory Penalty Risk',
-      salesMetric2Desc: 'Checking Art. 10 LSSI-CE compliance & AEPD fines up to €30,000 for missing CIF',
-      salesMetric2Val: 'Up to €30,000',
-
-      salesMetric3Title: 'Lost Calls & Peak-Hour Drop-off',
-      salesMetric3Desc: 'Losing high-intent patients in Google Maps without instant 1-click booking',
-      salesMetric3Val: '~16 bookings/mo',
 
       checklist: [
         {
@@ -767,19 +651,19 @@ export default function AppleNordicGlacierPureLanding() {
 
       reportCard1Cat: 'Fines in Spain',
       reportCard1Title: 'Regulatory Penalty Risk',
-      reportCard1Desc: 'Missing mandatory NIF/CIF tax ID in the footer...',
+      reportCard1Desc: 'A potential compliance issue needs a closer review against requirements in Spain.',
       reportCard1Foot: 'Fines up to €30,000',
       reportCard1Action: 'Check the company details in the footer and legal pages.',
 
       reportCard2Cat: 'Ad Leak',
       reportCard2Title: 'Losing ~35% of Leads',
-      reportCard2Desc: 'Visitors bounce without instant WhatsApp messaging...',
+      reportCard2Desc: 'The mobile customer journey may contain friction before a visitor sends an enquiry.',
       reportCard2Foot: 'Advertising Budget',
       reportCard2Action: 'Check that WhatsApp is easy to find on mobile.',
 
       reportCard3Cat: 'Google Maps',
       reportCard3Title: 'Unanswered Call Complaints',
-      reportCard3Desc: 'Losing high-intent customers during peak hours...',
+      reportCard3Desc: 'Some local-search activity may not be translating fully into calls and enquiries.',
       reportCard3Foot: 'Details',
       reportCard3Action: 'Check the phone, hours, and website link on the business listing.',
 
@@ -813,7 +697,6 @@ export default function AppleNordicGlacierPureLanding() {
     },
   }[lang];
 
-  // ИСПРАВЛЕННЫЙ ТЕКСТ EYEBROW (Одинаковая строго выверенная типографика на всех 3 языках)
   const landingCopy = {
     ru: {
       eyebrow: 'Аудит сайта · Испания',
@@ -1001,7 +884,11 @@ export default function AppleNordicGlacierPureLanding() {
 
   const renderScorePanel = (variant: 'compact' | 'full') => (
     <section
-      className={`a2r-score-panel ${variant === 'compact' ? 'a2r-score-panel--compact' : 'a2r-score-panel--full'}`}
+      className={`a2r-score-panel ${
+        variant === 'compact'
+          ? 'a2r-score-panel--compact flex-1 flex flex-col justify-between'
+          : 'a2r-score-panel--full'
+      }`}
       aria-label={t.revenueScoreTitle}
     >
       <div className="a2r-score-panel-head">
@@ -1033,7 +920,8 @@ export default function AppleNordicGlacierPureLanding() {
       </div>
 
       {variant === 'compact' && (
-        <div className="a2r-score-issues" aria-label={t.revenueScoreTitle}>
+        /* min-h гарантирует, что список кнопок сохраняет свой размер */
+        <div className="a2r-score-issues min-h-[180px] sm:min-h-[200px] flex flex-col justify-between" aria-label={t.revenueScoreTitle}>
           {demoScoreIssues.map((issue) => {
             const simulatedFixed = resolvedDemoIssues.includes(issue.id);
             const IssueIcon = issue.Icon;
@@ -1099,7 +987,7 @@ export default function AppleNordicGlacierPureLanding() {
         const closeTimeout = window.setTimeout(() => {
           setPageLoading(false);
           setRevealStep(1);
-          const cadence = 130;
+          const cadence = 400;
           [2, 3, 4, 5, 6].forEach((step, index) => {
             revealTimeouts.push(
               window.setTimeout(() => setRevealStep(step), cadence * (index + 1))
@@ -1405,7 +1293,6 @@ export default function AppleNordicGlacierPureLanding() {
           }
         }
 
-        /* КАЛИБРОВКА РАЗМЕРА И ИНТЕРВАЛА EYEBROW ДЛЯ ВСЕХ ЯЗЫКОВ */
         .landing-eyebrow {
           font-size: 11px !important;
           line-height: 1.25 !important;
@@ -1481,7 +1368,7 @@ export default function AppleNordicGlacierPureLanding() {
         @keyframes scan-finding-lift {
           0% {
             opacity: 0;
-            transform: translateY(14px);
+            transform: translateY(12px);
             filter: blur(4px);
           }
           100% {
@@ -1497,7 +1384,7 @@ export default function AppleNordicGlacierPureLanding() {
         @keyframes scan-badge-lift {
           0% {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(8px);
             filter: blur(2px);
           }
           100% {
@@ -1559,10 +1446,50 @@ export default function AppleNordicGlacierPureLanding() {
           transform-origin: center center;
           transition: transform 120ms linear;
         }
+        /* Фиксируем минимальную высоту оболочки превью и 3D-карточки */
+        .landing-preview {
+          min-height: 480px;
+        }
+        @media (min-width: 640px) {
+          .landing-preview {
+            min-height: 520px;
+          }
+        }
+
         .audit-card-shell {
           position: relative;
           transform-style: preserve-3d;
           animation: card-float 5s ease-in-out infinite;
+          min-height: 480px;
+          display: flex;
+          flex-direction: column;
+        }
+        @media (min-width: 640px) {
+          .audit-card-shell {
+            min-height: 520px;
+          }
+        }
+
+        /* Заставляем внутреннее содержимое заполнять всю высоту без сжатия */
+        .audit-card-content {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 100%;
+          flex: 1 1 auto;
+        }
+
+        /* Стабилизируем блок с кнопками проблем */
+        .a2r-score-issues {
+          min-height: 180px;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        @media (min-width: 640px) {
+          .a2r-score-issues {
+            min-height: 200px;
+          }
         }
         .audit-card-depth {
           transform: translateZ(12px);
@@ -1643,15 +1570,18 @@ export default function AppleNordicGlacierPureLanding() {
         {/* ================= IDLE STAGE (ГЛАВНЫЙ ЭКРАН) ================= */}
         {stage === 'idle' && (
           <div className="landing-hero w-full grid items-center text-left">
-            <div className="landing-preview audit-card-perspective audit-card-compact w-full flex justify-center mb-1.5 sm:mb-3">
-              <div className={`relative w-full max-w-[380px] sm:max-w-[480px] ${revealStep >= 5 ? 'anim-card' : 'hero-pending'}`}>
-                <div ref={auditCardRef} className="audit-card-3d relative">
+           <div className="landing-preview audit-card-perspective audit-card-compact w-full flex justify-center mb-1.5 sm:mb-3 min-h-[480px] sm:min-h-[520px]">
+              <div className={`relative w-full max-w-[380px] sm:max-w-[480px] h-full ${revealStep >= 5 ? 'anim-card' : 'hero-pending'}`}>
+                <div ref={auditCardRef} className="audit-card-3d relative h-full">
                   <div className="audit-card-shadow" />
                   <div className="absolute -inset-4 rounded-[30px] bg-[#0284C7]/8 blur-xl pointer-events-none" />
 
-                  <div className="audit-card-shell relative overflow-hidden rounded-[22px] sm:rounded-[26px] bg-white border border-[#D5E1E9] shadow-[0_16px_50px_rgba(15,39,68,0.12)]">
+                  {/* Добавлены min-h, flex flex-col justify-between */}
+                  <div className="audit-card-shell relative overflow-hidden rounded-[22px] sm:rounded-[26px] bg-white border border-[#D5E1E9] shadow-[0_16px_50px_rgba(15,39,68,0.12)] min-h-[480px] sm:min-h-[520px] flex flex-col justify-between">
                     <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent z-[60]" />
-                    <div className="audit-card-content px-3.5 py-3 sm:px-5 sm:py-4">
+                    
+                    {/* Контент теперь растянут на 100% высоты с аккуратным распределением */}
+                    <div className="audit-card-content px-3.5 py-3 sm:px-5 sm:py-4 flex-1 flex flex-col justify-between h-full">
                       <div className="audit-card-depth flex items-center justify-between gap-2.5">
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                           <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-[#EFF9FD] border border-[#C9EAF7] flex items-center justify-center shadow-xs">
@@ -1681,9 +1611,12 @@ export default function AppleNordicGlacierPureLanding() {
                       </div>
 
                       <div className="audit-card-depth h-px bg-[#E5EDF2] my-2 sm:my-3" />
+                      
+                      {/* Панель со скором и кнопками */}
                       {renderScorePanel('compact')}
 
-                      <div className="audit-card-depth-strong a2r-locked-feature">
+                      {/* Нижняя заблокированная плашка всегда прижата к низу */}
+                      <div className="audit-card-depth-strong a2r-locked-feature mt-2">
                         <span className="a2r-locked-feature-icon"><MessageCircle aria-hidden="true" /></span>
                         <span className="a2r-locked-feature-copy">
                           <strong>{t.pitch}</strong>
@@ -1698,20 +1631,18 @@ export default function AppleNordicGlacierPureLanding() {
             </div>
 
             <div className="landing-copy-column">
-              {/* ПОДНЯТИЕ СТРОК H1 СНИЗУ ВВЕРХ ПО ОСИ Y С ВЫВЕРЕННЫМ РАЗМЕРОМ ШРИФТА EYEBROW */}
-              <div className="landing-heading hero-reveal hero-reveal-heading w-full space-y-2 mb-2 sm:mb-4">
-                <p className="landing-eyebrow">{landingCopy.eyebrow}</p>
-                <h1 className="landing-title overflow-hidden">
-                  <span className={`landing-title-ink inline-block overflow-hidden ${revealStep >= 1 ? 'anim-line-1' : 'hero-pending'}`}>
-                    {t.h1_1}
-                  </span>{' '}
-                  <span className={`landing-title-accent inline-block overflow-hidden ${revealStep >= 2 ? 'anim-line-2' : 'hero-pending'}`}>
-                    {t.h1_2}
-                  </span>
-                </h1>
-              </div>
+            <div className="landing-heading hero-reveal hero-reveal-heading w-full space-y-2 mb-2 sm:mb-4">
+  <p className="landing-eyebrow">{landingCopy.eyebrow}</p>
+  <h1 className="landing-title overflow-visible">
+    <span className={`landing-title-ink inline-block pe-1.5 overflow-hidden ${revealStep >= 1 ? 'anim-line-1' : 'hero-pending'}`}>
+      {t.h1_1}
+    </span>{' '}
+    <span className={`landing-title-accent inline-block pe-2 -me-2 overflow-visible ${revealStep >= 2 ? 'anim-line-2' : 'hero-pending'}`}>
+      {t.h1_2}
+    </span>
+  </h1>
+</div>
 
-              {/* ПЛАВНОЕ ПРОЯВЛЕНИЕ МИКРОТЕКСТА */}
               <p
                 className={`landing-copy hero-reveal hero-reveal-copy text-[15px] sm:text-base text-[#596B7A] mb-4 sm:mb-6 transition-all duration-700 ${
                   revealStep >= 3 ? 'hero-copy-enter' : 'hero-pending'
@@ -1720,7 +1651,6 @@ export default function AppleNordicGlacierPureLanding() {
                 {t.heroMicro}
               </p>
 
-              {/* ПОДНЯТИЕ ФОРМЫ СНИЗУ ВВЕРХ */}
               <form
                 id="scan-form"
                 onSubmit={handleStartScan}
@@ -1861,395 +1791,110 @@ export default function AppleNordicGlacierPureLanding() {
           </section>
         )}
 
-        {/* ================= БЛОК СКАНЕРА С 1-СМ ЛОАДЕРОМ И ПАНЕЛЬЮ GUI ================= */}
+        {/* ================= ЕДИНЫЙ ПАНЕЛЬНЫЙ БЛОК СКАНЕРА ================= */}
         {(stage === 'scanning' || stage === 'report') && (
-          <div className="scan-stage w-full max-w-4xl px-2 sm:px-4 space-y-6 text-left">
-            <div className="relative rounded-3xl bg-white border border-[#D5E1E9] p-5 sm:p-7 shadow-[0_20px_60px_rgba(15,39,68,0.08)] backdrop-blur-xl overflow-hidden">
+          <div className="scan-stage w-full max-w-4xl px-2 sm:px-4 text-left">
+            <div className="relative rounded-3xl bg-white border border-[#D5E1E9] p-5 sm:p-7 shadow-[0_20px_60px_rgba(15,39,68,0.08)] backdrop-blur-xl overflow-hidden space-y-5">
               <div className="absolute inset-x-12 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent" />
 
-              {/* ХЕДЕР СКАНЕРА С КОММЕРЧЕСКИМ ТРИГГЕРОМ */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
-                <div className="min-w-0">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0284C7]/10 text-[#0284C7] text-[10px] font-extrabold uppercase tracking-widest mb-2 border border-[#0284C7]/20">
-                    <Target className="w-3 h-3 text-[#0284C7]" />
-                    <span>{t.scanningBadge}</span>
-                  </div>
-
-                  <h3 className="text-lg sm:text-2xl font-black tracking-tight text-[#0F2744]">
-                    {t.scanningTitle}
-                  </h3>
-
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
-                    <p className="text-xs sm:text-sm text-[#0284C7] font-mono truncate font-semibold">
-                      {url}
-                    </p>
-                  </div>
+              {/* ЛАКОНИЧНАЯ ШАПКА СКАНЕРА */}
+              <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                  <p className="text-sm sm:text-base text-[#0F2744] font-mono font-bold truncate">
+                    {url}
+                  </p>
                 </div>
 
-                <div className="shrink-0 flex items-baseline sm:flex-col sm:items-end justify-between sm:justify-center">
-                  <div className="flex items-baseline gap-1 tabular-nums">
-                    <span className="text-4xl sm:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC]">
-                      {loaderSettings.manualProgress ? loaderSettings.customProgress : progress}
-                    </span>
-                    <span className="text-base sm:text-xl font-extrabold text-[#0284C7]">%</span>
-                  </div>
-                  <span className={`text-[9.5px] uppercase tracking-widest font-extrabold block px-2.5 py-0.5 rounded-full mt-1 ${
-                    (loaderSettings.manualProgress ? loaderSettings.customProgress : progress) >= 100
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-slate-100 text-[#64748B]'
-                  }`}>
-                    {(loaderSettings.manualProgress ? loaderSettings.customProgress : progress) >= 100
-                      ? t.scanProgressCompleted
-                      : t.scanProgressRunning}
+                <div className="shrink-0 flex items-baseline gap-1 tabular-nums">
+                  <span className="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#0F2744] via-[#0284C7] to-[#7DD3FC]">
+                    {progress}
                   </span>
+                  <span className="text-sm sm:text-lg font-extrabold text-[#0284C7]">%</span>
                 </div>
               </div>
 
-              {/* =========================================================================
-                  ЛОАДЕР С ДИНАМИЧЕСКОЙ ТОЛЩИНОЙ (ИЗ GUI НАСТРОЕК)
-                  ========================================================================= */}
-              <div className="w-full my-4">
+              {/* ЛОАДЕР (Three.js WebGL) */}
+              <div className="w-full my-2">
                 <div
-                  style={{ height: `${loaderSettings.height}px` }}
-                  className="w-full relative rounded-2xl p-[3px] bg-[#0A1A2F] border border-[#1E3A5F] shadow-[0_8px_30px_rgba(15,39,68,0.22),inset_0_2px_8px_rgba(0,0,0,0.6)] overflow-hidden transition-[height] duration-200"
+                  style={{ height: `${defaultLoaderSettings.height}px` }}
+                  className="w-full relative rounded-2xl p-[3px] bg-[#0A1A2F] border border-[#1E3A5F] shadow-[0_8px_30px_rgba(15,39,68,0.22),inset_0_2px_8px_rgba(0,0,0,0.6)] overflow-hidden"
                 >
                   <div className="relative w-full h-full rounded-[13px] overflow-hidden bg-[#06121E]">
-                    <ThreeScanVisualizer
-                      progress={progress}
-                      settings={loaderSettings}
-                    />
-                  </div>
-                </div>
-
-                {/* Минималистичные метки чекпоинтов */}
-                <div className="flex justify-between items-center text-[9px] font-mono font-bold text-[#64748B] px-1 mt-1.5 uppercase tracking-wider">
-                  <span>0% Старт</span>
-                  <span>25% Трафик</span>
-                  <span>50% WhatsApp</span>
-                  <span>75% Репутация</span>
-                  <span className="text-[#0284C7]">100% LSSI-CE</span>
-                </div>
-              </div>
-
-              {/* КНОПКА ОТКРЫТИЯ GUI ПАНЕЛИ НАСТРОЕК */}
-              <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowGui((prev) => !prev)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shadow-xs ${
-                    showGui
-                      ? 'bg-[#0F2744] text-white shadow-sm'
-                      : 'bg-slate-100 hover:bg-slate-200 text-[#0F2744]'
-                  }`}
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#0284C7]" />
-                  <span>⚙️ Настройки лоадера (GUI)</span>
-                </button>
-
-                {showGui && (
-                  <button
-                    type="button"
-                    onClick={() => setLoaderSettings(defaultLoaderSettings)}
-                    className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-[#64748B] hover:text-[#0F2744] transition-colors"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Сброс настроек</span>
-                  </button>
-                )}
-              </div>
-
-              {/* =========================================================================
-                  ВСПЛЫВАЮЩАЯ GUI ПАНЕЛЬ НАСТРОЙКИ ЛОАДЕРА В РЕАЛЬНОМ ВРЕМЕНИ
-                  ========================================================================= */}
-              {showGui && (
-                <div className="mt-4 p-4 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] space-y-4 animate-fadeIn">
-                  <div className="flex items-center justify-between text-xs font-extrabold text-[#0F2744] pb-1 border-b border-slate-200">
-                    <span className="uppercase tracking-wider">Панель тюнинга шейдера (Live Controls)</span>
-                    <span className="text-[10px] text-[#0284C7] font-mono">Three.js GLSL</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-[#0F2744]">
-                    {/* 1. Толщина лоадера */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>Толщина лоадера (Высота):</span>
-                        <strong className="font-mono text-[#0284C7]">
-                          {loaderSettings.height}px (~{(loaderSettings.height / 37.8).toFixed(1)} см)
-                        </strong>
-                      </div>
-                      <input
-                        type="range"
-                        min="20"
-                        max="85"
-                        step="1"
-                        value={loaderSettings.height}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, height: Number(e.target.value) }))
-                        }
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                      />
-                    </div>
-
-                    {/* 2. Скорость потока */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>Скорость течения волн (Speed):</span>
-                        <strong className="font-mono text-[#0284C7]">{loaderSettings.speed.toFixed(2)}x</strong>
-                      </div>
-                      <input
-                        type="range"
-                        min="0.2"
-                        max="2.5"
-                        step="0.05"
-                        value={loaderSettings.speed}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, speed: Number(e.target.value) }))
-                        }
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                      />
-                    </div>
-
-                    {/* 3. Масштаб шума FBM */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>Плотность завихрений (Noise Scale):</span>
-                        <strong className="font-mono text-[#0284C7]">{loaderSettings.noiseScale.toFixed(1)}</strong>
-                      </div>
-                      <input
-                        type="range"
-                        min="1.5"
-                        max="6.0"
-                        step="0.1"
-                        value={loaderSettings.noiseScale}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, noiseScale: Number(e.target.value) }))
-                        }
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                      />
-                    </div>
-
-                    {/* 4. Турбулентность фронта */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>Турбулентность фронта (Turbulence):</span>
-                        <strong className="font-mono text-[#0284C7]">{loaderSettings.turbulence.toFixed(2)}</strong>
-                      </div>
-                      <input
-                        type="range"
-                        min="0.04"
-                        max="0.38"
-                        step="0.01"
-                        value={loaderSettings.turbulence}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, turbulence: Number(e.target.value) }))
-                        }
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                      />
-                    </div>
-
-                    {/* 5. Интенсивность каустики */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>Световые каустические блики:</span>
-                        <strong className="font-mono text-[#0284C7]">{loaderSettings.caustics.toFixed(2)}</strong>
-                      </div>
-                      <input
-                        type="range"
-                        min="0.0"
-                        max="1.0"
-                        step="0.05"
-                        value={loaderSettings.caustics}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, caustics: Number(e.target.value) }))
-                        }
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                      />
-                    </div>
-
-                    {/* 6. Яркость гребня волны */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[11px]">
-                        <span>Яркость неонового гребня (Crest Flare):</span>
-                        <strong className="font-mono text-[#0284C7]">{loaderSettings.crestIntensity.toFixed(2)}</strong>
-                      </div>
-                      <input
-                        type="range"
-                        min="0.2"
-                        max="1.8"
-                        step="0.05"
-                        value={loaderSettings.crestIntensity}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, crestIntensity: Number(e.target.value) }))
-                        }
-                        className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* 7. Ручной тест заполнения */}
-                  <div className="pt-2 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={loaderSettings.manualProgress}
-                        onChange={(e) =>
-                          setLoaderSettings((s) => ({ ...s, manualProgress: e.target.checked }))
-                        }
-                        className="w-4 h-4 rounded text-[#0284C7] focus:ring-0 cursor-pointer"
-                      />
-                      <span className="font-bold text-[#0F2744]">Ручной тест заполнения шкалы</span>
-                    </label>
-
-                    {loaderSettings.manualProgress && (
-                      <div className="flex items-center gap-2 flex-1 max-w-xs">
-                        <input
-                          type="range"
-                          min="1"
-                          max="100"
-                          value={loaderSettings.customProgress}
-                          onChange={(e) =>
-                            setLoaderSettings((s) => ({ ...s, customProgress: Number(e.target.value) }))
-                          }
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0284C7]"
-                        />
-                        <span className="font-mono font-bold text-[#0284C7] w-10 text-right">
-                          {loaderSettings.customProgress}%
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* 3 КОММЕРЧЕСКИХ ПОКАЗАТЕЛЯ ДЛЯ ПРОДАЖ */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4">
-                <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-                        <Coins className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-[10.5px] font-extrabold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
-                        {t.salesMetric1Val}
-                      </span>
-                    </div>
-                    <strong className="text-xs font-bold text-[#0F2744] block">
-                      {t.salesMetric1Title}
-                    </strong>
-                    <p className="text-[11px] text-[#64748B] mt-1 leading-snug">
-                      {t.salesMetric1Desc}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                        <Scale className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-[10.5px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                        {t.salesMetric2Val}
-                      </span>
-                    </div>
-                    <strong className="text-xs font-bold text-[#0F2744] block">
-                      {t.salesMetric2Title}
-                    </strong>
-                    <p className="text-[11px] text-[#64748B] mt-1 leading-snug">
-                      {t.salesMetric2Desc}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#0284C7] flex items-center justify-center">
-                        <PhoneCall className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-[10.5px] font-extrabold text-[#0284C7] bg-[#EFF9FD] px-2 py-0.5 rounded-md border border-[#BAE6FD]">
-                        {t.salesMetric3Val}
-                      </span>
-                    </div>
-                    <strong className="text-xs font-bold text-[#0F2744] block">
-                      {t.salesMetric3Title}
-                    </strong>
-                    <p className="text-[11px] text-[#64748B] mt-1 leading-snug">
-                      {t.salesMetric3Desc}
-                    </p>
+                    <ThreeScanVisualizer progress={progress} />
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* ЧЕКЛИСТ С ПОДНЯТИЕМ СЛОВ ПО Y ОСИ */}
-            <div className="space-y-2.5">
-              {scanChecklist.map((item, idx) => {
-                const effectiveProgress = loaderSettings.manualProgress ? loaderSettings.customProgress : progress;
-                const stepThreshold = (idx + 1) * 20;
-                const isPassed = effectiveProgress >= stepThreshold;
-                const isCurrent = effectiveProgress < stepThreshold && effectiveProgress >= stepThreshold - 20;
+              {/* ПОСЛЕДОВАТЕЛЬНЫЙ ЧЕКЛИСТ С АНИМАЦИЕЙ ПОДЪЕМА ПО ОСИ Y (В ТОМ ЖЕ БЛОКЕ) */}
+              <div className="space-y-2.5 pt-3 border-t border-slate-100">
+                {scanChecklist.map((item, idx) => {
+                  const stepThreshold = (idx + 1) * 20;
+                  const isPassed = progress >= stepThreshold;
+                  const isCurrent = progress < stepThreshold && progress >= stepThreshold - 20;
 
-                return (
-                  <div
-                    key={idx}
-                    className={`p-4 rounded-2xl border transition-all duration-300 ${
-                      isPassed
-                        ? 'bg-white border-[#D5E1E9] shadow-xs opacity-100'
-                        : isCurrent
-                          ? 'bg-white border-[#0284C7] shadow-sm ring-1 ring-[#0284C7]/30 opacity-100'
-                          : 'bg-white/60 border-[#E2E8F0] opacity-40'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 shrink-0 flex items-center justify-center mt-0.5">
-                        {isPassed ? (
-                          item.type === 'error' ? (
-                            <XCircle className="w-4.5 h-4.5 text-rose-600 anim-badge-lift" />
-                          ) : item.type === 'warn' ? (
-                            <AlertTriangle className="w-4.5 h-4.5 text-amber-600 anim-badge-lift" />
-                          ) : (
-                            <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 anim-badge-lift" />
-                          )
-                        ) : isCurrent ? (
-                          <Loader2 className="w-4.5 h-4.5 text-[#0284C7] animate-spin" />
-                        ) : (
-                          <span className="w-2 h-2 rounded-full bg-slate-300" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center justify-between gap-2 overflow-hidden">
-                          <span className={`text-xs sm:text-sm font-bold ${isPassed ? 'text-[#0F2744] anim-badge-lift' : isCurrent ? 'text-[#0F2744]' : 'text-[#86868B]'}`}>
-                            {item.title}
-                          </span>
-
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-500 ease-out ${
+                        isPassed
+                          ? 'bg-[#F8FAFC] border-[#E2E8F0] shadow-xs opacity-100'
+                          : isCurrent
+                            ? 'bg-[#EFF9FD] border-[#0284C7] shadow-sm ring-1 ring-[#0284C7]/30 opacity-100 scale-[1.008]'
+                            : 'bg-slate-50/40 border-slate-100 opacity-40'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-5 h-5 shrink-0 flex items-center justify-center mt-0.5">
                           {isPassed ? (
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#64748B] anim-badge-lift">
-                              {t.scanVerified}
+                            <span key={`icon-${idx}`} className="anim-badge-lift">
+                              {item.type === 'error' ? (
+                                <XCircle className="w-4.5 h-4.5 text-rose-600" />
+                              ) : item.type === 'warn' ? (
+                                <AlertTriangle className="w-4.5 h-4.5 text-amber-600" />
+                              ) : (
+                                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
+                              )}
                             </span>
                           ) : isCurrent ? (
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#0284C7] animate-pulse">
-                              {t.scanScanning}
-                            </span>
-                          ) : null}
+                            <Loader2 className="w-4.5 h-4.5 text-[#0284C7] animate-spin" />
+                          ) : (
+                            <span className="w-2 h-2 rounded-full bg-slate-300" />
+                          )}
                         </div>
 
-                        {isPassed && (
-                          <div className="overflow-hidden mt-1">
-                            <p className={`scan-finding-reveal text-xs leading-relaxed font-medium ${
-                              item.type === 'error' ? 'text-rose-700' : item.type === 'warn' ? 'text-amber-800' : 'text-[#64748B]'
-                            }`}>
-                              {item.discovered}
-                            </p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center justify-between gap-2 overflow-hidden">
+                            <span className={`text-xs sm:text-sm font-bold ${isPassed ? 'text-[#0F2744]' : isCurrent ? 'text-[#0F2744]' : 'text-[#86868B]'}`}>
+                              {item.title}
+                            </span>
+
+                            {isPassed ? (
+                              <span key={`badge-${idx}`} className="text-[10px] font-extrabold uppercase tracking-wider text-[#64748B] anim-badge-lift">
+                                {t.scanVerified}
+                              </span>
+                            ) : isCurrent ? (
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#0284C7] animate-pulse">
+                                {t.scanScanning}
+                              </span>
+                            ) : null}
                           </div>
-                        )}
+
+                          {isPassed && (
+                            <div className="overflow-hidden mt-1.5">
+                              <p className={`scan-finding-reveal text-xs leading-relaxed font-medium ${
+                                item.type === 'error' ? 'text-rose-700' : item.type === 'warn' ? 'text-amber-800' : 'text-[#64748B]'
+                              }`}>
+                                {item.discovered}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
