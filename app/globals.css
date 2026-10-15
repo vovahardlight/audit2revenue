@@ -147,7 +147,7 @@ header.anim-header { animation-duration: .76s; }
   background: rgba(2,132,199,.7);
   box-shadow: 0 0 0 3px rgba(2,132,199,.15), 0 0 28px rgba(2,132,199,.18);
 }
-.animated-input-border.is-focused::before { animation-duration: 2.2s; opacity: 1; }
+.animated-input-border.is-focused::before {  opacity: 1; }
 .animated-input-border.has-value:not(.is-focused) { background: rgba(2,132,199,.62); }
 .landing-form input { color: var(--ink); }
 .landing-form input:focus-visible { outline: none; }
@@ -1156,7 +1156,6 @@ h1, h2, .landing-title, .insight-statement-card h2, .findings-heading h2,
 .landing-title .phrase-highlight, .landing-title em { color: var(--blue-strong); }
 .landing-form .animated-input-border,
 .landing-form .animated-input-border::before,
-.landing-form .animated-input-border::after { animation: none !important; }
 .landing-form .animated-input-border { border-radius: 6px; }
 .landing-form input { background: var(--surface); }
 .landing-form button[type="submit"] {
