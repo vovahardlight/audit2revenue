@@ -333,527 +333,528 @@ export default function AppleNordicGlacierPureLanding() {
 
   const t = {
     ru: {
-      devBadge: 'ПРОТОТИП · Некоммерческая разработка (Платежи отключены / Тестовый режим)',
+      devBadge: 'ПРОТОТИП · Демонстрационный режим (Платежи отключены)',
       h1_1: 'Сайт теряет',
       h1_2: 'клиентов?',
-      btn: 'Проверить',
+      btn: 'Найти утечки',
       prev: 'Назад',
       next: 'Далее',
       placeholder: 'https://vash-salon-ili-klinika.es',
 
-      previewLabel: 'AI AUDIT PREVIEW',
-      previewStatus: 'DEMO · СИСТЕМА ГОТОВА К АНАЛИЗУ',
-      demo: 'DEMO',
+      previewLabel: 'ДЕМО-ДИАГНОСТИКА',
+      previewStatus: 'ГОТОВ К ПРОВЕРКЕ ВАШЕГО САЙТА',
+      demo: 'ПРИМЕР',
 
-      exampleBusiness: 'Example Business',
-      scoreLabel: 'AUDIT SCORE',
-      revenueScoreTitle: 'Индекс потенциала выручки',
-      revenueScoreNote: 'Демо-модель сайта · не прогноз реальной выручки',
-      scoreIssueTrust: 'Юридические данные',
-      scoreIssueTrustDetail: 'Демо: реквизиты компании требуют проверки.',
-      scoreIssueContact: 'Связь с клиентом',
-      scoreIssueContactDetail: 'Демо: быстрый канал связи требует проверки.',
-      scoreIssueLocal: 'Локальная видимость',
-      scoreIssueLocalDetail: 'Демо: телефон, часы работы и карточку компании стоит проверить.',
-      scoreSimulateFix: 'Смоделировать исправление',
-      scoreUndoFix: 'Отменить симуляцию',
-      scoreFixed: 'Исправление смоделировано',
+      exampleBusiness: 'Пример: Местный бизнес в Испании',
+      scoreLabel: 'ОЦЕНКА ГОТОВНОСТИ',
+      revenueScoreTitle: 'Индекс готовности к продажам',
+      revenueScoreNote: 'Интерактивный пример: показывает, сколько обращений теряется',
+      scoreIssueTrust: 'Защита от штрафов',
+      scoreIssueTrustDetail: 'Пример: на сайте нет обязательных данных компании по законам Испании.',
+      scoreIssueContact: 'Быстрая связь',
+      scoreIssueContactDetail: 'Пример: клиенту сложно записаться или написать в WhatsApp за 1 клик.',
+      scoreIssueLocal: 'Карты Google и доверие',
+      scoreIssueLocalDetail: 'Пример: телефон или часы работы на сайте расходятся с картами.',
+      scoreSimulateFix: 'Устранить ошибку',
+      scoreUndoFix: 'Отменить',
+      scoreFixed: 'Ошибка устранена',
       scoreReset: 'Сбросить',
-      scorePointsRestored: 'Восстановлено в симуляции',
+      scorePointsRestored: 'Потенциал восстановлен',
       scorePoints: 'баллов',
       scoreOutOf: 'из 100',
 
-      pitch: 'Сгенерировать WhatsApp-питч',
-      pitchLocked: 'Доступ после анализа сайта',
+      pitch: 'Готовое обращение в WhatsApp',
+      pitchLocked: 'Доступно после экспресс-проверки',
 
       heroMicro:
-        'Узнайте, что мешает посетителям оставить заявку: мобильная версия, контакты, реклама или доверие.',
+        'Проверьте, почему посетители уходят без заявки: долгая загрузка, неудобная связь, пустые клики с рекламы или недоверие.',
 
-      scanVerified: 'Проверено',
-      scanScanning: 'Анализируем',
+      scanVerified: 'В порядке',
+      scanScanning: 'Проверяем...',
 
       checklist: [
         {
-          title: 'Доступность и мобильная скорость',
-          discovered: '✓ Сервер отвечает за 160ms, SSL TLS 1.3 активен',
+          title: 'Скорость загрузки на смартфонах',
+          discovered: '✓ Сайт открывается за 1.6с, защищенное соединение активно',
           type: 'ok',
         },
         {
-          title: 'Рекламные трекеры и пиксели',
-          discovered: '✓ Активны Meta Pixel (Instagram) и Google Ads Tag',
+          title: 'Контроль расходов на рекламу',
+          discovered: '✓ Учет заявок с рекламы Instagram и Google настроен',
           type: 'ok',
         },
         {
-          title: 'Конверсия мобильного трафика',
-          discovered: '⚠️ Найдено: нет кнопки WhatsApp, потеря до 40% переходов',
+          title: 'Удобство записи для клиентов',
+          discovered: '⚠️ Нет кнопки прямого чата в WhatsApp — теряется до 40% обращений',
           type: 'warn',
         },
         {
-          title: 'Репутация и отзывы в картах Google',
-          discovered: '✓ Рейтинг 4.8★ (384 отзыва), найдены жалобы на недозвон',
+          title: 'Карточка компании на Google Maps',
+          discovered: '✓ Отличный рейтинг 4.8★, но обнаружен риск потери звонков',
           type: 'warn',
         },
         {
-          title: 'Юридический аудит LSSI-CE (Испания)',
-          discovered: '⚠️ Критично: тестовая заглушка вместо налогового NIF/CIF',
+          title: 'Юридическая защита от штрафов в Испании',
+          discovered: '⚠️ Риск штрафа: на сайте не указаны официальные реквизиты компании',
           type: 'error',
         },
       ],
 
       // REPORT
-      reportLabel: 'DEMO · РЕЗУЛЬТАТЫ ЭКСПРЕСС-СКАНА',
-      reportTitle: 'Результаты анализа сайта',
-      reportMissedRevenue: 'Упущенная выручка: ~€1,800/мес',
+      reportLabel: 'РЕЗУЛЬТАТЫ ЭКСПРЕСС-ПРОВЕРКИ',
+      reportTitle: 'Где ваш сайт теряет потенциальных клиентов',
+      reportMissedRevenue: 'Упущенные заказы: ~€1,800/мес',
       demoReportNotice:
-        'Демонстрационный отчёт. Цифры, оценки и найденные проблемы носят иллюстративный характер для тестирования интерфейса разработчиком.',
+        'Демонстрационный отчет. Показывает, как система выявляет слабые места сайта, мешающие продажам.',
 
-      reportCard1Cat: 'Штрафы в Испании',
-      reportCard1Title: 'Риск проверки регулятором',
-      reportCard1Desc: 'Обнаружена зона, которую стоит подробнее проверить на соответствие требованиям в Испании.',
+      reportCard1Cat: 'Защита бизнеса',
+      reportCard1Title: 'Риск штрафов от регулятора',
+      reportCard1Desc: 'На сайте не найдены официальные реквизиты компании, обязательные по законам Испании.',
       reportCard1Foot: 'Штраф до €30,000',
-      reportCard1Action: 'Сверить реквизиты компании в подвале сайта и юридических страницах.',
+      reportCard1Action: 'Добавить официальные реквизиты компании в подвал сайта.',
 
-      reportCard2Cat: 'Слив рекламы',
-      reportCard2Title: 'Потеря ~35% заявок',
-      reportCard2Desc: 'В мобильном пути клиента может быть барьер перед отправкой заявки.',
-      reportCard2Foot: 'Рекламный бюджет',
-      reportCard2Action: 'Проверить заметность WhatsApp на мобильном экране.',
+      reportCard2Cat: 'Слив бюджета',
+      reportCard2Title: 'Потеря до 35% звонков и заявок',
+      reportCard2Desc: 'Посетителям с мобильных устройств неудобно связаться с вами за 1 клик.',
+      reportCard2Foot: 'Реклама работает впустую',
+      reportCard2Action: 'Разместить заметную кнопку записи через WhatsApp на главном экране.',
 
-      reportCard3Cat: 'Карты Google',
-      reportCard3Title: 'Жалобы на недозвон',
-      reportCard3Desc: 'Есть признаки, что локальная видимость не полностью превращается в звонки и обращения.',
-      reportCard3Foot: 'Подробности',
-      reportCard3Action: 'Сверить телефон, часы работы и ссылку в карточке компании.',
+      reportCard3Cat: 'Клиенты рядом',
+      reportCard3Title: 'Потеря клиентов из Google Maps',
+      reportCard3Desc: 'Контакты или часы работы на сайте и в картах не совпадают, вызывая недоверие.',
+      reportCard3Foot: 'Доверие клиентов',
+      reportCard3Action: 'Синхронизировать телефон, адрес и рабочие часы в профиле карт.',
 
       reportLocked: 'Скрыто 🔒',
 
-      reportPurchaseBadge: 'Полный 12-страничный аудит',
-      reportPurchaseTitle: 'Откройте полный отчет с готовыми решениями',
+      reportPurchaseBadge: 'Полный аудит и план решений',
+      reportPurchaseTitle: 'Получите пошаговый план устранения всех ошибок',
       reportPurchaseDesc:
-        'Простой документ с пошаговым планом исправления всех ошибок для вашего программиста или юриста.',
-      demoPriceBadge: 'DEMO · цена для примера',
-      demoPriceNote: 'Показательная цена. Коммерческий приём платежей отключен.',
-      demoPriceButton: 'Открыть демо-отчёт (Симуляция)',
+        'Простая инструкция на понятном языке: отдайте её вашему помощнику или мастеру, чтобы вернуть потерянные заявки.',
+      demoPriceBadge: 'Специальная цена для теста',
+      demoPriceNote: 'Показательная стоимость. Приём платежей в демо-режиме отключен.',
+      demoPriceButton: 'Открыть полный отчет (Симуляция)',
       connecting: 'Подключение...',
 
       footerDisclaimer:
-        'Проект находится в стадии некоммерческой разработки и демонстрации функционала. Платежи не принимаются, услуги не оказываются.',
+        'Платформа работает в режиме демонстрации. Коммерческие расчеты не производятся.',
       footer:
-        '© 2026 Audit2Revenue.es — Сервис аудита и роста выручки сайтов в Испании.',
+        '© 2026 Audit2Revenue.es — Сервис роста заявок и защиты сайтов в Испании.',
       footerLegalNav: 'Правовая информация',
       legalNotice: 'Правовое уведомление',
-      privacyPolicy: 'Политика конфиденциальности',
-      cookiePolicy: 'Политика cookies',
-      termsOfService: 'Условия обслуживания',
+      privacyPolicy: 'Конфиденциальность',
+      cookiePolicy: 'Файлы cookie',
+      termsOfService: 'Условия сервиса',
       cookieSettings: 'Настройки cookies',
 
-      cookieTitle: 'Мы используем cookies',
+      cookieTitle: 'Мы заботимся о конфиденциальности',
       cookieText:
-        'Мы используем необходимые cookies для работы сайта и, с вашего согласия, дополнительные cookies для аналитики и улучшения сервиса.',
+        'Мы используем cookies для корректной работы сервиса и аналитики, помогающей делать диагностику точнее.',
       cookieAccept: 'Принять все',
       cookieNecessary: 'Только необходимые',
     },
 
     es: {
-      devBadge: 'PROTOTIPO · Demostración técnica no comercial (Sin actividad económica)',
+      devBadge: 'PROTOTIPO · Demostración técnica (Pagos desactivados)',
       h1_1: '¿Tu web pierde',
       h1_2: 'clientes?',
-      btn: 'Analizar',
+      btn: 'Detectar fugas',
       prev: 'Anterior',
       next: 'Siguiente',
       placeholder: 'https://tu-clinica-o-salon.es',
 
-      previewLabel: 'AI AUDIT PREVIEW',
-      previewStatus: 'DEMO · SISTEMA LISTO PARA ANALIZAR',
-      demo: 'DEMO',
+      previewLabel: 'DIAGNÓSTICO DEMO',
+      previewStatus: 'LISTO PARA ANALIZAR TU WEB',
+      demo: 'EJEMPLO',
 
-      exampleBusiness: 'Example Business',
-      scoreLabel: 'PUNTUACIÓN',
-      revenueScoreTitle: 'Índice de potencial de ingresos',
-      revenueScoreNote: 'Modelo de demostración · no es una previsión real',
-      scoreIssueTrust: 'Datos legales',
-      scoreIssueTrustDetail: 'Demo: es necesario revisar los datos fiscales de la empresa.',
-      scoreIssueContact: 'Contacto con clientes',
-      scoreIssueContactDetail: 'Demo: conviene revisar el canal de contacto rápido.',
-      scoreIssueLocal: 'Visibilidad local',
-      scoreIssueLocalDetail: 'Demo: conviene revisar el teléfono, el horario y la ficha del negocio.',
-      scoreSimulateFix: 'Simular corrección',
-      scoreUndoFix: 'Deshacer simulación',
-      scoreFixed: 'Corrección simulada',
+      exampleBusiness: 'Ejemplo: Negocio local en España',
+      scoreLabel: 'POTENCIAL COMERCIAL',
+      revenueScoreTitle: 'Índice de preparación para ventas',
+      revenueScoreNote: 'Simulación interactiva: muestra cuántos contactos se pierden cada mes',
+      scoreIssueTrust: 'Protección legal',
+      scoreIssueTrustDetail: 'Ejemplo: faltan datos legales obligatorios por normativa en España.',
+      scoreIssueContact: 'Contacto rápido',
+      scoreIssueContactDetail: 'Ejemplo: el cliente no puede reservar o escribir por WhatsApp en 1 clic.',
+      scoreIssueLocal: 'Ficha de Google Maps',
+      scoreIssueLocalDetail: 'Ejemplo: teléfono u horarios desalineados entre la web y los mapas.',
+      scoreSimulateFix: 'Resolver fallo',
+      scoreUndoFix: 'Deshacer',
+      scoreFixed: 'Fallo resuelto',
       scoreReset: 'Restablecer',
-      scorePointsRestored: 'Recuperado en la simulación',
+      scorePointsRestored: 'Potencial recuperado',
       scorePoints: 'puntos',
       scoreOutOf: 'de 100',
 
-      pitch: 'Generar pitch de WhatsApp',
-      pitchLocked: 'Disponible después del análisis',
+      pitch: 'Mensaje directo para WhatsApp',
+      pitchLocked: 'Disponible tras el análisis rápido',
 
       heroMicro:
-        'Descubre qué impide que los visitantes contacten: móvil, datos de contacto, publicidad o confianza.',
+        'Descubre qué frena a tus visitas antes de contactar: carga lenta en móvil, contacto complicado, anuncios sin control o falta de confianza.',
 
-      scanVerified: 'Verificado',
-      scanScanning: 'Analizando',
+      scanVerified: 'Correcto',
+      scanScanning: 'Comprobando...',
 
       checklist: [
         {
-          title: 'Accesibilidad y velocidad móvil',
-          discovered: '✓ El servidor responde en 160 ms, SSL TLS 1.3 activo',
+          title: 'Velocidad de carga en móviles',
+          discovered: '✓ Carga fluida en 1.6s y navegación cifrada y segura',
           type: 'ok',
         },
         {
-          title: 'Píxeles y rastreadores publicitarios',
-          discovered: '✓ Meta Pixel (Instagram) y Google Ads Tag activos',
+          title: 'Control de rentabilidad publicitaria',
+          discovered: '✓ Medición de contactos desde Instagram y Google activada',
           type: 'ok',
         },
         {
-          title: 'Conversión de tráfico móvil',
-          discovered: '⚠️ Detectado: sin botón de WhatsApp, fuga de hasta 40% de visitas',
+          title: 'Facilidad de contacto para clientes',
+          discovered: '⚠️ Sin botón de WhatsApp directo: fuga de hasta el 40% de consultas',
           type: 'warn',
         },
         {
-          title: 'Reputación y reseñas en Google Maps',
-          discovered: '✓ Nota 4.8★ (384 reseñas), quejas por falta de respuesta telefónica',
+          title: 'Ficha y opiniones en Google Maps',
+          discovered: '✓ Excelente nota 4.8★, pero se detecta riesgo de llamadas perdidas',
           type: 'warn',
         },
         {
-          title: 'Auditoría legal LSSI-CE (España)',
-          discovered: '⚠️ Crítico: texto de prueba en lugar de NIF/CIF fiscal',
+          title: 'Protección legal frente a multas en España',
+          discovered: '⚠️ Riesgo de sanción: faltan los datos fiscales y legales de la empresa',
           type: 'error',
         },
       ],
 
-      reportLabel: 'DEMO · RESULTADOS DEL ESCANEO',
-      reportTitle: 'Resultados del análisis web',
-      reportMissedRevenue: 'Ingresos perdidos: ~1.800 €/mes',
+      reportLabel: 'RESULTADOS DEL DIAGNÓSTICO',
+      reportTitle: 'Dónde pierde clientes y reservas tu negocio',
+      reportMissedRevenue: 'Ventas que se escapan: ~1.800 €/mes',
       demoReportNotice:
-        'Informe en modo demostración. Diseñado exclusivamente para pruebas de desarrollo e interfaz técnica.',
+        'Informe interactivo de demostración. Ilustra cómo el sistema identifica obstáculos reales para las ventas.',
 
-      reportCard1Cat: 'Sanciones en España',
-      reportCard1Title: 'Riesgo de sanción regulatoria',
-      reportCard1Desc: 'Hay un aspecto que conviene revisar para comprobar el cumplimiento de los requisitos en España.',
+      reportCard1Cat: 'Seguridad legal',
+      reportCard1Title: 'Riesgo de sanción económica',
+      reportCard1Desc: 'La web no muestra los datos de identificación legal exigidos a las empresas en España.',
       reportCard1Foot: 'Multa hasta 30.000 €',
-      reportCard1Action: 'Revisar los datos de empresa en el pie y las páginas legales.',
+      reportCard1Action: 'Añadir los datos fiscales de la empresa en el pie de página.',
 
-      reportCard2Cat: 'Fuga publicitaria',
-      reportCard2Title: 'Pérdida de ~35% de leads',
-      reportCard2Desc: 'El recorrido móvil del cliente puede tener una barrera antes de enviar una consulta.',
-      reportCard2Foot: 'Presupuesto publicitario',
-      reportCard2Action: 'Comprobar la visibilidad de WhatsApp en móvil.',
+      reportCard2Cat: 'Fuga de clientes',
+      reportCard2Title: 'Pérdida de hasta el 35% de citas',
+      reportCard2Desc: 'Los usuarios desde el móvil no encuentran una vía rápida para pedir cita al instante.',
+      reportCard2Foot: 'Publicidad desaprovechada',
+      reportCard2Action: 'Habilitar un botón flotante de WhatsApp con mensaje inicial.',
 
-      reportCard3Cat: 'Google Maps',
-      reportCard3Title: 'Quejas por llamadas perdidas',
-      reportCard3Desc: 'Hay señales de que la visibilidad local no se convierte del todo en llamadas y consultas.',
-      reportCard3Foot: 'Detalles',
-      reportCard3Action: 'Revisar teléfono, horario y enlace en la ficha de empresa.',
+      reportCard3Cat: 'Clientes de tu zona',
+      reportCard3Title: 'Llamadas perdidas de Google Maps',
+      reportCard3Desc: 'El horario o teléfono de la web no concuerda exactamente con la ficha de Maps.',
+      reportCard3Foot: 'Confianza del cliente',
+      reportCard3Action: 'Alinear horario comercial y teléfono en todos los canales.',
 
       reportLocked: 'Bloqueado 🔒',
 
-      reportPurchaseBadge: 'Auditoría completa de 12 páginas',
-      reportPurchaseTitle: 'Desbloquea el informe completo con soluciones',
+      reportPurchaseBadge: 'Auditoría completa y soluciones',
+      reportPurchaseTitle: 'Consigue la guía paso a paso para resolver cada fallo',
       reportPurchaseDesc:
-        'Documento claro con el plan paso a paso para resolver todos los fallos con tu programador o asesor legal.',
-      demoPriceBadge: 'DEMO · precio ilustrativo',
-      demoPriceNote: 'Precio de ejemplo. Los pagos comerciales están desactivados en esta interfaz.',
-      demoPriceButton: 'Ver informe demo (Simulación)',
+        'Un documento claro y sin tecnicismos para que tú o tu equipo corrijan cada fuga de clientes de inmediato.',
+      demoPriceBadge: 'Precio de prueba',
+      demoPriceNote: 'Importe de demostración. Los cobros están desactivados en esta versión.',
+      demoPriceButton: 'Ver informe completo (Simulación)',
       connecting: 'Conectando...',
 
       footerDisclaimer:
-        'Entorno de pruebas de desarrollo técnico. No realiza actividad mercantil ni presta servicios remunerados.',
+        'Plataforma en fase de demostración técnica. Sin actividad comercial directa.',
       footer:
-        '© 2026 Audit2Revenue.es — Servicio de auditoría y crecimiento de webs en España.',
+        '© 2026 Audit2Revenue.es — Diagnóstico de captación de clientes y cumplimiento web en España.',
       footerLegalNav: 'Información legal',
       legalNotice: 'Aviso Legal',
-      privacyPolicy: 'Política de Privacidad',
-      cookiePolicy: 'Política de Cookies',
-      termsOfService: 'Condiciones de Contratación',
-      cookieSettings: 'Configurar cookies',
+      privacyPolicy: 'Privacidad',
+      cookiePolicy: 'Cookies',
+      termsOfService: 'Condiciones de uso',
+      cookieSettings: 'Gestionar cookies',
 
-      cookieTitle: 'Utilizamos cookies',
+      cookieTitle: 'Cuidamos tu privacidad',
       cookieText:
-        'Utilizamos cookies necesarias para el funcionamiento del sitio y, con tu consentimiento, cookies adicionales para analizar y mejorar el servicio.',
+        'Utilizamos cookies esenciales para el funcionamiento de la web y análisis estadístico que nos permite mejorar el servicio.',
       cookieAccept: 'Aceptar todas',
       cookieNecessary: 'Solo necesarias',
     },
 
     en: {
-      devBadge: 'PROTOTYPE · Non-commercial technical demo (Payments disabled)',
+      devBadge: 'PROTOTYPE · Technical Preview (Payments disabled)',
       h1_1: 'Is your website losing',
       h1_2: 'customers?',
-      btn: 'Analyze',
+      btn: 'Find Leaks',
       prev: 'Previous',
       next: 'Next',
       placeholder: 'https://your-business.es',
 
-      previewLabel: 'AI AUDIT PREVIEW',
-      previewStatus: 'DEMO · SYSTEM READY TO ANALYZE',
+      previewLabel: 'DEMO DIAGNOSTICS',
+      previewStatus: 'READY TO SCAN YOUR WEBSITE',
       demo: 'DEMO',
 
-      exampleBusiness: 'Example Business',
-      scoreLabel: 'AUDIT SCORE',
-      revenueScoreTitle: 'Revenue potential index',
-      revenueScoreNote: 'Demo model · not a real revenue forecast',
-      scoreIssueTrust: 'Legal information',
-      scoreIssueTrustDetail: 'Demo: company registration details need review.',
-      scoreIssueContact: 'Customer contact',
-      scoreIssueContactDetail: 'Demo: the quick contact route needs review.',
-      scoreIssueLocal: 'Local visibility',
-      scoreIssueLocalDetail: 'Demo: phone, opening hours, and business listing need review.',
-      scoreSimulateFix: 'Simulate a fix',
-      scoreUndoFix: 'Undo simulation',
-      scoreFixed: 'Fix simulated',
+      exampleBusiness: 'Example: Local Business in Spain',
+      scoreLabel: 'SALES READINESS',
+      revenueScoreTitle: 'Sales conversion potential index',
+      revenueScoreNote: 'Interactive demo: shows how many enquiries are lost every month',
+      scoreIssueTrust: 'Protection from fines',
+      scoreIssueTrustDetail: 'Demo: mandatory business registration details required by Spanish law are missing.',
+      scoreIssueContact: 'Fast contact channel',
+      scoreIssueContactDetail: 'Demo: customers cannot easily book or start a WhatsApp chat in 1 tap.',
+      scoreIssueLocal: 'Google Maps alignment',
+      scoreIssueLocalDetail: 'Demo: phone numbers or opening hours on the site mismatch Google Maps.',
+      scoreSimulateFix: 'Fix this issue',
+      scoreUndoFix: 'Undo fix',
+      scoreFixed: 'Issue resolved',
       scoreReset: 'Reset',
-      scorePointsRestored: 'Restored in simulation',
+      scorePointsRestored: 'Potential restored',
       scorePoints: 'points',
       scoreOutOf: 'out of 100',
 
-      pitch: 'Generate WhatsApp Pitch',
-      pitchLocked: 'Available after website analysis',
+      pitch: 'Ready-to-use WhatsApp message',
+      pitchLocked: 'Available after instant scan',
 
       heroMicro:
-        'See what stops visitors from getting in touch: mobile experience, contact options, ads, or trust.',
+        'Find out why visitors leave without contacting you: slow mobile load, awkward contact options, wasted ad clicks, or missing trust.',
 
-      scanVerified: 'Checked',
-      scanScanning: 'Scanning',
+      scanVerified: 'Passed',
+      scanScanning: 'Checking...',
 
       checklist: [
         {
-          title: 'Accessibility & Mobile Speed',
-          discovered: '✓ Server responds in 160ms, SSL TLS 1.3 active',
+          title: 'Mobile loading speed',
+          discovered: '✓ Fast 1.6s load, secure connection active',
           type: 'ok',
         },
         {
-          title: 'Ad Trackers & Pixels',
-          discovered: '✓ Meta Pixel (Instagram) and Google Ads Tag active',
+          title: 'Ad spend accountability',
+          discovered: '✓ Lead tracking for Instagram and Google ads is active',
           type: 'ok',
         },
         {
-          title: 'Mobile Traffic Conversion',
-          discovered: '⚠️ Detected: No WhatsApp button, losing up to 40% of leads',
+          title: 'Customer contact convenience',
+          discovered: '⚠️ No direct WhatsApp button — up to 40% of enquiries are lost',
           type: 'warn',
         },
         {
-          title: 'Reputation & Google Maps Reviews',
-          discovered: '✓ Rating 4.8★ (384 reviews), complaints about unanswered calls',
+          title: 'Google Maps listing & reviews',
+          discovered: '✓ Great 4.8★ rating, but risk of unanswered calls detected',
           type: 'warn',
         },
         {
-          title: 'Legal Compliance LSSI-CE (Spain)',
-          discovered: '⚠️ Critical: placeholder text instead of legal tax NIF/CIF',
+          title: 'Legal compliance & fines in Spain',
+          discovered: '⚠️ Fine risk: mandatory business registration details missing from site',
           type: 'error',
         },
       ],
 
-      reportLabel: 'DEMO · SCAN RESULTS',
-      reportTitle: 'Website Audit Results',
-      reportMissedRevenue: 'Missed revenue: ~€1,800/mo',
+      reportLabel: 'INSTANT SCAN REPORT',
+      reportTitle: 'Where your website is losing potential buyers',
+      reportMissedRevenue: 'Lost bookings: ~€1,800/mo',
       demoReportNotice:
-        'Demo report. Exclusively intended for technical development and UI testing purposes.',
+        'Demonstration report. Illustrates how the system pinpoints friction points that hold back real sales.',
 
-      reportCard1Cat: 'Fines in Spain',
-      reportCard1Title: 'Regulatory Penalty Risk',
-      reportCard1Desc: 'A potential compliance issue needs a closer review against requirements in Spain.',
+      reportCard1Cat: 'Legal Safety',
+      reportCard1Title: 'Regulatory fine risk',
+      reportCard1Desc: 'Mandatory company identification details required under Spanish law are missing.',
       reportCard1Foot: 'Fines up to €30,000',
-      reportCard1Action: 'Check the company details in the footer and legal pages.',
+      reportCard1Action: 'Add official company details to the footer.',
 
-      reportCard2Cat: 'Ad Leak',
-      reportCard2Title: 'Losing ~35% of Leads',
-      reportCard2Desc: 'The mobile customer journey may contain friction before a visitor sends an enquiry.',
-      reportCard2Foot: 'Advertising Budget',
-      reportCard2Action: 'Check that WhatsApp is easy to find on mobile.',
+      reportCard2Cat: 'Leaking Leads',
+      reportCard2Title: 'Losing up to 35% of bookings',
+      reportCard2Desc: 'Mobile users hit unnecessary friction before they can send an enquiry.',
+      reportCard2Foot: 'Wasted ad budget',
+      reportCard2Action: 'Add a high-visibility 1-tap WhatsApp button to the screen.',
 
-      reportCard3Cat: 'Google Maps',
-      reportCard3Title: 'Unanswered Call Complaints',
-      reportCard3Desc: 'Some local-search activity may not be translating fully into calls and enquiries.',
-      reportCard3Foot: 'Details',
-      reportCard3Action: 'Check the phone, hours, and website link on the business listing.',
+      reportCard3Cat: 'Local Demand',
+      reportCard3Title: 'Missed calls from Google Maps',
+      reportCard3Desc: 'Phone number or working hours on the site do not match Google Maps.',
+      reportCard3Foot: 'Customer trust',
+      reportCard3Action: 'Synchronize working hours, phone, and address across all channels.',
 
       reportLocked: 'Locked 🔒',
 
-      reportPurchaseBadge: 'Complete 12-page Audit',
-      reportPurchaseTitle: 'Unlock the full report with actionable fixes',
+      reportPurchaseBadge: 'Full action plan & fixes',
+      reportPurchaseTitle: 'Unlock the clear step-by-step fix guide',
       reportPurchaseDesc:
-        'A clear step-by-step blueprint to fix all issues with your web developer or legal counsel.',
-      demoPriceBadge: 'DEMO · illustrative price',
-      demoPriceNote: 'Example price. Commercial payment processing is disabled in this interface.',
+        'A plain-English guide you can hand directly to your assistant or web manager to recover lost enquiries.',
+      demoPriceBadge: 'Special demo pricing',
+      demoPriceNote: 'Illustrative price. Payment processing is disabled in demo mode.',
       demoPriceButton: 'View demo report (Simulation)',
       connecting: 'Connecting...',
 
       footerDisclaimer:
-        'Technical prototype and developer sandbox. No commercial services are provided and no payments are accepted.',
+        'Platform is currently in technical preview mode. No commercial services are billed.',
       footer:
-        '© 2026 Audit2Revenue.es — Website audit and revenue growth service in Spain.',
-      footerLegalNav: 'Legal information',
+        '© 2026 Audit2Revenue.es — Website audit and customer acquisition service in Spain.',
+      footerLegalNav: 'Legal info',
       legalNotice: 'Legal Notice',
       privacyPolicy: 'Privacy Policy',
       cookiePolicy: 'Cookie Policy',
       termsOfService: 'Terms of Service',
       cookieSettings: 'Cookie settings',
 
-      cookieTitle: 'We use cookies',
+      cookieTitle: 'We value your privacy',
       cookieText:
-        'We use necessary cookies to operate the website and, with your consent, additional cookies to analyze and improve the service.',
+        'We use essential cookies to run the site and analytical cookies to help improve diagnostic accuracy.',
       cookieAccept: 'Accept all',
       cookieNecessary: 'Necessary only',
     },
   }[lang];
 
+  // УПРОЩЕННЫЙ, ЛАКОНИЧНЫЙ ТЕКСТ ДЛЯ БЛОКА КАРТОЧЕК БЕЗ ТЕРМИНОВ И АББРЕВИАТУР
   const landingCopy = {
     ru: {
-      eyebrow: 'Аудит сайта · Испания',
-      insightTitle: 'Каждый клик должен вести к клиенту.',
-      insightIntro: '3 критические точки, где сайт в Испании теряет заявки, доверие и рекламу.',
-      insightLead: ['Находим', 'узкие места', 'и показываем', 'что исправить.'],
-      auditTitle: '3 опоры коммерческого аудита',
-      findingsEyebrow: 'Пример находки',
-      findingsTitle: 'Пример: что показывает отчёт',
-      findingsDemoNote: 'Демонстрационные примеры, не результаты проверки вашего сайта.',
-      sampleActionLabel: 'Пример следующего шага',
-      cardsSectionBadge: 'Диагностика воронки',
+      eyebrow: 'Проверка сайтов в Испании',
+      insightTitle: 'Каждый визит должен приносить клиента.',
+      insightIntro: '3 главные причины, почему сайт не приносит звонки и заявки:',
+      insightLead: ['Находим', 'утечки клиентов', 'и показываем', 'что исправить.'],
+      auditTitle: '3 фактора продаж',
+      findingsEyebrow: 'Пример проверки',
+      findingsTitle: 'Что показывает отчет',
+      findingsDemoNote: 'Демо-пример для оценки работы системы.',
+      sampleActionLabel: 'Что нужно сделать',
+      cardsSectionBadge: '3 точки потери денег',
       insights: [
         {
           number: '01',
-          badge: 'Скорость & LSSI-CE',
-          title: 'Техническое состояние',
-          headline: 'Мобильный отклик и закон Испании',
-          description: 'Клиент уходит через 3 секунды ожидания. А без NIF/CIF в футере грозят штрафы AEPD.',
+          badge: 'Скорость и закон',
+          title: 'Сайт и безопасность',
+          headline: 'Сайт должен открываться мгновенно',
+          description: 'Если страница грузится дольше 3 секунд, клиент уходит. А без реквизитов компании грозит штраф.',
           checks: [
-            { label: 'Core Web Vitals', desc: 'Загрузка до 2.2с на 4G, сервер TTFB < 200ms' },
-            { label: 'Закон LSSI-CE & RGPD', desc: 'Обязательный NIF/CIF, Aviso Legal и cookies' },
-            { label: 'SSL TLS 1.3 и 404', desc: 'Безопасное соединение и ноль битых ссылок' },
+            { label: 'Быстрота', desc: 'Открывается на смартфоне за пару секунд' },
+            { label: 'Защита', desc: 'Все данные компании на месте (без риска штрафов)' },
+            { label: 'Порядок', desc: 'Все ссылки и кнопки работают без ошибок' },
           ],
-          impact: 'Штрафы до €30.000 и 53% отказов при медленной загрузке.',
+          impact: 'Штрафы до €30.000 и уход клиентов из-за долгой загрузки.',
         },
         {
           number: '02',
-          badge: 'WhatsApp & Лиды',
-          title: 'Путь к обращению',
-          headline: 'Запись в клинику или салон в 1 клик',
-          description: 'В Испании 80%+ локальных заявок идут через мессенджер. Длинные формы убивают конверсию.',
+          badge: 'Связь и запись',
+          title: 'Удобство для клиента',
+          headline: 'Запись или звонок в 1 касание',
+          description: 'Клиенты не хотят заполнять длинные анкеты. Им намного проще сразу написать вам в WhatsApp.',
           checks: [
-            { label: 'Прямой WhatsApp (wa.me)', desc: 'Заметная кнопка чата с шаблоном обращения' },
-            { label: 'Кликабельный tel:', desc: 'Вызов в 1 тап без ручного копирования номера' },
-            { label: 'Cita Previa и график', desc: 'Понятные часы работы без барьеров записи' },
+            { label: 'WhatsApp', desc: 'Кнопка чата на виду с готовым приветствием' },
+            { label: 'Звонок', desc: 'Набор номера сразу в 1 клик без ручного ввода' },
+            { label: 'График', desc: 'Понятные часы работы без лишней путаницы' },
           ],
-          impact: 'Потеря до 40% обращений при отсутствии WhatsApp.',
+          impact: 'До 40% клиентов уходят, если нет быстрой связи в чате.',
         },
         {
           number: '03',
-          badge: 'Meta Ads & Google Maps',
-          title: 'Реклама и спрос',
-          headline: 'Окупаемость кликов и Google Maps',
-          description: 'Реклама без пикселей крутится вслепую, а несовпадение телефона с картами лишает звонков.',
+          badge: 'Реклама и карты',
+          title: 'Приток клиентов',
+          headline: 'Окупаемость каждого клика',
+          description: 'Реклама должна приводить реальных людей, а телефон на картах Google — совпадать с сайтом.',
           checks: [
-            { label: 'Meta Pixel & GA4', desc: 'Корректная фиксация лидов с рекламы' },
-            { label: 'Google Business Profile', desc: 'Сверка телефона, адреса и часов с картами' },
-            { label: 'Schema LocalBusiness', desc: 'Локальная микроразметка для выдачи в городе' },
+            { label: 'Контроль', desc: 'Видно, какая реклама окупается, а какая впустую' },
+            { label: 'Карты Google', desc: 'Точный телефон и адрес, чтобы клиент дозвонился' },
+            { label: 'Поиск рядом', desc: 'Вас легко находят те, кто ищет услуги поблизости' },
           ],
-          impact: 'Слив 30–50% бюджета на рекламу без трекинга лидов.',
+          impact: 'До 50% рекламного бюджета сгорает без учета звонков.',
         },
       ],
     },
     es: {
-      eyebrow: 'Auditoría web · España',
-      insightTitle: 'Cada clic debería acercar un cliente.',
-      insightIntro: '3 puntos críticos donde una web en España pierde clientes y presupuesto.',
-      insightLead: ['Detectamos', 'obstáculos', 'y explicamos', 'cómo resolverlos.'],
-      auditTitle: 'Los 3 pilares del análisis',
-      findingsEyebrow: 'Ejemplo de hallazgo',
-      findingsTitle: 'Ejemplo: qué muestra el informe',
-      findingsDemoNote: 'Casos demostrativos para previsualización técnica.',
-      sampleActionLabel: 'Ejemplo de siguiente paso',
-      cardsSectionBadge: 'Diagnóstico del embudo',
+      eyebrow: 'Auditoría web en España',
+      insightTitle: 'Cada clic debe traer un cliente.',
+      insightIntro: '3 motivos por los que tu web no genera suficientes llamadas y reservas:',
+      insightLead: ['Detectamos', 'las fugas', 'y explicamos', 'cómo resolverlas.'],
+      auditTitle: '3 pilares de ventas',
+      findingsEyebrow: 'Ejemplo de análisis',
+      findingsTitle: 'Qué muestra el informe',
+      findingsDemoNote: 'Ejemplo ilustrativo del sistema.',
+      sampleActionLabel: 'Solución recomendada',
+      cardsSectionBadge: '3 puntos de fuga',
       insights: [
         {
           number: '01',
-          badge: 'Velocidad & Legalidad',
-          title: 'Estado técnico',
-          headline: 'Rendimiento móvil y leyes en España',
-          description: 'El usuario se va en 3s. Sin NIF/CIF o Aviso Legal visible, la AEPD aplica sanciones.',
+          badge: 'Velocidad y Ley',
+          title: 'Web y seguridad',
+          headline: 'La web debe abrir al instante',
+          description: 'Si tarda más de 3 segundos, la visita se va. Y sin datos de la empresa, te arriesgas a multas.',
           checks: [
-            { label: 'Core Web Vitals', desc: 'Carga < 2.2s en 4G/5G y TTFB óptimo' },
-            { label: 'LSSI-CE y RGPD', desc: 'NIF/CIF reglamentario, Aviso Legal y cookies' },
-            { label: 'SSL TLS 1.3', desc: 'Cifrado seguro y sin enlaces rotos (404)' },
+            { label: 'Rapidez', desc: 'Abre en el móvil en un par de segundos' },
+            { label: 'Sin multas', desc: 'Datos fiscales y legales en regla en España' },
+            { label: 'Sin fallos', desc: 'Navegación segura y sin enlaces rotos' },
           ],
-          impact: 'Multas de hasta 30.000 € y rebote del 53% en móvil.',
+          impact: 'Multas de hasta 30.000 € y visitas perdidas por lentitud.',
         },
         {
           number: '02',
-          badge: 'WhatsApp & Leads',
-          title: 'Camino al contacto',
-          headline: 'De la visita a la cita en 1 solo clic',
-          description: 'En España el 80% de consultas locales se cierran por chat. Los formularios extensos ahuyentan.',
+          badge: 'WhatsApp y Citas',
+          title: 'Facilidad de contacto',
+          headline: 'Pedir cita o llamar en 1 toque',
+          description: 'Nadie quiere formularios largos. La mayoría de clientes prefieren escribir directamente por WhatsApp.',
           checks: [
-            { label: 'WhatsApp directo (wa.me)', desc: 'Botón flotante con mensaje inicial preparado' },
-            { label: 'Teléfono clicable (tel:)', desc: 'Llamada directa sin copiar el número' },
-            { label: 'Cita previa clara', desc: 'Horario comercial visible sin pasos innecesarios' },
+            { label: 'WhatsApp', desc: 'Botón directo en pantalla con mensaje listo' },
+            { label: 'Llamada', desc: 'Marcación directa al tocar el teléfono' },
+            { label: 'Horario', desc: 'Horas de atención claras y sin dudas' },
           ],
-          impact: 'Fuga de hasta 40% de contactos sin WhatsApp directo.',
+          impact: 'Hasta un 40% de consultas perdidas sin chat directo.',
         },
         {
           number: '03',
-          badge: 'Meta Ads & Maps',
-          title: 'Publicidad y demanda',
-          headline: 'ROI en anuncios y ficha de Maps',
-          description: 'Pagar publicidad sin píxeles es quemar dinero; datos dispares con Maps destruyen confianza.',
+          badge: 'Publicidad y Maps',
+          title: 'Captación de clientes',
+          headline: 'Rentabilidad de cada clic',
+          description: 'Tus anuncios deben traer clientes reales y los datos en Google Maps deben coincidir.',
           checks: [
-            { label: 'Meta Pixel & GA4', desc: 'Registro exacto de conversiones de anuncios' },
-            { label: 'Google Business Profile', desc: 'Coincidencia de teléfono, horario y web' },
-            { label: 'Schema LocalBusiness', desc: 'Microdatos para posicionar por ciudad o zona' },
+            { label: 'Control', desc: 'Claridad sobre qué anuncio genera ventas' },
+            { label: 'Google Maps', desc: 'Mismo teléfono y dirección para no perder llamadas' },
+            { label: 'En tu zona', desc: 'Aparece ante quienes buscan servicios cerca' },
           ],
-          impact: '30% a 50% de inversión en Ads perdida sin trazabilidad.',
+          impact: 'Hasta la mitad del presupuesto en anuncios se pierde sin control.',
         },
       ],
     },
     en: {
-      eyebrow: 'Website audit · Spain',
-      insightTitle: 'Every click should lead to a customer.',
-      insightIntro: 'The 3 critical leaks where businesses in Spain lose leads, trust, and ad spend.',
-      insightLead: ['Find', 'the friction', 'and see', 'what to fix.'],
-      auditTitle: '3 Pillars of Audit',
+      eyebrow: 'Website Audit · Spain',
+      insightTitle: 'Every click should bring a client.',
+      insightIntro: 'Three main reasons why your website fails to generate calls and bookings:',
+      insightLead: ['Find', 'the leaks', 'and see', 'how to fix them.'],
+      auditTitle: '3 Conversion Pillars',
       findingsEyebrow: 'Sample finding',
-      findingsTitle: 'Example: what the report shows',
-      findingsDemoNote: 'Demo model for interface testing purposes.',
-      sampleActionLabel: 'Example next step',
-      cardsSectionBadge: 'Funnel diagnostics',
+      findingsTitle: 'What the report reveals',
+      findingsDemoNote: 'Demo model for preview purposes.',
+      sampleActionLabel: 'Recommended action',
+      cardsSectionBadge: '3 revenue leaks',
       insights: [
         {
           number: '01',
-          badge: 'Speed & Compliance',
-          title: 'Technical Health',
-          headline: 'Mobile speed & Spanish regulations',
-          description: 'Visitors bounce after 3 seconds. Missing NIF/CIF tax IDs risks AEPD penalties.',
+          badge: 'Speed & Safety',
+          title: 'Website & Safety',
+          headline: 'Your site must open instantly',
+          description: 'Visitors leave if it takes over 3 seconds. And missing business details invites heavy fines in Spain.',
           checks: [
-            { label: 'Core Web Vitals', desc: 'Mobile load under 2.2s on 4G, fast TTFB' },
-            { label: 'LSSI-CE & GDPR', desc: 'Mandatory NIF/CIF, Legal Notice & cookie consent' },
-            { label: 'SSL TLS 1.3', desc: 'Strict HTTPS encryption and zero 404 dead ends' },
+            { label: 'Mobile speed', desc: 'Loads on phones in a couple of seconds' },
+            { label: 'Fine protection', desc: 'Mandatory company details clearly in place' },
+            { label: 'Zero errors', desc: 'Secure browsing and no broken pages' },
           ],
-          impact: 'Fines up to €30,000 and 53% bounced visitors on slow mobile.',
+          impact: 'Fines up to €30,000 and lost visitors on slow mobile.',
         },
         {
           number: '02',
-          badge: 'WhatsApp & Leads',
-          title: 'Path to Contact',
-          headline: 'Slashing friction to booking in 1 tap',
-          description: '80%+ of Spanish local clients book via chat. Complex enquiry forms kill conversions.',
+          badge: 'WhatsApp & Booking',
+          title: 'Effortless Contact',
+          headline: 'Booking and calling in 1 tap',
+          description: 'Nobody wants long enquiry forms. Clients simply want to chat on WhatsApp or call.',
           checks: [
-            { label: 'Direct WhatsApp (wa.me)', desc: 'Prominent chat button with pre-filled message' },
-            { label: 'Click-to-Call (tel:)', desc: 'Direct phone dialling without manual copying' },
-            { label: 'Appointment Clarity', desc: 'Transparent hours and low-friction booking' },
+            { label: 'WhatsApp', desc: 'Clear chat button with pre-written message' },
+            { label: 'Click to call', desc: 'Phone dials instantly without manual typing' },
+            { label: 'Clear hours', desc: 'Transparent opening hours with no confusion' },
           ],
-          impact: 'Up to 40% lost enquiries when direct WhatsApp is absent.',
+          impact: 'Up to 40% of leads lost without instant messaging.',
         },
         {
           number: '03',
-          badge: 'Meta Ads & Maps',
-          title: 'Ads & Local Demand',
-          headline: 'Ad accountability and Google Maps alignment',
-          description: 'Ads without tracking leak budget; mismatched Google Maps phone numbers kill calls.',
+          badge: 'Ads & Google Maps',
+          title: 'Client Acquisition',
+          headline: 'Make every click pay off',
+          description: 'Ads should bring paying clients, and your Google Maps info must match your website.',
           checks: [
-            { label: 'Meta Pixel & GA4', desc: 'Accurate tracking for Facebook and Google Ads' },
-            { label: 'Google Business Profile', desc: 'Consistent phone, hours, and URL with Maps' },
-            { label: 'Schema LocalBusiness', desc: 'Structured data to dominate local search' },
+            { label: 'Tracking', desc: 'See which ads bring clients and which waste cash' },
+            { label: 'Google Maps', desc: 'Matching phone and address so callers reach you' },
+            { label: 'Local search', desc: 'Stand out to people looking for services nearby' },
           ],
-          impact: '30% to 50% of ad spend wasted when attribution is blind.',
+          impact: 'Up to 50% of ad spend wasted without lead tracking.',
         },
       ],
     },
@@ -920,7 +921,6 @@ export default function AppleNordicGlacierPureLanding() {
       </div>
 
       {variant === 'compact' && (
-        /* min-h гарантирует, что список кнопок сохраняет свой размер */
         <div className="a2r-score-issues min-h-[180px] sm:min-h-[200px] flex flex-col justify-between" aria-label={t.revenueScoreTitle}>
           {demoScoreIssues.map((issue) => {
             const simulatedFixed = resolvedDemoIssues.includes(issue.id);
@@ -1411,6 +1411,7 @@ export default function AppleNordicGlacierPureLanding() {
           z-index: 0;
           pointer-events: none;
           transform-origin: center;
+        
           background: conic-gradient(
             from 0deg,
             transparent 0deg 235deg,
@@ -1419,16 +1420,37 @@ export default function AppleNordicGlacierPureLanding() {
             #7DD3FC 330deg,
             transparent 360deg
           );
+        
           opacity: 0.9;
-          animation: input-border-travel 4s linear infinite;
+        
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+        
+          -webkit-animation: input-border-travel 4s
+            cubic-bezier(0.65, 0, 0.35, 1) infinite;
+          animation: input-border-travel 4s
+            cubic-bezier(0.65, 0, 0.35, 1) infinite;
         }
         .animated-input-border:focus-within {
           background: rgba(2, 132, 199, 0.16);
           box-shadow: 0 0 0 1px rgba(2, 132, 199, 0.12), 0 0 22px rgba(2, 132, 199, 0.12);
         }
+        @-webkit-keyframes input-border-travel {
+          from {
+            -webkit-transform: translate3d(0, 0, 0) rotate(0deg);
+          }
+          to {
+            -webkit-transform: translate3d(0, 0, 0) rotate(360deg);
+          }
+        }
+        
         @keyframes input-border-travel {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: translate3d(0, 0, 0) rotate(0deg);
+          }
+          to {
+            transform: translate3d(0, 0, 0) rotate(360deg);
+          }
         }
 
         .audit-card-perspective {
@@ -1446,7 +1468,6 @@ export default function AppleNordicGlacierPureLanding() {
           transform-origin: center center;
           transition: transform 120ms linear;
         }
-        /* Фиксируем минимальную высоту оболочки превью и 3D-карточки */
         .landing-preview {
           min-height: 480px;
         }
@@ -1470,7 +1491,6 @@ export default function AppleNordicGlacierPureLanding() {
           }
         }
 
-        /* Заставляем внутреннее содержимое заполнять всю высоту без сжатия */
         .audit-card-content {
           display: flex;
           flex-direction: column;
@@ -1479,7 +1499,6 @@ export default function AppleNordicGlacierPureLanding() {
           flex: 1 1 auto;
         }
 
-        /* Стабилизируем блок с кнопками проблем */
         .a2r-score-issues {
           min-height: 180px;
           display: flex;
@@ -1576,11 +1595,9 @@ export default function AppleNordicGlacierPureLanding() {
                   <div className="audit-card-shadow" />
                   <div className="absolute -inset-4 rounded-[30px] bg-[#0284C7]/8 blur-xl pointer-events-none" />
 
-                  {/* Добавлены min-h, flex flex-col justify-between */}
                   <div className="audit-card-shell relative overflow-hidden rounded-[22px] sm:rounded-[26px] bg-white border border-[#D5E1E9] shadow-[0_16px_50px_rgba(15,39,68,0.12)] min-h-[480px] sm:min-h-[520px] flex flex-col justify-between">
                     <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#7DD3FC] to-transparent z-[60]" />
                     
-                    {/* Контент теперь растянут на 100% высоты с аккуратным распределением */}
                     <div className="audit-card-content px-3.5 py-3 sm:px-5 sm:py-4 flex-1 flex flex-col justify-between h-full">
                       <div className="audit-card-depth flex items-center justify-between gap-2.5">
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
@@ -1612,10 +1629,8 @@ export default function AppleNordicGlacierPureLanding() {
 
                       <div className="audit-card-depth h-px bg-[#E5EDF2] my-2 sm:my-3" />
                       
-                      {/* Панель со скором и кнопками */}
                       {renderScorePanel('compact')}
 
-                      {/* Нижняя заблокированная плашка всегда прижата к низу */}
                       <div className="audit-card-depth-strong a2r-locked-feature mt-2">
                         <span className="a2r-locked-feature-icon"><MessageCircle aria-hidden="true" /></span>
                         <span className="a2r-locked-feature-copy">
@@ -1631,17 +1646,17 @@ export default function AppleNordicGlacierPureLanding() {
             </div>
 
             <div className="landing-copy-column">
-            <div className="landing-heading hero-reveal hero-reveal-heading w-full space-y-2 mb-2 sm:mb-4">
-  <p className="landing-eyebrow">{landingCopy.eyebrow}</p>
-  <h1 className="landing-title overflow-visible">
-    <span className={`landing-title-ink inline-block pe-1.5 overflow-hidden ${revealStep >= 1 ? 'anim-line-1' : 'hero-pending'}`}>
-      {t.h1_1}
-    </span>{' '}
-    <span className={`landing-title-accent inline-block pe-2 -me-2 overflow-visible ${revealStep >= 2 ? 'anim-line-2' : 'hero-pending'}`}>
-      {t.h1_2}
-    </span>
-  </h1>
-</div>
+              <div className="landing-heading hero-reveal hero-reveal-heading w-full space-y-2 mb-2 sm:mb-4">
+                <p className="landing-eyebrow">{landingCopy.eyebrow}</p>
+                <h1 className="landing-title overflow-visible">
+                  <span className={`landing-title-ink inline-block pe-1.5 overflow-hidden ${revealStep >= 1 ? 'anim-line-1' : 'hero-pending'}`}>
+                    {t.h1_1}
+                  </span>{' '}
+                  <span className={`landing-title-accent inline-block pe-2 -me-2 overflow-visible ${revealStep >= 2 ? 'anim-line-2' : 'hero-pending'}`}>
+                    {t.h1_2}
+                  </span>
+                </h1>
+              </div>
 
               <p
                 className={`landing-copy hero-reveal hero-reveal-copy text-[15px] sm:text-base text-[#596B7A] mb-4 sm:mb-6 transition-all duration-700 ${
@@ -1671,7 +1686,7 @@ export default function AppleNordicGlacierPureLanding() {
                       <input
                         type="text"
                         required
-                        aria-label={lang === 'ru' ? 'Адрес сайта для диагностики' : lang === 'es' ? 'Dirección web para analizar' : 'Website address to scan'}
+                        aria-label={lang === 'ru' ? 'Адрес сайта для проверки' : lang === 'es' ? 'Dirección web para analizar' : 'Website address to scan'}
                         inputMode="url"
                         autoCapitalize="none"
                         autoCorrect="off"
@@ -1826,7 +1841,7 @@ export default function AppleNordicGlacierPureLanding() {
                 </div>
               </div>
 
-              {/* ПОСЛЕДОВАТЕЛЬНЫЙ ЧЕКЛИСТ С АНИМАЦИЕЙ ПОДЪЕМА ПО ОСИ Y (В ТОМ ЖЕ БЛОКЕ) */}
+              {/* ПОСЛЕДОВАТЕЛЬНЫЙ ЧЕКЛИСТ С АНИМАЦИЕЙ */}
               <div className="space-y-2.5 pt-3 border-t border-slate-100">
                 {scanChecklist.map((item, idx) => {
                   const stepThreshold = (idx + 1) * 20;
