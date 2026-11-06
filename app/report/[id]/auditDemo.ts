@@ -1,6 +1,5 @@
 // lib/auditDemo.ts
-// Единый источник демо-данных: лендинг (тизер) и страница отчёта читают отсюда,
-// поэтому индекс и суммы совпадают на каждом шаге воронки.
+// Единый источник демонстрационных данных для тизера и страницы отчёта.
 // Когда появится бэкенд, заменяется только getDemoChecks: он начнёт возвращать
 // проверки из API, а остальной код не изменится.
 
@@ -13,115 +12,97 @@ export const DEMO = {
   price: 900,
   adLossMin: 1200,
   adLossMax: 1600,
-  leadLossPct: 40,
   titular: 'Dra. Esther González de la Vega',
 };
 
-// 14 проверок: 5 — «Закон и техника» (01), 4 — «WhatsApp и запись» (02), 5 — «Реклама и карты» (03)
+// Демонстрационные проверки сайта и точек, которые могут мешать обращениям.
 export function getDemoChecks(lang: Lang): Check[] {
   const tr = (ru: string, es: string, en: string) => (lang === 'ru' ? ru : lang === 'es' ? es : en);
   const titular = DEMO.titular;
 
   return [
-    // ───── 01 Закон и техника ─────
+    // ───── 01 Данные компании и безопасность ─────
     {
       id: 'lssi-cif',
       pillar: '01',
       status: 'critical',
-      title: tr('Публикация NIF/CIF (ст. 10 Ley LSSI-CE)', 'Publicación NIF/CIF (art. 10 Ley LSSI-CE)', 'NIF/CIF Publication (Art. 10 LSSI-CE)'),
-      metric: tr('Штраф до €30,000', 'Multa hasta 30.000 €', 'Fines up to €30,000'),
+      title: tr('Данные компании в правовой информации', 'Datos de la empresa en la información legal', 'Business details in the legal information'),
+      metric: tr('Возможный правовой риск', 'Posible riesgo legal', 'Possible legal risk'),
       desc: tr(
-        'В футере Aviso Legal оставлена тестовая заглушка темы без фискального CIF/NIF. Прямое нарушение требований AEPD.',
-        'En el Aviso Legal figura una plantilla sin el CIF/NIF de la empresa. Infracción directamente sancionable por la AEPD.',
-        'Legal notice footer holds developer placeholder text without tax NIF/CIF. Direct violation of AEPD requirements.'
+        'В правовой информации сайта не указаны регистрационные данные компании.',
+        'En la información legal de la web no aparecen los datos de identificación de la empresa.',
+        'The website legal information does not show the company identification details.'
       ),
       action: tr(
-        'Прописать официальный CIF компании в Aviso Legal и футере.',
-        'Añadir el CIF legal de la sociedad en pie y Aviso Legal.',
-        'Add official corporate tax CIF into footer and Legal Notice.'
+        'Добавить необходимые данные компании в правовую информацию сайта.',
+        'Añadir los datos necesarios de la empresa en la información legal de la web.',
+        'Add the required company details to the website legal information.'
       ),
     },
     {
       id: 'ssl-security',
       pillar: '01',
       status: 'ok',
-      title: 'SSL / TLS 1.3 Encryption',
-      metric: tr('Защищено (TLS 1.3)', 'Protegido (TLS 1.3)', 'Secure (TLS 1.3)'),
+      title: tr('Защищённое соединение', 'Conexión segura', 'Secure connection'),
+      metric: tr('Защищено', 'Protegida', 'Protected'),
       desc: tr(
-        'Соединение зашифровано современным сертификатом, HTTPS активен на всех страницах.',
-        'Conexión cifrada con certificado moderno, HTTPS activo en todo el dominio.',
-        'Modern encrypted connection, strict HTTPS active across all pages.'
+        'Сайт использует защищённое соединение.',
+        'La web utiliza una conexión segura.',
+        'The website uses a secure connection.'
       ),
-      action: tr('Поддерживать автообновление SSL.', 'Mantener renovación automática de SSL.', 'Keep SSL auto-renewal active.'),
+      action: tr('Следить, чтобы соединение оставалось защищённым.', 'Mantener la conexión protegida.', 'Keep the connection secure.'),
     },
     {
       id: 'cookie-banner',
       pillar: '01',
       status: 'warning',
-      title: tr('Политика согласия Cookies (Guía AEPD)', 'Gestor de Cookies (Guía AEPD)', 'Cookie Consent Banner (AEPD Guide)'),
-      metric: tr('Неполный отказ', 'Rechazo incompleto', 'Incomplete Opt-out'),
+      title: tr('Настройки файлов cookie', 'Aviso de cookies', 'Cookie choices'),
+      metric: tr('Не все варианты показаны', 'Faltan opciones', 'Some choices are missing'),
       desc: tr(
-        'Баннер не содержит равнозначной кнопки «Отклонить все» на первом уровне, что противоречит директивам AEPD.',
-        'El banner carece de botón visible de "Rechazar todo" en primera capa, contraviniendo la guía de la AEPD.',
-        'Cookie banner lacks a direct "Reject all" button on the first layer, breaching AEPD guidelines.'
+        'Посетителю сложно отказаться от необязательных файлов cookie.',
+        'A los visitantes les cuesta rechazar las cookies no esenciales.',
+        'Visitors may find it hard to reject optional cookies.'
       ),
       action: tr(
-        'Добавить кнопку отказа от cookies первого уровня.',
-        'Añadir botón de rechazo en la primera capa del banner.',
-        'Add equal 1-click reject button on the first layer.'
-      ),
-    },
-    {
-      id: 'ttfb-speed',
-      pillar: '01',
-      status: 'ok',
-      title: tr('Отклик сервера (TTFB & Core Web Vitals)', 'Respuesta del servidor (TTFB)', 'Server Response (TTFB & Web Vitals)'),
-      metric: tr('160 мс (отлично)', '160 ms (excelente)', '160 ms (excellent)'),
-      desc: tr(
-        'Сервер в Испании отвечает за 160 мс, кэширование Elementor настроено корректно.',
-        'El servidor responde en 160 ms con caché de Elementor bien configurada.',
-        'Server in Spain responds in 160ms, Elementor caching configured properly.'
-      ),
-      action: tr(
-        'Оптимизировать сжатие WebP для новых фото.',
-        'Mantener compresión WebP en nuevas imágenes.',
-        'Maintain WebP compression on new media.'
+        'Добавить заметную кнопку отказа от необязательных файлов cookie.',
+        'Añadir un botón visible para rechazar las cookies no esenciales.',
+        'Add a clear button to reject optional cookies.'
       ),
     },
     {
       id: 'mixed-content',
       pillar: '01',
       status: 'critical',
-      title: tr('Смешанный контент HTTP/HTTPS', 'Contenido mixto HTTP/HTTPS', 'Mixed content HTTP/HTTPS'),
-      metric: tr('Предупреждение в Safari', 'Aviso "No seguro" en iOS', 'Warning in Safari iOS'),
+      title: tr('Небезопасные изображения на сайте', 'Imágenes no seguras en la web', 'Unsafe images on the website'),
+      metric: tr('Предупреждение в браузере', 'Aviso en el navegador', 'Browser warning'),
       desc: tr(
-        '3 изображения галереи подгружаются по http://, вызывая значок «Небезопасно» на iPhone.',
-        '3 imágenes de la galería cargan por http://, mostrando advertencia en Safari móvil.',
-        '3 gallery assets load via http://, triggering "Not secure" badges on mobile Safari.'
+        'Некоторые изображения загружаются через незащищённое соединение, что может вызвать предупреждение в браузере.',
+        'Algunas imágenes se cargan mediante una conexión no segura y pueden mostrar un aviso en el navegador.',
+        'Some images use an unsecure connection and may trigger a browser warning.'
       ),
       action: tr(
-        'Заменить ссылки http:// в базе данных через Search & Replace.',
-        'Ejecutar Search & Replace para forzar URLs relativas https://.',
-        'Run database Search & Replace to enforce https:// URLs.'
+        'Заменить ссылки на изображения, чтобы они открывались через защищённое соединение.',
+        'Cambiar los enlaces de las imágenes para que usen una conexión segura.',
+        'Update the image links so they use a secure connection.'
       ),
     },
 
-    // ───── 02 WhatsApp и запись ─────
+    // ───── 02 Связь и запись ─────
     {
       id: 'whatsapp-funnel',
       pillar: '02',
       status: 'critical',
-      title: tr('Прямой контакт WhatsApp в 1 клик', 'Contacto directo por WhatsApp (1 clic)', 'Direct 1-Click WhatsApp Booking'),
-      metric: tr(`Слив до ${DEMO.leadLossPct}% лидов`, `Fuga de hasta ${DEMO.leadLossPct}% de leads`, `Losing up to ${DEMO.leadLossPct}% leads`),
+      title: tr('Кнопка связи через WhatsApp', 'Botón de contacto por WhatsApp', 'WhatsApp contact button'),
+      metric: tr('Возможны потерянные обращения', 'Posibles consultas perdidas', 'Potential lost enquiries'),
       desc: tr(
-        'На смартфонах нет кнопки быстрого чата. 78% переходов с мобильной рекламы уходят без звонка.',
-        'Sin botón flotante de WhatsApp. El 78% del tráfico móvil desde anuncios se va sin llamar.',
-        'No floating WhatsApp chat button. 78% of mobile ad visitors bounce without dialling.'
+        'На сайте нет заметного способа сразу написать в WhatsApp. Часть посетителей может уйти, не связавшись с компанией.',
+        'La web no ofrece una forma visible de escribir por WhatsApp. Algunos visitantes podrían irse sin contactar.',
+        'The website has no clear way to start a WhatsApp chat. Some visitors may leave without getting in touch.'
       ),
       action: tr(
-        'Разместить плавающий виджет wa.me с шаблоном записи.',
-        'Integrar widget wa.me con mensaje inicial predeterminado.',
-        'Deploy floating wa.me widget with appointment template.'
+        'Añadir un botón visible para iniciar una conversación por WhatsApp.',
+        'Añadir un botón visible para iniciar una conversación por WhatsApp.',
+        'Add a visible button to start a WhatsApp conversation.'
       ),
     },
     {
@@ -181,41 +162,41 @@ export function getDemoChecks(lang: Lang): Check[] {
       id: 'meta-pixel',
       pillar: '03',
       status: 'ok',
-      title: 'Meta Ads Pixel & CAPI Event',
-      metric: tr('Активен (ID: 4819***)', 'Activo (ID: 4819***)', 'Active (ID: 4819***)'),
+      title: tr('Учёт обращений из Instagram', 'Registro de consultas de Instagram', 'Instagram enquiry tracking'),
+      metric: tr('Работает', 'Activo', 'Active'),
       desc: tr(
-        'Пиксель отслеживает просмотры страниц и переходы, реклама в Instagram фиксируется.',
-        'El píxel registra visitas a páginas correctamente para campañas de Instagram.',
-        'Pixel tracks page views and campaign clicks properly for Instagram ads.'
+        'Сайт учитывает переходы из рекламы в Instagram.',
+        'La web registra las visitas que llegan desde anuncios de Instagram.',
+        'The website records visits from Instagram ads.'
       ),
       action: tr(
-        'Добавить отслеживание клика по кнопке WhatsApp.',
-        'Configurar evento de conversión para clics en WhatsApp.',
-        'Set up custom conversion event on WhatsApp clicks.'
+        'Добавить учёт обращений через WhatsApp.',
+        'Añadir el registro de consultas recibidas por WhatsApp.',
+        'Add tracking for enquiries through WhatsApp.'
       ),
     },
     {
       id: 'google-ads',
       pillar: '03',
       status: 'ok',
-      title: 'Google Ads Remarketing Tag',
-      metric: tr('Активен (AW-***)', 'Activo (AW-***)', 'Active (AW-***)'),
+      title: tr('Учёт переходов из Google Ads', 'Registro de visitas de Google Ads', 'Google Ads visit tracking'),
+      metric: tr('Работает', 'Activo', 'Active'),
       desc: tr(
-        'Тег ремаркетинга Google активен, собирает аудитории для поисковой рекламы.',
-        'La etiqueta de Google Ads funciona y recopila listas de remarketing.',
-        'Google remarketing tag is active and gathering remarketing audiences.'
+        'Сайт учитывает переходы из рекламы Google.',
+        'La web registra las visitas que llegan desde anuncios de Google.',
+        'The website records visits from Google ads.'
       ),
       action: tr(
-        'Проверить фиксацию конверсий звонков.',
-        'Verificar medición de conversiones de llamada.',
-        'Verify click-to-call conversion tracking.'
+        'Проверить, учитываются ли звонки с сайта.',
+        'Comprobar si se registran las llamadas desde la web.',
+        'Check whether calls from the website are recorded.'
       ),
     },
     {
       id: 'google-rating',
       pillar: '03',
       status: 'ok',
-      title: tr('Репутационный капитал в Google Maps', 'Reputación en Google Maps', 'Google Maps Social Proof'),
+      title: tr('Отзывы в Google Maps', 'Opiniones en Google Maps', 'Google Maps reviews'),
       metric: tr('4.8★ (384 отзыва)', '4.8★ (384 reseñas)', '4.8★ (384 reviews)'),
       desc: tr(
         'Отличный рейтинг и признательность пациентов за качество процедур.',
@@ -232,17 +213,17 @@ export function getDemoChecks(lang: Lang): Check[] {
       id: 'schema-local',
       pillar: '03',
       status: 'warning',
-      title: 'Schema.org MedicalBusiness Microdata',
-      metric: tr('Не настроена', 'Sin microdatos', 'Missing Schema'),
+      title: tr('Информация о компании для поиска Google', 'Información de la empresa para Google', 'Business details for Google Search'),
+      metric: tr('Не добавлена', 'No añadida', 'Not added'),
       desc: tr(
-        'В коде отсутствует разметка MedicalBusiness. Поисковик хуже ранжирует клинику по локальным запросам в Мадриде.',
-        'Faltan microdatos estructurados de MedicalBusiness para destacar en búsquedas locales de Madrid.',
-        'Missing MedicalBusiness structured schema data, weakening Google local search ranking in Madrid.'
+        'На сайте не хватает структурированной информации о клинике, которая помогает поисковикам показывать сведения о ней.',
+        'Falta información organizada sobre la clínica que ayuda a los buscadores a mostrar sus datos.',
+        'The website is missing organized business information that helps search engines display its details.'
       ),
       action: tr(
-        'Внедрить JSON-LD разметку с адресом, часами и врачами.',
-        'Insertar bloque JSON-LD con dirección, horario y especialidades.',
-        'Add JSON-LD MedicalBusiness structured data.'
+        'Добавить на сайт адрес, часы работы и сведения о специалистах в подходящем формате.',
+        'Añadir la dirección, el horario y la información de los profesionales en un formato adecuado.',
+        'Add the address, opening hours, and staff details in a format search engines can read.'
       ),
     },
     {

@@ -16,104 +16,89 @@ const C = {
 
 const L = {
   ru: {
-    kicker: 'Внедрение под ключ',
-    title: 'Исправим все ошибки за вас за 5 рабочих дней',
-    sub: 'Вам не нужно нанимать программистов или разбираться в коде. Вы получаете полностью настроенный сайт, который защищен от штрафов и конвертирует клики в реальные записи.',
-    resultLabel: 'Готовность к продажам',
-    badgeResult: '✓ Устранение всех критических утечек',
-    includesTitle: 'Что конкретно мы сделаем под ключ:',
-    currentLossLabel: 'Потери бизнеса прямо сейчас:',
+    kicker: 'Помощь с исправлениями',
+    title: 'Поможем исправить найденные ошибки за 5 рабочих дней',
+    sub: 'Без необходимости разбираться в сложных настройках. Согласуем проблемы и приведём в порядок способы связи, данные компании и другие найденные недочёты.',
+    includesTitle: 'Что можно исправить:',
+    currentLossLabel: 'Возможная потеря обращений:',
     mo: 'мес',
     once: 'разово',
     termTitle: 'Срок работы',
     daysCount: '5 рабочих дней',
-    paybackTitle: 'Окупаемость',
-    paybackPrefix: 'за',
-    daysWord: 'дней',
-    guaranteeTitle: '100% гарантия результата',
-    guaranteeText: 'Полный возврат средств, если после внедрения число обращений не увеличится в течение 14 дней.',
+    guaranteeTitle: 'Оценка, а не обещание результата',
+    guaranteeText: 'Расчёт возможных потерь основан на допущениях и не гарантирует рост обращений после исправлений.',
     callPrefix: 'или',
-    idx: 'Индекс',
+    idx: 'Оценка',
     items: {
       'whatsapp-funnel': {
-        title: 'Быстрая запись клиентов через WhatsApp',
-        desc: 'Заметная кнопка чата в 1 клик с готовым приветствием — клиенты с мобильных не уходят, а сразу пишут вам.',
+        title: 'Удобный контакт через WhatsApp',
+        desc: 'Заметная кнопка позволит посетителю сразу написать вам, не разыскивая контакты.',
       },
       'lssi-cif': {
-        title: 'Полная защита от штрафов в Испании',
-        desc: 'Оформление обязательных реквизитов компании и юридических страниц по стандартам законодательства Испании.',
+        title: 'Необходимые данные компании',
+        desc: 'Проверим, указана ли на сайте необходимая информация о компании.',
       },
       'phone-bottleneck': {
-        title: 'Ни одного потерянного звонка и клиента',
-        desc: 'Звонок в одно касание и синхронизация с Google Maps, чтобы клиенты дозванивались и не уходили к конкурентам.',
+        title: 'Совпадающие контакты и часы работы',
+        desc: 'Проверим телефон и часы работы на сайте и в Google Maps, чтобы клиентам было проще связаться.',
       },
     },
   },
   es: {
-    kicker: 'Solución llave en mano',
-    title: 'Corregimos todos los fallos por ti en 5 días',
-    sub: 'Olvídate de contratar programadores o descifrar código. Dejamos tu web lista para convertir visitas en citas y totalmente protegida ante sanciones.',
-    resultLabel: 'Preparación comercial',
-    badgeResult: '✓ Eliminación de fugas críticas',
-    includesTitle: 'Qué incluye la puesta a punto:',
-    currentLossLabel: 'Pérdidas estimadas ahora:',
+    kicker: 'Ayuda para corregir errores',
+    title: 'Te ayudamos a corregir los errores detectados en 5 días laborables',
+    sub: 'Sin tener que ocuparte de ajustes complicados. Acordamos qué corregir y mejoramos el contacto, los datos de la empresa y otros problemas detectados.',
+    includesTitle: 'Qué se puede mejorar:',
+    currentLossLabel: 'Posibles consultas perdidas:',
     mo: 'mes',
     once: 'pago único',
     termTitle: 'Plazo de entrega',
     daysCount: '5 días laborables',
-    paybackTitle: 'Amortización',
-    paybackPrefix: 'en',
-    daysWord: 'días',
-    guaranteeTitle: '100% garantía de resultado',
-    guaranteeText: 'Devolución íntegra si tras la puesta a punto no aumentan las reservas y consultas en los primeros 14 días.',
+    guaranteeTitle: 'Una estimación, no una promesa',
+    guaranteeText: 'La estimación de posibles pérdidas se basa en supuestos y no garantiza más consultas tras las mejoras.',
     callPrefix: 'o',
     idx: 'Índice',
     items: {
       'whatsapp-funnel': {
-        title: 'Contacto y reservas directas por WhatsApp',
-        desc: 'Botón flotante visible con mensaje inicial listo para pedir cita en 1 toque desde el móvil.',
+        title: 'Contacto fácil por WhatsApp',
+        desc: 'Un botón visible permite escribirte sin tener que buscar tus datos de contacto.',
       },
       'lssi-cif': {
-        title: 'Protección legal frente a sanciones en España',
-        desc: 'Inclusión de todos los datos fiscales obligatorios y páginas legales reglamentarias.',
+        title: 'Datos necesarios de la empresa',
+        desc: 'Revisamos si la web muestra la información necesaria sobre tu empresa.',
       },
       'phone-bottleneck': {
-        title: 'Cero llamadas perdidas y sincronización con Maps',
-        desc: 'Llamada directa en un clic y horarios alineados con Google Maps para no perder ni un paciente.',
+        title: 'Mismos datos en la web y Google Maps',
+        desc: 'Comprobamos que el teléfono y el horario coincidan para que los clientes puedan contactar.',
       },
     },
   },
   en: {
     kicker: 'Turnkey Implementation',
-    title: 'We fix all errors for you in 5 business days',
-    sub: 'No need to hire developers or worry about code. You get a fully compliant website optimized to convert visitors into paying clients from day one.',
-    resultLabel: 'Sales readiness',
-    badgeResult: '✓ Zero critical client leaks',
-    includesTitle: 'What we deliver:',
-    currentLossLabel: 'Estimated business loss now:',
+    title: 'We help fix the issues found in 5 business days',
+    sub: 'No need to deal with complicated settings. We agree on what to fix and improve contact options, business details, and other issues found.',
+    includesTitle: 'What can be improved:',
+    currentLossLabel: 'Potential lost enquiries:',
     mo: 'mo',
     once: 'one-off',
     termTitle: 'Turnaround',
     daysCount: '5 business days',
-    paybackTitle: 'Payback',
-    paybackPrefix: 'in',
-    daysWord: 'days',
-    guaranteeTitle: '100% money-back guarantee',
-    guaranteeText: 'Full refund if enquiries and bookings do not increase within 14 days after implementation.',
+    guaranteeTitle: 'An estimate, not a promise',
+    guaranteeText: 'Potential losses are estimated using assumptions and do not guarantee more enquiries after changes.',
     callPrefix: 'or',
     idx: 'Index',
     items: {
       'whatsapp-funnel': {
-        title: 'Instant 1-tap WhatsApp booking',
-        desc: 'High-visibility floating chat button with auto-filled message — mobile visitors book instantly.',
+        title: 'Easy contact through WhatsApp',
+        desc: 'A visible button lets visitors message you without searching for your contact details.',
       },
       'lssi-cif': {
-        title: 'Full regulatory fine protection in Spain',
-        desc: 'Proper company registration and tax details in compliance with Spanish internet regulations.',
+        title: 'Required business details',
+        desc: 'We check whether your website shows the necessary information about your business.',
       },
       'phone-bottleneck': {
-        title: 'Zero missed phone leads & Google Maps sync',
-        desc: 'Click-to-call dialling and synced working hours with Google Maps so callers always reach you.',
+        title: 'Matching details on your website and Google Maps',
+        desc: 'We check that your phone number and opening hours match so customers can reach you.',
       },
     },
   },
@@ -139,9 +124,6 @@ interface OfferProps {
 export function AuditOffer(p: OfferProps) {
   const t = L[p.lang];
 
-  const before = score(p.checks, (c) => c.status);
-  const fast = Math.ceil((p.price / p.lossMax) * 30);
-  const slow = Math.ceil((p.price / p.lossMin) * 30);
   const money = (n: number) => `€${n.toLocaleString(p.lang === 'en' ? 'en-US' : 'es-ES')}`;
 
   const included = p.includeIds
@@ -183,26 +165,6 @@ export function AuditOffer(p: OfferProps) {
             <p className="text-sm sm:text-base text-slate-600 mt-2.5 leading-relaxed max-w-[56ch]">
               {t.sub}
             </p>
-          </div>
-
-          {/* Наглядная шкала трансформации: Было ➔ Станет */}
-          <div
-            className="p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3"
-            style={{ background: '#F8FAFC', border: `1px solid ${C.track}` }}
-          >
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                {t.resultLabel}
-              </span>
-              <div className="flex items-center gap-2 mt-0.5 tabular-nums">
-                <span className="text-2xl sm:text-3xl font-black text-rose-600">{before}%</span>
-                <span className="text-slate-400 font-bold text-lg" aria-hidden>→</span>
-                <span className="text-2xl sm:text-3xl font-black" style={{ color: C.sea }}>95%+</span>
-              </div>
-            </div>
-            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
-              {t.badgeResult}
-            </span>
           </div>
 
           {/* Список внедряемых решений на понятном языке бизнеса */}
@@ -263,17 +225,11 @@ export function AuditOffer(p: OfferProps) {
               )}
             </div>
 
-            {/* Сроки и окупаемость */}
-            <div className="grid grid-cols-2 gap-2 text-center">
+            {/* Срок выполнения и оговорка к демонстрационной оценке */}
+            <div className="grid grid-cols-1 gap-2 text-center">
               <div className="p-2.5 rounded-xl bg-white border" style={{ borderColor: C.track }}>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">{t.termTitle}</span>
                 <strong className="text-xs font-black mt-0.5 block" style={{ color: C.deep }}>{t.daysCount}</strong>
-              </div>
-              <div className="p-2.5 rounded-xl bg-white border" style={{ borderColor: C.track }}>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">{t.paybackTitle}</span>
-                <strong className="text-xs font-black text-emerald-700 mt-0.5 block tabular-nums">
-                  {t.paybackPrefix} {fast}–{slow} {t.daysWord}
-                </strong>
               </div>
             </div>
 

@@ -201,21 +201,66 @@
 }
 
 .a2r-app .landing-form button[type="submit"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 48px;
   border-radius: 14px;
   background: linear-gradient(135deg, #0F2744, #075985) !important;
   box-shadow: 0 7px 16px rgba(15,39,68,.16);
-  transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, filter .28s ease;
+}
+
+.a2r-app .landing-form button[type="submit"]::before {
+  position: absolute;
+  z-index: 0;
+  top: -60%;
+  bottom: -60%;
+  left: 0;
+  width: 38%;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.48), transparent);
+  transform: translateX(-180%) skewX(-20deg);
+}
+
+.a2r-app .landing-form button[type="submit"] span,
+.a2r-app .landing-form button[type="submit"] svg {
+  position: relative;
+  z-index: 1;
+}
+
+.a2r-app .landing-form button[type="submit"] svg {
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+
+@keyframes scan-button-sheen {
+  0% { opacity: 0; transform: translateX(-180%) skewX(-20deg); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(460%) skewX(-20deg); }
 }
 
 .a2r-app .landing-form button[type="submit"]:hover {
   background: linear-gradient(135deg, #075985, #0284C7) !important;
-  box-shadow: 0 12px 24px rgba(2,132,199,.22);
-  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(2,132,199,.32), 0 0 0 4px rgba(125,211,252,.16);
+  filter: saturate(1.15);
+  transform: translateY(-3px) scale(1.015);
+}
+
+.a2r-app .landing-form button[type="submit"]:hover::before,
+.a2r-app .landing-form button[type="submit"]:focus-visible::before {
+  animation: scan-button-sheen .85s ease-out both;
+}
+
+.a2r-app .landing-form button[type="submit"]:hover svg,
+.a2r-app .landing-form button[type="submit"]:focus-visible svg {
+  transform: translateX(4px);
 }
 
 .a2r-app .landing-form button[type="submit"]:active {
-  transform: translateY(0) scale(.985);
+  box-shadow: 0 4px 10px rgba(15,39,68,.2);
+  transform: translateY(0) scale(.975);
 }
 
 .a2r-app .landing-preview {
@@ -1482,5 +1527,24 @@
   .a2r-app .a2r-score-issue,
   .a2r-app .landing-form button[type="submit"] {
     transition: none !important;
+  }
+
+  .a2r-app .landing-form button[type="submit"]::before {
+    animation: none !important;
+  }
+
+  .a2r-app .landing-form button[type="submit"] svg {
+    transition: none !important;
+  }
+
+  .a2r-app .landing-form button[type="submit"]:hover,
+  .a2r-app .landing-form button[type="submit"]:active {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .a2r-app .landing-form button[type="submit"]:hover svg,
+  .a2r-app .landing-form button[type="submit"]:focus-visible svg {
+    transform: none !important;
   }
 }

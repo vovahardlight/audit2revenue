@@ -336,7 +336,7 @@ export default function AppleNordicGlacierPureLanding() {
       devBadge: 'ПРОТОТИП · Демонстрационный режим (Платежи отключены)',
       h1_1: 'Сайт теряет',
       h1_2: 'клиентов?',
-      btn: 'Найти утечки',
+      btn: 'Проверить сайт',
       prev: 'Назад',
       next: 'Далее',
       placeholder: 'https://vash-salon-ili-klinika.es',
@@ -346,11 +346,11 @@ export default function AppleNordicGlacierPureLanding() {
       demo: 'ПРИМЕР',
 
       exampleBusiness: 'Пример: Местный бизнес в Испании',
-      scoreLabel: 'ОЦЕНКА ГОТОВНОСТИ',
-      revenueScoreTitle: 'Индекс готовности к продажам',
-      revenueScoreNote: 'Интерактивный пример: показывает, сколько обращений теряется',
-      scoreIssueTrust: 'Защита от штрафов',
-      scoreIssueTrustDetail: 'Пример: на сайте нет обязательных данных компании по законам Испании.',
+      scoreLabel: 'ПРИМЕР ПРОВЕРКИ',
+      revenueScoreTitle: 'Ошибки и возможные потери клиентов',
+      revenueScoreNote: 'Демонстрационная оценка: как ошибки могут влиять на обращения',
+      scoreIssueTrust: 'Данные компании',
+      scoreIssueTrustDetail: 'Пример: на сайте могут отсутствовать обязательные данные компании.',
       scoreIssueContact: 'Быстрая связь',
       scoreIssueContactDetail: 'Пример: клиенту сложно записаться или написать в WhatsApp за 1 клик.',
       scoreIssueLocal: 'Карты Google и доверие',
@@ -367,16 +367,16 @@ export default function AppleNordicGlacierPureLanding() {
       pitchLocked: 'Доступно после экспресс-проверки',
 
       heroMicro:
-        'Проверьте, почему посетители уходят без заявки: долгая загрузка, неудобная связь, пустые клики с рекламы или недоверие.',
+        'Найдём ошибки на сайте и покажем, как они могут мешать клиентам связаться с вами и сколько обращений вы можете терять.',
 
       scanVerified: 'В порядке',
       scanScanning: 'Проверяем...',
 
       checklist: [
         {
-          title: 'Скорость загрузки на смартфонах',
-          discovered: '✓ Сайт открывается за 1.6с, защищенное соединение активно',
-          type: 'ok',
+          title: 'Данные компании на сайте',
+          discovered: '⚠️ В примере не указаны необходимые данные компании',
+          type: 'error',
         },
         {
           title: 'Контроль расходов на рекламу',
@@ -385,7 +385,7 @@ export default function AppleNordicGlacierPureLanding() {
         },
         {
           title: 'Удобство записи для клиентов',
-          discovered: '⚠️ Нет кнопки прямого чата в WhatsApp — теряется до 40% обращений',
+          discovered: '⚠️ Нет заметного способа написать в WhatsApp; часть клиентов может уйти без обращения',
           type: 'warn',
         },
         {
@@ -394,46 +394,46 @@ export default function AppleNordicGlacierPureLanding() {
           type: 'warn',
         },
         {
-          title: 'Юридическая защита от штрафов в Испании',
-          discovered: '⚠️ Риск штрафа: на сайте не указаны официальные реквизиты компании',
+          title: 'Обязательные данные компании',
+          discovered: '⚠️ В примере не указаны необходимые данные компании',
           type: 'error',
         },
       ],
 
       // REPORT
       reportLabel: 'РЕЗУЛЬТАТЫ ЭКСПРЕСС-ПРОВЕРКИ',
-      reportTitle: 'Где ваш сайт теряет потенциальных клиентов',
-      reportMissedRevenue: 'Упущенные заказы: ~€1,800/мес',
+      reportTitle: 'Ошибки сайта и возможная потеря клиентов',
+      reportMissedRevenue: 'Возможные потери: примерная оценка',
       demoReportNotice:
-        'Демонстрационный отчет. Показывает, как система выявляет слабые места сайта, мешающие продажам.',
+        'Это пример отчёта на смоделированных данных. Реальная проверка покажет ошибки вашего сайта и оценит, как они могут влиять на обращения.',
 
       reportCard1Cat: 'Защита бизнеса',
-      reportCard1Title: 'Риск штрафов от регулятора',
-      reportCard1Desc: 'На сайте не найдены официальные реквизиты компании, обязательные по законам Испании.',
-      reportCard1Foot: 'Штраф до €30,000',
-      reportCard1Action: 'Добавить официальные реквизиты компании в подвал сайта.',
+      reportCard1Title: 'Не указаны данные компании',
+      reportCard1Desc: 'На сайте могут отсутствовать данные компании, которые должны быть опубликованы в Испании.',
+      reportCard1Foot: 'Возможный риск: претензии и штрафы',
+      reportCard1Action: 'Проверить и добавить необходимые данные компании.',
 
-      reportCard2Cat: 'Слив бюджета',
-      reportCard2Title: 'Потеря до 35% звонков и заявок',
-      reportCard2Desc: 'Посетителям с мобильных устройств неудобно связаться с вами за 1 клик.',
-      reportCard2Foot: 'Реклама работает впустую',
-      reportCard2Action: 'Разместить заметную кнопку записи через WhatsApp на главном экране.',
+      reportCard2Cat: 'Связь с клиентами',
+      reportCard2Title: 'Посетителям сложно связаться с вами',
+      reportCard2Desc: 'Если на сайте трудно найти способ связи, часть потенциальных клиентов может уйти без обращения.',
+      reportCard2Foot: 'Возможная потеря обращений',
+      reportCard2Action: 'Добавить заметную кнопку звонка или WhatsApp.',
 
       reportCard3Cat: 'Клиенты рядом',
-      reportCard3Title: 'Потеря клиентов из Google Maps',
-      reportCard3Desc: 'Контакты или часы работы на сайте и в картах не совпадают, вызывая недоверие.',
+      reportCard3Title: 'Контакты на сайте и в Google Maps расходятся',
+      reportCard3Desc: 'Разные телефоны или часы работы могут запутать клиента и помешать ему связаться с вами.',
       reportCard3Foot: 'Доверие клиентов',
-      reportCard3Action: 'Синхронизировать телефон, адрес и рабочие часы в профиле карт.',
+      reportCard3Action: 'Указать одинаковые телефон, адрес и часы работы на сайте и в Google Maps.',
 
       reportLocked: 'Скрыто 🔒',
 
-      reportPurchaseBadge: 'Полный аудит и план решений',
-      reportPurchaseTitle: 'Получите пошаговый план устранения всех ошибок',
+      reportPurchaseBadge: 'Полный отчёт и план исправлений',
+      reportPurchaseTitle: 'Узнайте, что исправить в первую очередь',
       reportPurchaseDesc:
-        'Простая инструкция на понятном языке: отдайте её вашему помощнику или мастеру, чтобы вернуть потерянные заявки.',
+        'Понятный список найденных проблем и шагов, которые помогут клиентам связаться с вами.',
       demoPriceBadge: 'Специальная цена для теста',
       demoPriceNote: 'Показательная стоимость. Приём платежей в демо-режиме отключен.',
-      demoPriceButton: 'Открыть полный отчет (Симуляция)',
+      demoPriceButton: 'Посмотреть пример полного отчёта',
       connecting: 'Подключение...',
 
       footerDisclaimer:
@@ -458,7 +458,7 @@ export default function AppleNordicGlacierPureLanding() {
       devBadge: 'PROTOTIPO · Demostración técnica (Pagos desactivados)',
       h1_1: '¿Tu web pierde',
       h1_2: 'clientes?',
-      btn: 'Detectar fugas',
+      btn: 'Revisar mi web',
       prev: 'Anterior',
       next: 'Siguiente',
       placeholder: 'https://tu-clinica-o-salon.es',
@@ -468,11 +468,11 @@ export default function AppleNordicGlacierPureLanding() {
       demo: 'EJEMPLO',
 
       exampleBusiness: 'Ejemplo: Negocio local en España',
-      scoreLabel: 'POTENCIAL COMERCIAL',
-      revenueScoreTitle: 'Índice de preparación para ventas',
-      revenueScoreNote: 'Simulación interactiva: muestra cuántos contactos se pierden cada mes',
-      scoreIssueTrust: 'Protección legal',
-      scoreIssueTrustDetail: 'Ejemplo: faltan datos legales obligatorios por normativa en España.',
+      scoreLabel: 'EJEMPLO DE ANÁLISIS',
+      revenueScoreTitle: 'Errores y posibles clientes perdidos',
+      revenueScoreNote: 'Ejemplo: cómo los errores pueden afectar a las consultas',
+      scoreIssueTrust: 'Datos de la empresa',
+      scoreIssueTrustDetail: 'Ejemplo: puede que falten datos necesarios de la empresa.',
       scoreIssueContact: 'Contacto rápido',
       scoreIssueContactDetail: 'Ejemplo: el cliente no puede reservar o escribir por WhatsApp en 1 clic.',
       scoreIssueLocal: 'Ficha de Google Maps',
@@ -489,15 +489,15 @@ export default function AppleNordicGlacierPureLanding() {
       pitchLocked: 'Disponible tras el análisis rápido',
 
       heroMicro:
-        'Descubre qué frena a tus visitas antes de contactar: carga lenta en móvil, contacto complicado, anuncios sin control o falta de confianza.',
+        'Encontramos errores en tu web y te mostramos cómo pueden dificultar el contacto y cuántas consultas podrías estar perdiendo.',
 
       scanVerified: 'Correcto',
       scanScanning: 'Comprobando...',
 
       checklist: [
         {
-          title: 'Velocidad de carga en móviles',
-          discovered: '✓ Carga fluida en 1.6s y navegación cifrada y segura',
+          title: 'Datos de la empresa',
+          discovered: '⚠️ Comprueba que tu web incluya los datos necesarios de la empresa',
           type: 'ok',
         },
         {
@@ -507,7 +507,7 @@ export default function AppleNordicGlacierPureLanding() {
         },
         {
           title: 'Facilidad de contacto para clientes',
-          discovered: '⚠️ Sin botón de WhatsApp directo: fuga de hasta el 40% de consultas',
+          discovered: '⚠️ No hay un botón visible de WhatsApp; algunos clientes pueden no contactar',
           type: 'warn',
         },
         {
@@ -516,45 +516,45 @@ export default function AppleNordicGlacierPureLanding() {
           type: 'warn',
         },
         {
-          title: 'Protección legal frente a multas en España',
-          discovered: '⚠️ Riesgo de sanción: faltan los datos fiscales y legales de la empresa',
+          title: 'Datos necesarios de la empresa',
+          discovered: '⚠️ En el ejemplo faltan algunos datos necesarios de la empresa',
           type: 'error',
         },
       ],
 
       reportLabel: 'RESULTADOS DEL DIAGNÓSTICO',
-      reportTitle: 'Dónde pierde clientes y reservas tu negocio',
-      reportMissedRevenue: 'Ventas que se escapan: ~1.800 €/mes',
+      reportTitle: 'Errores de tu web y posibles clientes perdidos',
+      reportMissedRevenue: 'Posibles pérdidas: estimación orientativa',
       demoReportNotice:
-        'Informe interactivo de demostración. Ilustra cómo el sistema identifica obstáculos reales para las ventas.',
+        'Este es un ejemplo con datos simulados. El análisis real mostrará errores de tu web y estimará cómo pueden afectar a las consultas.',
 
       reportCard1Cat: 'Seguridad legal',
-      reportCard1Title: 'Riesgo de sanción económica',
-      reportCard1Desc: 'La web no muestra los datos de identificación legal exigidos a las empresas en España.',
-      reportCard1Foot: 'Multa hasta 30.000 €',
-      reportCard1Action: 'Añadir los datos fiscales de la empresa en el pie de página.',
+      reportCard1Title: 'Faltan datos de la empresa',
+      reportCard1Desc: 'Puede que falten datos de la empresa que deben aparecer en una web en España.',
+      reportCard1Foot: 'Posible riesgo: reclamaciones o sanciones',
+      reportCard1Action: 'Revisar y añadir los datos necesarios de la empresa.',
 
-      reportCard2Cat: 'Fuga de clientes',
-      reportCard2Title: 'Pérdida de hasta el 35% de citas',
-      reportCard2Desc: 'Los usuarios desde el móvil no encuentran una vía rápida para pedir cita al instante.',
-      reportCard2Foot: 'Publicidad desaprovechada',
-      reportCard2Action: 'Habilitar un botón flotante de WhatsApp con mensaje inicial.',
+      reportCard2Cat: 'Contacto con clientes',
+      reportCard2Title: 'Cuesta encontrar cómo contactar contigo',
+      reportCard2Desc: 'Si contactar es difícil, algunos posibles clientes pueden irse sin escribir ni llamar.',
+      reportCard2Foot: 'Posibles consultas perdidas',
+      reportCard2Action: 'Añadir un botón visible para llamar o escribir por WhatsApp.',
 
       reportCard3Cat: 'Clientes de tu zona',
-      reportCard3Title: 'Llamadas perdidas de Google Maps',
-      reportCard3Desc: 'El horario o teléfono de la web no concuerda exactamente con la ficha de Maps.',
+      reportCard3Title: 'La web y Google Maps muestran datos distintos',
+      reportCard3Desc: 'Un teléfono o un horario distinto puede confundir e impedir que te contacten.',
       reportCard3Foot: 'Confianza del cliente',
-      reportCard3Action: 'Alinear horario comercial y teléfono en todos los canales.',
+      reportCard3Action: 'Usar el mismo teléfono, dirección y horario en la web y Google Maps.',
 
       reportLocked: 'Bloqueado 🔒',
 
-      reportPurchaseBadge: 'Auditoría completa y soluciones',
-      reportPurchaseTitle: 'Consigue la guía paso a paso para resolver cada fallo',
+      reportPurchaseBadge: 'Informe completo y pasos para corregir errores',
+      reportPurchaseTitle: 'Descubre qué conviene corregir primero',
       reportPurchaseDesc:
-        'Un documento claro y sin tecnicismos para que tú o tu equipo corrijan cada fuga de clientes de inmediato.',
+        'Una lista clara de los problemas encontrados y de los pasos que pueden facilitar el contacto con tus clientes.',
       demoPriceBadge: 'Precio de prueba',
       demoPriceNote: 'Importe de demostración. Los cobros están desactivados en esta versión.',
-      demoPriceButton: 'Ver informe completo (Simulación)',
+      demoPriceButton: 'Ver ejemplo del informe completo',
       connecting: 'Conectando...',
 
       footerDisclaimer:
@@ -579,7 +579,7 @@ export default function AppleNordicGlacierPureLanding() {
       devBadge: 'PROTOTYPE · Technical Preview (Payments disabled)',
       h1_1: 'Is your website losing',
       h1_2: 'customers?',
-      btn: 'Find Leaks',
+      btn: 'Check my website',
       prev: 'Previous',
       next: 'Next',
       placeholder: 'https://your-business.es',
@@ -589,11 +589,11 @@ export default function AppleNordicGlacierPureLanding() {
       demo: 'DEMO',
 
       exampleBusiness: 'Example: Local Business in Spain',
-      scoreLabel: 'SALES READINESS',
-      revenueScoreTitle: 'Sales conversion potential index',
+      scoreLabel: 'SAMPLE WEBSITE CHECK',
+      revenueScoreTitle: 'Website errors and potential lost customers',
       revenueScoreNote: 'Interactive demo: shows how many enquiries are lost every month',
-      scoreIssueTrust: 'Protection from fines',
-      scoreIssueTrustDetail: 'Demo: mandatory business registration details required by Spanish law are missing.',
+      scoreIssueTrust: 'Business details',
+      scoreIssueTrustDetail: 'Sample: required business information may be missing from the website.',
       scoreIssueContact: 'Fast contact channel',
       scoreIssueContactDetail: 'Demo: customers cannot easily book or start a WhatsApp chat in 1 tap.',
       scoreIssueLocal: 'Google Maps alignment',
@@ -610,25 +610,25 @@ export default function AppleNordicGlacierPureLanding() {
       pitchLocked: 'Available after instant scan',
 
       heroMicro:
-        'Find out why visitors leave without contacting you: slow mobile load, awkward contact options, wasted ad clicks, or missing trust.',
+        'We find website errors and show how they may make it harder for customers to contact you and how many enquiries you could be losing.',
 
       scanVerified: 'Passed',
       scanScanning: 'Checking...',
 
       checklist: [
         {
-          title: 'Mobile loading speed',
-          discovered: '✓ Fast 1.6s load, secure connection active',
+          title: 'Business information',
+          discovered: '⚠️ Check that your website includes the required business details',
           type: 'ok',
         },
         {
           title: 'Ad spend accountability',
-          discovered: '✓ Lead tracking for Instagram and Google ads is active',
+          discovered: '✓ Enquiries from Instagram and Google ads are being recorded',
           type: 'ok',
         },
         {
           title: 'Customer contact convenience',
-          discovered: '⚠️ No direct WhatsApp button — up to 40% of enquiries are lost',
+          discovered: '⚠️ There is no clear WhatsApp button; some customers may not get in touch',
           type: 'warn',
         },
         {
@@ -637,45 +637,45 @@ export default function AppleNordicGlacierPureLanding() {
           type: 'warn',
         },
         {
-          title: 'Legal compliance & fines in Spain',
-          discovered: '⚠️ Fine risk: mandatory business registration details missing from site',
+          title: 'Required business details',
+          discovered: '⚠️ The sample is missing some required business details',
           type: 'error',
         },
       ],
 
       reportLabel: 'INSTANT SCAN REPORT',
-      reportTitle: 'Where your website is losing potential buyers',
-      reportMissedRevenue: 'Lost bookings: ~€1,800/mo',
+      reportTitle: 'Website errors and potential lost customers',
+      reportMissedRevenue: 'Potential losses: an estimate',
       demoReportNotice:
-        'Demonstration report. Illustrates how the system pinpoints friction points that hold back real sales.',
+        'This sample uses simulated data. A real check will show your website errors and estimate how they may affect enquiries.',
 
       reportCard1Cat: 'Legal Safety',
-      reportCard1Title: 'Regulatory fine risk',
-      reportCard1Desc: 'Mandatory company identification details required under Spanish law are missing.',
-      reportCard1Foot: 'Fines up to €30,000',
-      reportCard1Action: 'Add official company details to the footer.',
+      reportCard1Title: 'Business details are missing',
+      reportCard1Desc: 'Your website may be missing company details that should be shown in Spain.',
+      reportCard1Foot: 'Possible risk: complaints or fines',
+      reportCard1Action: 'Check and add the required company details.',
 
-      reportCard2Cat: 'Leaking Leads',
-      reportCard2Title: 'Losing up to 35% of bookings',
-      reportCard2Desc: 'Mobile users hit unnecessary friction before they can send an enquiry.',
-      reportCard2Foot: 'Wasted ad budget',
-      reportCard2Action: 'Add a high-visibility 1-tap WhatsApp button to the screen.',
+      reportCard2Cat: 'Customer contact',
+      reportCard2Title: 'It is hard to find how to contact you',
+      reportCard2Desc: 'If contacting you is difficult, some potential customers may leave without calling or writing.',
+      reportCard2Foot: 'Potential lost enquiries',
+      reportCard2Action: 'Add a visible button to call or message you on WhatsApp.',
 
       reportCard3Cat: 'Local Demand',
-      reportCard3Title: 'Missed calls from Google Maps',
-      reportCard3Desc: 'Phone number or working hours on the site do not match Google Maps.',
+      reportCard3Title: 'Website and Google Maps show different details',
+      reportCard3Desc: 'Different phone numbers or opening hours can confuse customers and stop them reaching you.',
       reportCard3Foot: 'Customer trust',
-      reportCard3Action: 'Synchronize working hours, phone, and address across all channels.',
+      reportCard3Action: 'Use the same phone, address, and opening hours on your website and Google Maps.',
 
       reportLocked: 'Locked 🔒',
 
-      reportPurchaseBadge: 'Full action plan & fixes',
-      reportPurchaseTitle: 'Unlock the clear step-by-step fix guide',
+      reportPurchaseBadge: 'Full report and suggested fixes',
+      reportPurchaseTitle: 'See what to fix first',
       reportPurchaseDesc:
-        'A plain-English guide you can hand directly to your assistant or web manager to recover lost enquiries.',
+        'A clear list of the issues found and steps that can make it easier for customers to reach you.',
       demoPriceBadge: 'Special demo pricing',
       demoPriceNote: 'Illustrative price. Payment processing is disabled in demo mode.',
-      demoPriceButton: 'View demo report (Simulation)',
+      demoPriceButton: 'View a sample full report',
       connecting: 'Connecting...',
 
       footerDisclaimer:
@@ -701,28 +701,28 @@ export default function AppleNordicGlacierPureLanding() {
   const landingCopy = {
     ru: {
       eyebrow: 'Проверка сайтов в Испании',
-      insightTitle: 'Каждый визит должен приносить клиента.',
-      insightIntro: '3 главные причины, почему сайт не приносит звонки и заявки:',
-      insightLead: ['Находим', 'утечки клиентов', 'и показываем', 'что исправить.'],
-      auditTitle: '3 фактора продаж',
+      insightTitle: 'Ошибки сайта могут стоить вам клиентов.',
+      insightIntro: 'Находим проблемы на сайте и показываем, как они могут влиять на обращения.',
+      insightLead: ['Находим ошибки', 'оцениваем возможные потери', 'и объясняем', 'что исправить.'],
+      auditTitle: 'Что проверяем',
       findingsEyebrow: 'Пример проверки',
       findingsTitle: 'Что показывает отчет',
       findingsDemoNote: 'Демо-пример для оценки работы системы.',
       sampleActionLabel: 'Что нужно сделать',
-      cardsSectionBadge: '3 точки потери денег',
+      cardsSectionBadge: 'Ошибки и возможные потери',
       insights: [
         {
           number: '01',
-          badge: 'Скорость и закон',
-          title: 'Сайт и безопасность',
-          headline: 'Сайт должен открываться мгновенно',
-          description: 'Если страница грузится дольше 3 секунд, клиент уходит. А без реквизитов компании грозит штраф.',
+          badge: 'Данные компании',
+          title: 'Обязательные данные',
+          headline: 'На сайте должны быть данные вашей компании',
+          description: 'Проверяем, указана ли нужная информация о компании и легко ли её найти.',
           checks: [
-            { label: 'Быстрота', desc: 'Открывается на смартфоне за пару секунд' },
-            { label: 'Защита', desc: 'Все данные компании на месте (без риска штрафов)' },
-            { label: 'Порядок', desc: 'Все ссылки и кнопки работают без ошибок' },
+            { label: 'Данные', desc: 'Указана необходимая информация о компании' },
+            { label: 'Понятность', desc: 'Клиент может найти важную информацию' },
+            { label: 'Ошибки', desc: 'Показываем найденные проблемы и способы их исправить' },
           ],
-          impact: 'Штрафы до €30.000 и уход клиентов из-за долгой загрузки.',
+          impact: 'Отсутствие нужных данных может создать правовые риски.',
         },
         {
           number: '02',
@@ -735,7 +735,7 @@ export default function AppleNordicGlacierPureLanding() {
             { label: 'Звонок', desc: 'Набор номера сразу в 1 клик без ручного ввода' },
             { label: 'График', desc: 'Понятные часы работы без лишней путаницы' },
           ],
-          impact: 'До 40% клиентов уходят, если нет быстрой связи в чате.',
+          impact: 'Если связаться трудно, часть потенциальных клиентов может уйти.',
         },
         {
           number: '03',
@@ -748,34 +748,34 @@ export default function AppleNordicGlacierPureLanding() {
             { label: 'Карты Google', desc: 'Точный телефон и адрес, чтобы клиент дозвонился' },
             { label: 'Поиск рядом', desc: 'Вас легко находят те, кто ищет услуги поблизости' },
           ],
-          impact: 'До 50% рекламного бюджета сгорает без учета звонков.',
+          impact: 'Несовпадение контактов может помешать клиенту дозвониться.',
         },
       ],
     },
     es: {
       eyebrow: 'Auditoría web en España',
-      insightTitle: 'Cada clic debe traer un cliente.',
-      insightIntro: '3 motivos por los que tu web no genera suficientes llamadas y reservas:',
-      insightLead: ['Detectamos', 'las fugas', 'y explicamos', 'cómo resolverlas.'],
-      auditTitle: '3 pilares de ventas',
+      insightTitle: 'Los errores de tu web pueden costarte clientes.',
+      insightIntro: 'Encontramos problemas y te explicamos cómo pueden afectar a las consultas.',
+      insightLead: ['Encontramos errores', 'estimamos posibles pérdidas', 'y explicamos', 'cómo corregirlos.'],
+      auditTitle: 'Qué revisamos',
       findingsEyebrow: 'Ejemplo de análisis',
       findingsTitle: 'Qué muestra el informe',
       findingsDemoNote: 'Ejemplo ilustrativo del sistema.',
       sampleActionLabel: 'Solución recomendada',
-      cardsSectionBadge: '3 puntos de fuga',
+      cardsSectionBadge: 'Errores y posibles pérdidas',
       insights: [
         {
           number: '01',
-          badge: 'Velocidad y Ley',
-          title: 'Web y seguridad',
-          headline: 'La web debe abrir al instante',
-          description: 'Si tarda más de 3 segundos, la visita se va. Y sin datos de la empresa, te arriesgas a multas.',
+          badge: 'Datos de la empresa',
+          title: 'Información necesaria',
+          headline: 'Tu web debe mostrar los datos de tu empresa',
+          description: 'Revisamos si la información necesaria está publicada y es fácil de encontrar.',
           checks: [
-            { label: 'Rapidez', desc: 'Abre en el móvil en un par de segundos' },
-            { label: 'Sin multas', desc: 'Datos fiscales y legales en regla en España' },
-            { label: 'Sin fallos', desc: 'Navegación segura y sin enlaces rotos' },
+            { label: 'Datos', desc: 'La información necesaria de la empresa está visible' },
+            { label: 'Claridad', desc: 'Los clientes pueden encontrar la información importante' },
+            { label: 'Errores', desc: 'Indicamos qué problemas encontramos y cómo corregirlos' },
           ],
-          impact: 'Multas de hasta 30.000 € y visitas perdidas por lentitud.',
+          impact: 'La falta de datos puede crear riesgos legales.',
         },
         {
           number: '02',
@@ -788,7 +788,7 @@ export default function AppleNordicGlacierPureLanding() {
             { label: 'Llamada', desc: 'Marcación directa al tocar el teléfono' },
             { label: 'Horario', desc: 'Horas de atención claras y sin dudas' },
           ],
-          impact: 'Hasta un 40% de consultas perdidas sin chat directo.',
+          impact: 'Si contactar cuesta, algunos posibles clientes pueden marcharse.',
         },
         {
           number: '03',
@@ -801,34 +801,34 @@ export default function AppleNordicGlacierPureLanding() {
             { label: 'Google Maps', desc: 'Mismo teléfono y dirección para no perder llamadas' },
             { label: 'En tu zona', desc: 'Aparece ante quienes buscan servicios cerca' },
           ],
-          impact: 'Hasta la mitad del presupuesto en anuncios se pierde sin control.',
+          impact: 'Los datos distintos pueden impedir que los clientes te llamen.',
         },
       ],
     },
     en: {
       eyebrow: 'Website Audit · Spain',
-      insightTitle: 'Every click should bring a client.',
-      insightIntro: 'Three main reasons why your website fails to generate calls and bookings:',
-      insightLead: ['Find', 'the leaks', 'and see', 'how to fix them.'],
-      auditTitle: '3 Conversion Pillars',
+      insightTitle: 'Website errors can cost you customers.',
+      insightIntro: 'We find problems and explain how they may affect customer enquiries.',
+      insightLead: ['We find errors', 'estimate possible losses', 'and explain', 'how to fix them.'],
+      auditTitle: 'What we check',
       findingsEyebrow: 'Sample finding',
       findingsTitle: 'What the report reveals',
       findingsDemoNote: 'Demo model for preview purposes.',
       sampleActionLabel: 'Recommended action',
-      cardsSectionBadge: '3 revenue leaks',
+      cardsSectionBadge: 'Errors and potential losses',
       insights: [
         {
           number: '01',
-          badge: 'Speed & Safety',
-          title: 'Website & Safety',
-          headline: 'Your site must open instantly',
-          description: 'Visitors leave if it takes over 3 seconds. And missing business details invites heavy fines in Spain.',
+          badge: 'Business details',
+          title: 'Required information',
+          headline: 'Your website should show your business details',
+          description: 'We check whether the necessary company information is published and easy to find.',
           checks: [
-            { label: 'Mobile speed', desc: 'Loads on phones in a couple of seconds' },
-            { label: 'Fine protection', desc: 'Mandatory company details clearly in place' },
-            { label: 'Zero errors', desc: 'Secure browsing and no broken pages' },
+            { label: 'Details', desc: 'The necessary company information is visible' },
+            { label: 'Clarity', desc: 'Customers can find important information' },
+            { label: 'Errors', desc: 'We explain the problems found and how to fix them' },
           ],
-          impact: 'Fines up to €30,000 and lost visitors on slow mobile.',
+          impact: 'Missing details may create legal risks.',
         },
         {
           number: '02',
@@ -841,7 +841,7 @@ export default function AppleNordicGlacierPureLanding() {
             { label: 'Click to call', desc: 'Phone dials instantly without manual typing' },
             { label: 'Clear hours', desc: 'Transparent opening hours with no confusion' },
           ],
-          impact: 'Up to 40% of leads lost without instant messaging.',
+          impact: 'If getting in touch is difficult, potential customers may leave.',
         },
         {
           number: '03',
@@ -854,7 +854,7 @@ export default function AppleNordicGlacierPureLanding() {
             { label: 'Google Maps', desc: 'Matching phone and address so callers reach you' },
             { label: 'Local search', desc: 'Stand out to people looking for services nearby' },
           ],
-          impact: 'Up to 50% of ad spend wasted without lead tracking.',
+          impact: 'Different details can stop customers from reaching you.',
         },
       ],
     },
@@ -1051,16 +1051,24 @@ export default function AppleNordicGlacierPureLanding() {
         const index = Array.from(element.parentElement?.children ?? []).indexOf(element);
         gsap.fromTo(
           element,
-          { autoAlpha: 0, y: 24, filter: 'blur(6px)' },
+          {
+            autoAlpha: 0,
+            y: 38,
+            rotateX: -9,
+            transformPerspective: 900,
+            transformOrigin: 'center bottom',
+            filter: 'blur(6px)',
+          },
           {
             autoAlpha: 1,
             y: 0,
+            rotateX: 0,
             filter: 'blur(0px)',
-            duration: 0.72,
-            delay: Math.max(0, index) * 0.1,
-            ease: 'power3.out',
+            duration: 0.82,
+            delay: Math.max(0, index) * 0.24,
+            ease: 'back.out(1.15)',
             overwrite: 'auto',
-            clearProps: 'opacity,visibility,transform,filter',
+            clearProps: 'opacity,visibility,transform,transformOrigin,filter',
           },
         );
       });
@@ -1564,7 +1572,7 @@ export default function AppleNordicGlacierPureLanding() {
                 key={item}
                 type="button"
                 onClick={() => handleLangChange(item)}
-                className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all uppercase tracking-wider text-[9px] sm:text-[11px] ${
+                className={`cursor-pointer px-2 sm:px-3 py-0.5 sm:py-1 rounded-full transition-all uppercase tracking-wider text-[9px] sm:text-[11px] ${
                   lang === item
                     ? 'bg-white text-[#0284C7] shadow-sm font-bold'
                     : 'text-[#6E6E73] hover:text-[#0F2744]'
@@ -1702,7 +1710,7 @@ export default function AppleNordicGlacierPureLanding() {
 
                     <button
                       type="submit"
-                      className="scan-submit h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-semibold text-xs sm:text-[14px] flex items-center justify-center gap-1.5 transition duration-200 shadow-xs hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0"
+                      className="scan-submit cursor-pointer h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-[#0284C7] hover:bg-[#0F2744] text-white font-semibold text-xs sm:text-[14px] flex items-center justify-center gap-1.5 transition duration-200 shadow-xs hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap shrink-0"
                     >
                       <span>{t.btn}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
