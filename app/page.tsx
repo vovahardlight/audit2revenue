@@ -341,30 +341,29 @@ export default function AppleNordicGlacierPureLanding() {
       next: 'Далее',
       placeholder: 'https://vash-salon-ili-klinika.es',
 
-      previewLabel: 'ДЕМО-ДИАГНОСТИКА',
+      previewLabel: 'РАЗБОР САЙТА',
       previewStatus: 'ГОТОВ К ПРОВЕРКЕ ВАШЕГО САЙТА',
-      demo: 'ПРИМЕР',
+      demo: 'ДЕМО',
 
-      exampleBusiness: 'Пример: Местный бизнес в Испании',
-      scoreLabel: 'ПРИМЕР ПРОВЕРКИ',
-      revenueScoreTitle: 'Ошибки и возможные потери клиентов',
-      revenueScoreNote: 'Демонстрационная оценка: как ошибки могут влиять на обращения',
+      exampleBusiness: 'Местный бизнес · Испания',
+      revenueScoreTitle: 'Где сайт может терять клиентов',
+      revenueScoreNote: 'Проверим, легко ли клиенту доверять, позвонить и записаться.',
       scoreIssueTrust: 'Данные компании',
-      scoreIssueTrustDetail: 'Пример: на сайте могут отсутствовать обязательные данные компании.',
-      scoreIssueContact: 'Быстрая связь',
-      scoreIssueContactDetail: 'Пример: клиенту сложно записаться или написать в WhatsApp за 1 клик.',
-      scoreIssueLocal: 'Карты Google и доверие',
-      scoreIssueLocalDetail: 'Пример: телефон или часы работы на сайте расходятся с картами.',
-      scoreSimulateFix: 'Устранить ошибку',
+      scoreIssueTrustDetail: 'Без реквизитов компании клиентам сложнее доверять бизнесу.',
+      scoreIssueContact: 'Запись и связь',
+      scoreIssueContactDetail: 'Без заметной кнопки WhatsApp клиенту сложнее записаться.',
+      scoreIssueLocal: 'Телефон и часы работы',
+      scoreIssueLocalDetail: 'Если данные не совпадают с Google Maps, клиент может не дозвониться.',
+      scoreSimulateFix: 'Смоделировать',
       scoreUndoFix: 'Отменить',
-      scoreFixed: 'Ошибка устранена',
+      scoreFixed: 'Смоделировано',
       scoreReset: 'Сбросить',
-      scorePointsRestored: 'Потенциал восстановлен',
+      scorePointsRestored: 'Изменение баллов',
       scorePoints: 'баллов',
       scoreOutOf: 'из 100',
 
-      pitch: 'Готовое обращение в WhatsApp',
-      pitchLocked: 'Доступно после экспресс-проверки',
+      pitch: 'Готовый текст для WhatsApp',
+      pitchLocked: 'После проверки сайта',
 
       heroMicro:
         'Найдём ошибки на сайте и покажем, как они могут мешать клиентам связаться с вами и сколько обращений вы можете терять.',
@@ -463,30 +462,29 @@ export default function AppleNordicGlacierPureLanding() {
       next: 'Siguiente',
       placeholder: 'https://tu-clinica-o-salon.es',
 
-      previewLabel: 'DIAGNÓSTICO DEMO',
+      previewLabel: 'ANÁLISIS DE LA WEB',
       previewStatus: 'LISTO PARA ANALIZAR TU WEB',
-      demo: 'EJEMPLO',
+      demo: 'DEMO',
 
-      exampleBusiness: 'Ejemplo: Negocio local en España',
-      scoreLabel: 'EJEMPLO DE ANÁLISIS',
-      revenueScoreTitle: 'Errores y posibles clientes perdidos',
-      revenueScoreNote: 'Ejemplo: cómo los errores pueden afectar a las consultas',
+      exampleBusiness: 'Negocio local · España',
+      revenueScoreTitle: 'Dónde puede perder clientes tu web',
+      revenueScoreNote: 'Revisamos si tus clientes pueden confiar, llamar y reservar fácilmente.',
       scoreIssueTrust: 'Datos de la empresa',
-      scoreIssueTrustDetail: 'Ejemplo: puede que falten datos necesarios de la empresa.',
-      scoreIssueContact: 'Contacto rápido',
-      scoreIssueContactDetail: 'Ejemplo: el cliente no puede reservar o escribir por WhatsApp en 1 clic.',
-      scoreIssueLocal: 'Ficha de Google Maps',
-      scoreIssueLocalDetail: 'Ejemplo: teléfono u horarios desalineados entre la web y los mapas.',
-      scoreSimulateFix: 'Resolver fallo',
+      scoreIssueTrustDetail: 'Sin los datos de la empresa, cuesta más ganarse la confianza.',
+      scoreIssueContact: 'Contacto y reservas',
+      scoreIssueContactDetail: 'Sin un botón visible de WhatsApp, cuesta más reservar.',
+      scoreIssueLocal: 'Teléfono y horario',
+      scoreIssueLocalDetail: 'Si no coinciden con Google Maps, pueden perderse llamadas.',
+      scoreSimulateFix: 'Simular',
       scoreUndoFix: 'Deshacer',
-      scoreFixed: 'Fallo resuelto',
+      scoreFixed: 'Simulado',
       scoreReset: 'Restablecer',
-      scorePointsRestored: 'Potencial recuperado',
+      scorePointsRestored: 'Cambio de puntos',
       scorePoints: 'puntos',
       scoreOutOf: 'de 100',
 
-      pitch: 'Mensaje directo para WhatsApp',
-      pitchLocked: 'Disponible tras el análisis rápido',
+      pitch: 'Texto listo para WhatsApp',
+      pitchLocked: 'Después del análisis',
 
       heroMicro:
         'Encontramos errores en tu web y te mostramos cómo pueden dificultar el contacto y cuántas consultas podrías estar perdiendo.',
@@ -584,30 +582,29 @@ export default function AppleNordicGlacierPureLanding() {
       next: 'Next',
       placeholder: 'https://your-business.es',
 
-      previewLabel: 'DEMO DIAGNOSTICS',
+      previewLabel: 'WEBSITE REVIEW',
       previewStatus: 'READY TO SCAN YOUR WEBSITE',
       demo: 'DEMO',
 
-      exampleBusiness: 'Example: Local Business in Spain',
-      scoreLabel: 'SAMPLE WEBSITE CHECK',
-      revenueScoreTitle: 'Website errors and potential lost customers',
-      revenueScoreNote: 'Interactive demo: shows how many enquiries are lost every month',
+      exampleBusiness: 'Local business · Spain',
+      revenueScoreTitle: 'Where your website may lose customers',
+      revenueScoreNote: 'We check how easily customers can trust, call, and book.',
       scoreIssueTrust: 'Business details',
-      scoreIssueTrustDetail: 'Sample: required business information may be missing from the website.',
-      scoreIssueContact: 'Fast contact channel',
-      scoreIssueContactDetail: 'Demo: customers cannot easily book or start a WhatsApp chat in 1 tap.',
-      scoreIssueLocal: 'Google Maps alignment',
-      scoreIssueLocalDetail: 'Demo: phone numbers or opening hours on the site mismatch Google Maps.',
-      scoreSimulateFix: 'Fix this issue',
+      scoreIssueTrustDetail: 'Missing business details can make customers trust you less.',
+      scoreIssueContact: 'Contact and booking',
+      scoreIssueContactDetail: 'Without a clear WhatsApp button, booking takes more effort.',
+      scoreIssueLocal: 'Phone and opening hours',
+      scoreIssueLocalDetail: 'If they differ from Google Maps, customers may call the wrong number.',
+      scoreSimulateFix: 'Simulate',
       scoreUndoFix: 'Undo fix',
-      scoreFixed: 'Issue resolved',
+      scoreFixed: 'Simulated',
       scoreReset: 'Reset',
-      scorePointsRestored: 'Potential restored',
+      scorePointsRestored: 'Score change',
       scorePoints: 'points',
       scoreOutOf: 'out of 100',
 
-      pitch: 'Ready-to-use WhatsApp message',
-      pitchLocked: 'Available after instant scan',
+      pitch: 'Ready-to-send WhatsApp message',
+      pitchLocked: 'After your website check',
 
       heroMicro:
         'We find website errors and show how they may make it harder for customers to contact you and how many enquiries you could be losing.',
@@ -916,7 +913,6 @@ export default function AppleNordicGlacierPureLanding() {
       </div>
 
       <div className="a2r-score-panel-foot">
-        <span>{t.demo}</span>
         <span>{t.scorePointsRestored}: <strong>+{restoredDemoPoints}</strong></span>
       </div>
 
@@ -1629,10 +1625,6 @@ export default function AppleNordicGlacierPureLanding() {
                           </div>
                         </div>
 
-                        <div className="a2r-preview-score-label">
-                          <span>{t.scoreLabel}</span>
-                          <span className="a2r-demo-pill">{t.demo}</span>
-                        </div>
                       </div>
 
                       <div className="audit-card-depth h-px bg-[#E5EDF2] my-2 sm:my-3" />

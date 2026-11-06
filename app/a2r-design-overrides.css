@@ -528,17 +528,6 @@
   line-height: 1.5;
 }
 
-.a2r-app .a2r-score-panel-foot > span:first-child {
-  border: 1px solid rgba(2,132,199,.12);
-  border-radius: 999px;
-  padding: 3px 6px;
-  color: #075985;
-  background: rgba(255,255,255,.76);
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: .06em;
-}
-
 .a2r-app .a2r-score-panel-foot strong {
   color: #075985;
   font-weight: 800;
