@@ -7,10 +7,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import {
   ArrowRight,
   CheckCircle2,
@@ -1002,7 +1004,7 @@ export default function AppleNordicGlacierPureLanding() {
 
   useEffect(() => {
     if (pageLoading || stage !== 'idle') return;
-    gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
     ScrollTrigger.refresh();
   }, [pageLoading, stage]);
 
@@ -1178,12 +1180,23 @@ export default function AppleNordicGlacierPureLanding() {
   }, [stage]);
 
   useEffect(() => {
-    if (stage === 'report') {
-      const scrollTimer = setTimeout(() => {
-        reportAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 350);
-      return () => clearTimeout(scrollTimer);
-    }
+    if (stage !== 'report') return;
+
+    const startTimer = window.setTimeout(() => {
+      const anchor = reportAnchorRef.current;
+      if (!anchor) return;
+
+      gsap.to(window, {
+        duration: 2.2,
+        ease: 'power2.inOut',
+        scrollTo: { y: anchor, autoKill: true },
+      });
+    }, 350);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      gsap.killTweensOf(window);
+    };
   }, [stage]);
 
   const handleStripeCheckout = async () => {
@@ -1372,8 +1385,8 @@ export default function AppleNordicGlacierPureLanding() {
         @keyframes scan-finding-lift {
           0% {
             opacity: 0;
-            transform: translateY(12px);
-            filter: blur(4px);
+            transform: translateY(16px);
+            filter: blur(6px);
           }
           100% {
             opacity: 1;
@@ -1381,8 +1394,11 @@ export default function AppleNordicGlacierPureLanding() {
             filter: blur(0);
           }
         }
+        .scan-copy-reveal {
+          animation: scan-finding-lift 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
         .scan-finding-reveal {
-          animation: scan-finding-lift 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: scan-finding-lift 0.78s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         @keyframes scan-badge-lift {
@@ -1880,12 +1896,12 @@ export default function AppleNordicGlacierPureLanding() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center justify-between gap-2 overflow-hidden">
-                            <span className={`text-xs sm:text-sm font-bold ${isPassed ? 'text-[#0F2744]' : isCurrent ? 'text-[#0F2744]' : 'text-[#86868B]'}`}>
+                            <span className={`text-xs sm:text-sm font-bold ${isPassed ? 'text-[#0F2744] scan-copy-reveal' : isCurrent ? 'text-[#0F2744]' : 'text-[#86868B]'}`}>
                               {item.title}
                             </span>
 
                             {isPassed ? (
-                              <span key={`badge-${idx}`} className="text-[10px] font-extrabold uppercase tracking-wider text-[#64748B] anim-badge-lift">
+                              <span key={`badge-${idx}`} style={{ animationDelay: '90ms' }} className="text-[10px] font-extrabold uppercase tracking-wider text-[#64748B] anim-badge-lift">
                                 {t.scanVerified}
                               </span>
                             ) : isCurrent ? (
@@ -1897,7 +1913,7 @@ export default function AppleNordicGlacierPureLanding() {
 
                           {isPassed && (
                             <div className="overflow-hidden mt-1.5">
-                              <p className={`scan-finding-reveal text-xs leading-relaxed font-medium ${
+                              <p style={{ animationDelay: '150ms' }} className={`scan-finding-reveal text-xs leading-relaxed font-medium ${
                                 item.type === 'error' ? 'text-rose-700' : item.type === 'warn' ? 'text-amber-800' : 'text-[#64748B]'
                               }`}>
                                 {item.discovered}
@@ -2069,27 +2085,30 @@ export default function AppleNordicGlacierPureLanding() {
       {/* 5. FOOTER */}
       <footer
         suppressHydrationWarning
-        className={`relative z-20 shrink-0 border-t border-black/[0.05] bg-white/70 backdrop-blur-xl px-3 sm:px-8 ${
-          stage === 'idle' ? 'py-1.5 sm:py-3' : 'py-3'
-        } flex items-center opacity-100`}
+        className="relative z-20 shrink-0 overflow-hidden border-t border-[#DCEEF9] bg-white px-4 py-7 opacity-100 sm:px-8 sm:py-9"
       >
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(ellipse_at_50%_0%,rgba(125,211,252,.2),transparent_70%)]" aria-hidden="true" />
         <div
           suppressHydrationWarning
-          className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between text-[8.5px] sm:text-[11px] text-[#64748B] gap-1 sm:gap-3 text-center lg:text-left"
+          className="relative mx-auto flex w-full max-w-6xl flex-col gap-6 text-center sm:text-left lg:flex-row lg:items-end lg:justify-between"
         >
-          <div>
-            <p className="font-medium text-[#0F2744]">{t.footer}</p>
-            <p className="text-[8px] sm:text-[9px] text-[#86868B] mt-0.5 max-w-xl hidden sm:block">
+          <div className="max-w-md">
+            <Link href={`/?lang=${lang}`} className="inline-flex items-center gap-2.5 no-underline">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl text-xs font-extrabold text-white shadow-sm" style={{ background: 'linear-gradient(135deg, #0F2744, #0284C7 60%, #7DD3FC)' }}>A2R</span>
+              <span className="text-sm font-bold tracking-tight text-[#0F2744]">Audit<span className="text-[#0284C7]">2</span>Revenue</span>
+            </Link>
+            <p className="mt-3 text-xs font-semibold text-[#0F2744]">{t.footer}</p>
+            <p className="mt-1 max-w-xl text-[11px] leading-relaxed text-[#64748B]">
               {t.footerDisclaimer}
             </p>
           </div>
 
-          <nav className="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3.5 gap-y-0.5 text-[#64748B]">
-            <a href={`/aviso-legal?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.legalNotice}</a>
-            <a href={`/politica-de-privacidad?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.privacyPolicy}</a>
-            <a href={`/politica-de-cookies?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.cookiePolicy}</a>
-            <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition hover:text-[#0284C7]">{t.termsOfService}</a>
-            <button type="button" onClick={() => setShowCookieModal(true)} className="transition hover:text-[#0284C7]">
+          <nav aria-label="Información legal" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-[#64748B] lg:justify-end">
+            <a href={`/aviso-legal?lang=${lang}`} className="transition-colors hover:text-[#0284C7]">{t.legalNotice}</a>
+            <a href={`/politica-de-privacidad?lang=${lang}`} className="transition-colors hover:text-[#0284C7]">{t.privacyPolicy}</a>
+            <a href={`/politica-de-cookies?lang=${lang}`} className="transition-colors hover:text-[#0284C7]">{t.cookiePolicy}</a>
+            <a href={`/condiciones-de-contratacion?lang=${lang}`} className="transition-colors hover:text-[#0284C7]">{t.termsOfService}</a>
+            <button type="button" onClick={() => setShowCookieModal(true)} className="transition-colors hover:text-[#0284C7]">
               {t.cookieSettings}
             </button>
           </nav>

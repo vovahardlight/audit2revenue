@@ -174,6 +174,9 @@ function BusinessIntelligenceReport() {
       upsellCallBtn: 'Забронировать 15-мин звонок',
       bottomBarTitle: 'Демо-режим • Коммерческий приём платежей отключен',
       bottomBarBtn: 'Написать в WhatsApp ➔',
+      footerNote: 'Проверка сайта и рекомендации по улучшению клиентского пути.',
+      footerLegal: 'Юридическая информация',
+      footerRights: 'Все права защищены.',
       waMessage: `Здравствуйте! Я посмотрел проверку сайта ${targetUrl}. Хочу обсудить найденные ошибки и возможные способы их исправить.`,
     },
     es: {
@@ -187,6 +190,9 @@ function BusinessIntelligenceReport() {
       upsellCallBtn: 'Reservar llamada de 15 min',
       bottomBarTitle: 'Modo demostración técnica • Pagos desactivados en este prototipo',
       bottomBarBtn: 'Contactar por WhatsApp ➔',
+      footerNote: 'Revisión web y recomendaciones para mejorar el recorrido del cliente.',
+      footerLegal: 'Información legal',
+      footerRights: 'Todos los derechos reservados.',
       waMessage: `¡Hola! He revisado el análisis de ${targetUrl}. Quiero hablar sobre los errores encontrados y cómo corregirlos.`,
     },
     en: {
@@ -200,6 +206,9 @@ function BusinessIntelligenceReport() {
       upsellCallBtn: 'Book a 15-min call',
       bottomBarTitle: 'Technical demo mode • Payments disabled in this sandbox',
       bottomBarBtn: 'Contact via WhatsApp ➔',
+      footerNote: 'Website review and recommendations to improve the customer journey.',
+      footerLegal: 'Legal information',
+      footerRights: 'All rights reserved.',
       waMessage: `Hello! I reviewed the website check for ${targetUrl}. I would like to discuss the issues found and how to fix them.`,
     },
   };
@@ -311,6 +320,29 @@ function BusinessIntelligenceReport() {
           callHref="https://calendly.com"
         />
       </main>
+
+      <footer className="relative overflow-hidden border-t border-[#DCEEF9] bg-white px-4 pb-28 pt-8 sm:px-7 sm:pt-10">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(ellipse_at_50%_0%,rgba(125,211,252,.2),transparent_70%)]" aria-hidden="true" />
+        <div className="relative mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-md">
+            <Link href={`/?lang=${lang}`} className="inline-flex items-center gap-2.5 no-underline">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl text-xs font-extrabold text-white shadow-sm" style={{ background: `linear-gradient(135deg, ${C.deep}, ${C.sea} 60%, ${C.ice})` }}>A2R</span>
+              <span className="text-sm font-bold tracking-tight" style={{ color: C.deep }}>Audit<span style={{ color: C.sea }}>2</span>Revenue</span>
+            </Link>
+            <p className="mt-3 max-w-sm text-xs leading-relaxed text-slate-500">{t.footerNote}</p>
+          </div>
+          <div className="flex flex-col gap-3 text-xs sm:items-end">
+            <span className="font-semibold" style={{ color: C.deep }}>{t.footerLegal}</span>
+            <nav aria-label={t.footerLegal} className="flex flex-wrap gap-x-4 gap-y-2 text-slate-500 sm:justify-end">
+              <Link className="transition-colors hover:text-sky-700" href="/aviso-legal">Aviso legal</Link>
+              <Link className="transition-colors hover:text-sky-700" href="/politica-de-privacidad">Privacidad</Link>
+              <Link className="transition-colors hover:text-sky-700" href="/politica-de-cookies">Cookies</Link>
+              <Link className="transition-colors hover:text-sky-700" href="/condiciones-de-contratacion">Condiciones</Link>
+            </nav>
+            <span className="text-[11px] text-slate-400">© {new Date().getFullYear()} Audit2Revenue. {t.footerRights}</span>
+          </div>
+        </div>
+      </footer>
 
       <div className="no-print">
         <AuditStickyBar

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
 import "./a2r-design-overrides.css";
@@ -28,15 +29,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <script
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Script
+          id="a2r-reveal-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `document.documentElement.classList.add('a2r-js');window.setTimeout(function(){var root=document.documentElement;if(!root.classList.contains('a2r-reveals-ready')){root.classList.remove('a2r-js');root.classList.add('a2r-js-fallback')}},10000);`,
           }}
         />
-      </head>
-      <body className="min-h-full flex flex-col">
-        {children}
       </body>
     </html>
   );
