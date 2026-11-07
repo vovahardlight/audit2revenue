@@ -1766,7 +1766,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 max-w-5xl mx-auto w-full items-stretch">
+            <div className="insight-card-stage grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-5 max-w-5xl mx-auto w-full items-stretch">
               {landingCopy.insights.map((item, index) => {
                 const isMobileActive = activeCardIndex === index;
 
@@ -1774,7 +1774,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
                   <article
                     key={item.number}
                     className={`insight-row group rounded-3xl p-4 sm:p-5 flex-col justify-between transition-all duration-300 border bg-white border-[#E2E8F0] hover:border-[#0284C7] hover:shadow-[0_16px_36px_rgba(2,132,199,0.12)] lg:hover:-translate-y-1 ${
-                      isMobileActive ? 'flex' : 'hidden lg:flex'
+                      isMobileActive ? 'flex' : 'flex invisible lg:visible'
                     }`}
                     data-reveal
                   >
